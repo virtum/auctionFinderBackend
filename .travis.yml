@@ -24,7 +24,7 @@ after_success:
   # initially will start to push from master
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-    docker push virtum/auctionfinderBackend;
+    docker push virtum/auctionfinderBackend; 
     fi
 
 
