@@ -17,7 +17,7 @@ script:
   # produces docker images and run integration tests.
   - mvn verify
     # produces quality metrics for sonarqube.com
-  - mvn sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login="$SONAR_TOKEN" -Dsonar.projectKey=com.filocha.auctionfinder
+  - mvn sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login="$SONAR_TOKEN" -Dsonar.projectKey=auctionfinderbackend
 
 after_success:
   # push application image to docker registry
