@@ -17,14 +17,14 @@ script:
   # produces docker images and run integration tests.
   - mvn verify
     # produces quality metrics for sonarqube.com
-  - mvn sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login="$SONAR_TOKEN" -Dsonar.projectKey=auctionfinderBackend
+  - mvn sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login="$SONAR_TOKEN" -Dsonar.projectKey=auctionfinderbackend
 
 after_success:
   # push application image to docker registry
   # initially will start to push from master
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-    docker push virtum/auctionfinderBackend;
+    docker push virtum/auctionfinderbackend;
     fi
 
 
