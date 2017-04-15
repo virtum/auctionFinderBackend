@@ -3,12 +3,6 @@ language: java
 
 sudo: required # for docker
 
-addons:
-  sonarqube:
-    organization: "virtum"
-    token:
-      secure: $SONAR_TOKEN
-
 # The Travis CI environment provides Oracle JDK 7 (default),
 # so we need to force use jdk8 instead.
 jdk:
@@ -23,7 +17,7 @@ script:
   # produces docker images and run integration tests.
   - mvn verify
     # produces quality metrics for sonarqube.com
-  - mvn sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login="$SONAR_TOKEN" -Dsonar.projectKey=auctionfinderbackend
+  - mvn sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login="$SONAR_TOKEN" -Dsonar.projectKey=com.filocha.auctionfinder
 
 after_success:
   # push application image to docker registry
