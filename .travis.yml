@@ -3,6 +3,12 @@ language: java
 
 sudo: required # for docker
 
+addons:
+  sonarqube:
+    organization: "virtum"
+    token:
+      secure: $SONAR_TOKEN
+
 # The Travis CI environment provides Oracle JDK 7 (default),
 # so we need to force use jdk8 instead.
 jdk:
