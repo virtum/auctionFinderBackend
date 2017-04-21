@@ -1,29 +1,33 @@
 package com.filocha;
 
+import com.filocha.messaging.client.ClientBusImpl;
+import com.filocha.messaging.server.ServerBusImpl;
+import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MessagingTests {
 
-    @Autowired
-    JmsClient jsmClient;
-
     @Test
-    public void shouldSendAndReceiveMessage() {
-        String msg = "Hello world!";
-        jsmClient.send(msg);
-        String receivedMsg = jsmClient.receive();
-        System.out.println(receivedMsg);
+    public void shouldSendAndReceiveMessageViaActiveMQ() throws ExecutionException, InterruptedException {
+        BasicConfigurator.configure();
 
-        assertThat(receivedMsg, equalTo(msg));
+        ServerBusImpl serverBus = new ServerBusImpl();
+        serverBus.setConsumerAndProducer("tcp://192.168.99.100:61616");
+        serverBus.addHandler(it -> it + " world", String.class, String.class);
+
+        ClientBusImpl clientBus = new ClientBusImpl();
+        clientBus.setConsumerAndProducer("tcp://192.168.99.100:61616");
+
+        CompletableFuture<String> future = clientBus.sendRequest("hello", String.class);
+        String response = future.get();
+
+        assertThat(response, equalTo("hello world"));
     }
 }
