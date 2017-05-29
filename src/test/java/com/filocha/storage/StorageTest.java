@@ -21,9 +21,9 @@ public class StorageTest {
     public void shouldAddAndFindUser() {
         String email = "test@gmail.com";
         String item = "nokia";
-        storageConfiguration.saveUser(email, item);
+        storageConfiguration.saveSubscription(email, item);
 
-        SubscriberModel user = storageConfiguration.findUser(email);
+        SubscriberModel user = storageConfiguration.findSubscriber(email);
 
         assertThat(user.getEmail(), equalTo(email));
         assertThat(user.getItem(), equalTo(item));
