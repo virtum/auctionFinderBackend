@@ -12,13 +12,13 @@ import javax.annotation.PostConstruct;
 @SpringBootApplication
 public class Program {
 
-    @Value("${dockerPort}")
-    private String dockerPort;
+    @Value("${activeMqHost}")
+    private String activeMqHost;
 
     @PostConstruct
     public void startServerBus() {
         ServerBusImpl serverBus = new ServerBusImpl();
-        serverBus.setConsumerAndProducer(dockerPort);
+        serverBus.setConsumerAndProducer(activeMqHost);
         serverBus.addHandler(it -> {
             ItemFinderResponseMessage response = new ItemFinderResponseMessage();
             response.setResponse(it.getItemName() + " :work");

@@ -15,16 +15,18 @@ import static org.hamcrest.Matchers.equalTo;
 public class StorageTest {
 
     @Autowired
-    private StorageConfiguration storageConfiguration;
+    private SubscriptionServiceImpl storageConfiguration;
 
     @Test
     public void shouldAddAndFindUser() {
-        String userName = "Pawel";
-        storageConfiguration.saveUser(userName);
+        String email = "test@gmail.com";
+        String item = "nokia";
+        storageConfiguration.saveUser(email, item);
 
-        UserModel user = storageConfiguration.findUser(userName);
+        SubscriberModel user = storageConfiguration.findUser(email);
 
-        assertThat(user.getName(), equalTo(userName));
+        assertThat(user.getEmail(), equalTo(email));
+        assertThat(user.getItem(), equalTo(item));
     }
 
 }
