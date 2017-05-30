@@ -30,7 +30,7 @@ public class AuctionFinderImpl implements AuctionFinder {
 
     public AuctionFinderImpl() {
         allegroWebApiService = new ServiceService();
-        allegroWebApiService.setExecutor(Executors.newFixedThreadPool(20));
+        allegroWebApiService.setExecutor(Executors.newFixedThreadPool(400));
         allegro = allegroWebApiService.getServicePort();
     }
 
@@ -65,7 +65,6 @@ public class AuctionFinderImpl implements AuctionFinder {
         CompletableFuture<List<ItemsListType>> result = new CompletableFuture<>();
 
         allegro.doGetItemsListAsync(itemsreq, args -> {
-            System.out.println("asyncHandlerStart");
             try {
                 result.complete(args.get().getItemsList().getItem());
             } catch (InterruptedException e) {
@@ -73,7 +72,6 @@ public class AuctionFinderImpl implements AuctionFinder {
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-            System.out.println("asyncHandlerEnd");
         });
 
         return result;

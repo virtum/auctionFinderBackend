@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -34,12 +34,15 @@ public class AuctionFinderImplTest {
 
     @Ignore
     @Test
-    public void shouldSendMultipleAsyncRequest() {
-        ExecutorService executorService = Executors.newCachedThreadPool();
+    public void shouldSendMultipleAsyncRequest() throws ExecutionException, InterruptedException {
+        List<Future<?>> futures = new ArrayList<>();
 
-        for (int i = 0; i < 10000; i++) {
-            System.out.println(i);
-            executorService.execute(() -> auctionFinder.findAuctions("nokia"));
+        for (int i = 0; i < 150; i++) {
+            futures.add(auctionFinder.findAuctions("nokia"));
+        }
+
+        for (Future<?> future : futures) {
+            future.get();
         }
     }
 
