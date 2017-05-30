@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 @Component
 public class AuctionFinderImpl implements AuctionFinder {
@@ -24,6 +25,16 @@ public class AuctionFinderImpl implements AuctionFinder {
     @Value("${webApiKey}")
     private String webApiKey;
 
+    ServiceService allegroWebApiService;
+    ServicePort allegro;
+
+    public AuctionFinderImpl() {
+        allegroWebApiService = new ServiceService();
+        allegroWebApiService.setExecutor(Executors.newFixedThreadPool(20));
+        allegro = allegroWebApiService.getServicePort();
+    }
+
+    //TODO remove shedule, move login method to finder when exception is thrown during find
     @PostConstruct
     @Scheduled(fixedRate = 60 * 60 * 1000)
     private void login() {
@@ -32,8 +43,7 @@ public class AuctionFinderImpl implements AuctionFinder {
 
     @Override
     public CompletableFuture<List<ItemsListType>> findAuctions(String keyword) {
-        ServiceService allegroWebApiService = new ServiceService();
-        ServicePort allegro = allegroWebApiService.getServicePort();
+
 
         DoGetItemsListRequest itemsreq = new DoGetItemsListRequest();
         itemsreq.setCountryId(1);
@@ -69,10 +79,7 @@ public class AuctionFinderImpl implements AuctionFinder {
         return result;
     }
 
-    private static long getLocalVersion(String webApiKey) {
-        ServiceService allegroWebApiService = new ServiceService();
-        ServicePort allegro = allegroWebApiService.getServicePort();
-
+    private long getLocalVersion(String webApiKey) {
         int countryCode = 1;
 
         DoQueryAllSysStatusRequest params = new DoQueryAllSysStatusRequest();
@@ -83,7 +90,7 @@ public class AuctionFinderImpl implements AuctionFinder {
         return response.getSysCountryStatus().getItem().get(0).getVerKey();
     }
 
-    private static void doLogin(String userLogin, String userPassword, String webApiKey) {
+    private void doLogin(String userLogin, String userPassword, String webApiKey) {
         ServiceService allegroWebApiService = new ServiceService();
 
         ServicePort allegro = allegroWebApiService.getServicePort();
