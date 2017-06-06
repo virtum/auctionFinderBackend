@@ -24,6 +24,7 @@ public class AuctionFinderImplTest {
     @Autowired
     private AuctionFinderImpl auctionFinder;
 
+    //@Ignore
     @Test
     public void shouldFindAnyAuction() throws ExecutionException, InterruptedException {
         CompletableFuture<List<ItemsListType>> auctions = auctionFinder.findAuctions("nokia");
@@ -32,7 +33,7 @@ public class AuctionFinderImplTest {
         assertThat(result.size(), greaterThan(0));
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void shouldSendMultipleAsyncRequest() throws ExecutionException, InterruptedException {
         List<Future<?>> futures = new ArrayList<>();

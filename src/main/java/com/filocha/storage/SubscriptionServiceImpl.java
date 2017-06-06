@@ -6,6 +6,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class SubscriptionServiceImpl {
 
@@ -20,6 +22,11 @@ public class SubscriptionServiceImpl {
     public SubscriberModel findSubscriber(String email) {
         Query query = new Query(Criteria.where("email").is(email));
         return mongoOperations.findOne(query, SubscriberModel.class);
+    }
+
+    public List<SubscriberModel> findAllUserSubscriptions(String email) {
+        Query query = new Query(Criteria.where("email").is(email));
+        return mongoOperations.find(query, SubscriberModel.class);
     }
 
 }

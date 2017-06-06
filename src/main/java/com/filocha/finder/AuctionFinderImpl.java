@@ -38,7 +38,7 @@ public class AuctionFinderImpl implements AuctionFinder {
     @PostConstruct
     @Scheduled(fixedRate = 60 * 60 * 1000)
     private void login() {
-        doLogin(userLogin, userPassword, webApiKey);
+       // doLogin(userLogin, userPassword, webApiKey);
     }
 
     @Override
