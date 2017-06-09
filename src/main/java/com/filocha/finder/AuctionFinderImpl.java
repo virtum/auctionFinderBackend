@@ -69,6 +69,15 @@ public class AuctionFinderImpl implements AuctionFinder {
         return false;
     }
 
+    //temp method
+    public void showList() {
+        for (CompletableFuture<List<ItemsListType>> response : responses) {
+            response.thenAcceptAsync(val -> {
+                System.out.println("val:" + val);
+            });
+        }
+    }
+
     @Override
     public CompletableFuture<List<ItemsListType>> findAuctions(String keyword) {
         DoGetItemsListRequest itemsreq = new DoGetItemsListRequest();
