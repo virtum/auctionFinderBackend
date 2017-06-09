@@ -39,7 +39,7 @@ public class AuctionFinderImpl implements AuctionFinder {
     @PostConstruct
     @Scheduled(fixedRate = 60 * 60 * 1000)
     private void login() {
-        //doLogin(userLogin, userPassword, webApiKey);
+        doLogin(userLogin, userPassword, webApiKey);
     }
 
     public boolean sendPackages(ConcurrentLinkedQueue<SubscriberModel> subscriptions) {
@@ -49,7 +49,7 @@ public class AuctionFinderImpl implements AuctionFinder {
         for (SubscriberModel subscription : subscriptions) {
             if (counter == 100) {
                 //handle with completableFuture when response is back
-                CompletableFuture<List<ItemsListType>> response =  findAuctions(subscription.getItem());
+                CompletableFuture<List<ItemsListType>> response = findAuctions(subscription.getItem());
                 responses.add(response);
                 counter = 0;
                 pack.removeAll(pack);
@@ -61,7 +61,7 @@ public class AuctionFinderImpl implements AuctionFinder {
 
             if (subscriptions.size() == 0) {
                 //handle with completableFuture when response is back
-                CompletableFuture<List<ItemsListType>> response =  findAuctions(subscription.getItem());
+                CompletableFuture<List<ItemsListType>> response = findAuctions(subscription.getItem());
                 responses.add(response);
                 return true;
             }
@@ -72,8 +72,11 @@ public class AuctionFinderImpl implements AuctionFinder {
     //temp method
     public void showList() {
         for (CompletableFuture<List<ItemsListType>> response : responses) {
+//            response.thenAcceptAsync(res -> {
+//                System.out.println(res.get(0));
+//            });
             try {
-                response.get();
+                System.out.println(response.get().get(0));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
