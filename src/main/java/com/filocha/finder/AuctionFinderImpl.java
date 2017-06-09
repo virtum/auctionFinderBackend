@@ -1,9 +1,11 @@
 package com.filocha.finder;
 
+import com.filocha.Packer;
 import com.filocha.storage.SubscriberModel;
 import https.webapi_allegro_pl.service.*;
 import https.webapi_allegro_pl.service_php.ServicePort;
 import https.webapi_allegro_pl.service_php.ServiceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,9 @@ public class AuctionFinderImpl implements AuctionFinder {
     @Value("${webApiKey}")
     private String webApiKey;
 
+    @Autowired
+    private Packer packer;
+
     ServiceService allegroWebApiService;
     ServicePort allegro;
 
@@ -37,9 +42,22 @@ public class AuctionFinderImpl implements AuctionFinder {
 
     //TODO remove shedule, move login method to finder when exception is thrown during find
     @PostConstruct
-    @Scheduled(fixedRate = 60 * 60 * 1000)
+    //@Scheduled(fixedRate = 60 * 60 * 1000)
     private void login() {
         doLogin(userLogin, userPassword, webApiKey);
+
+        ExecutorService receiver = Executors.newSingleThreadExecutor();
+        receiver.execute(() -> {
+            showList();
+        });
+
+        ExecutorService finder = Executors.newSingleThreadExecutor();
+
+        finder.execute(() -> {
+            while (true) {
+                sendPackages(packer.setSubscriptionsPackage());
+            }
+        });
     }
 
     public boolean sendPackages(ConcurrentLinkedQueue<SubscriberModel> subscriptions) {
@@ -72,16 +90,9 @@ public class AuctionFinderImpl implements AuctionFinder {
     //temp method
     public void showList() {
         for (CompletableFuture<List<ItemsListType>> response : responses) {
-//            response.thenAcceptAsync(res -> {
-//                System.out.println(res.get(0));
-//            });
-            try {
-                System.out.println(response.get().get(0));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+            response.thenAcceptAsync(res -> {
+                System.out.println(res.get(0));
+            });
         }
     }
 
