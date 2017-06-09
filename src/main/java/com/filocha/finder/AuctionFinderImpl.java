@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
@@ -38,13 +39,36 @@ public class AuctionFinderImpl implements AuctionFinder {
     @PostConstruct
     @Scheduled(fixedRate = 60 * 60 * 1000)
     private void login() {
-        doLogin(userLogin, userPassword, webApiKey);
+        //doLogin(userLogin, userPassword, webApiKey);
+    }
+
+    public boolean sendPackages(ConcurrentLinkedQueue subscriptionQueue) {
+        ConcurrentLinkedQueue subscriptions = subscriptionQueue;
+
+        int counter = 0;
+        ConcurrentLinkedQueue pack = new ConcurrentLinkedQueue();
+
+        for (Object o : subscriptions) {
+            if (counter == 100) {
+                //invoke find method find
+                counter = 0;
+                pack.removeAll(pack);
+            }
+
+            pack.add(o);
+            subscriptions.remove(o);
+            counter++;
+
+            if (subscriptions.size() == 0) {
+                //invoke find method find
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public CompletableFuture<List<ItemsListType>> findAuctions(String keyword) {
-
-
         DoGetItemsListRequest itemsreq = new DoGetItemsListRequest();
         itemsreq.setCountryId(1);
         itemsreq.setWebapiKey(webApiKey);

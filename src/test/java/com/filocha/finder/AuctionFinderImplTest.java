@@ -11,10 +11,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 
 @RunWith(SpringRunner.class)
@@ -24,7 +26,7 @@ public class AuctionFinderImplTest {
     @Autowired
     private AuctionFinderImpl auctionFinder;
 
-    //@Ignore
+    @Ignore
     @Test
     public void shouldFindAnyAuction() throws ExecutionException, InterruptedException {
         CompletableFuture<List<ItemsListType>> auctions = auctionFinder.findAuctions("nokia");
@@ -33,7 +35,7 @@ public class AuctionFinderImplTest {
         assertThat(result.size(), greaterThan(0));
     }
 
-    //@Ignore
+    @Ignore
     @Test
     public void shouldSendMultipleAsyncRequest() throws ExecutionException, InterruptedException {
         List<Future<?>> futures = new ArrayList<>();
@@ -45,6 +47,18 @@ public class AuctionFinderImplTest {
         for (Future<?> future : futures) {
             future.get();
         }
+    }
+
+    @Test
+    public void should() {
+        ConcurrentLinkedQueue subscriptions = new ConcurrentLinkedQueue();
+        for (int i = 0; i < 1001; i++) {
+            subscriptions.add(i);
+        }
+
+        boolean isEmpty = auctionFinder.sendPackages(subscriptions);
+
+        assertThat(isEmpty, equalTo(true));
     }
 
 
