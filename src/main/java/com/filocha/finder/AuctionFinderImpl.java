@@ -1,5 +1,6 @@
 package com.filocha.finder;
 
+import com.filocha.storage.SubscriberModel;
 import https.webapi_allegro_pl.service.*;
 import https.webapi_allegro_pl.service_php.ServicePort;
 import https.webapi_allegro_pl.service_php.ServiceService;
@@ -43,24 +44,26 @@ public class AuctionFinderImpl implements AuctionFinder {
     }
 
     public boolean sendPackages(ConcurrentLinkedQueue subscriptionQueue) {
-        ConcurrentLinkedQueue subscriptions = subscriptionQueue;
+        ConcurrentLinkedQueue<SubscriberModel> subscriptions = subscriptionQueue;
 
         int counter = 0;
         ConcurrentLinkedQueue pack = new ConcurrentLinkedQueue();
 
-        for (Object o : subscriptions) {
+        for (SubscriberModel subscription : subscriptions) {
             if (counter == 100) {
-                //invoke find method find
+                //handle with completableFuture when response is back
+                findAuctions(subscription.getItem());
                 counter = 0;
                 pack.removeAll(pack);
             }
 
-            pack.add(o);
-            subscriptions.remove(o);
+            pack.add(subscription);
+            subscriptions.remove(subscription);
             counter++;
 
             if (subscriptions.size() == 0) {
-                //invoke find method find
+                //handle with completableFuture when response is back
+                findAuctions(subscription.getItem());
                 return true;
             }
         }
