@@ -1,5 +1,6 @@
 package com.filocha.finder;
 
+import com.filocha.storage.SubscriberModel;
 import https.webapi_allegro_pl.service.ItemsListType;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,5 +49,19 @@ public class AuctionFinderImplTest {
             future.get();
         }
     }
+
+    @Test
+    public void should() {
+        SubscriberModel model = new SubscriberModel("x", "x");
+        ConcurrentLinkedQueue<SubscriberModel> subscriptions = new ConcurrentLinkedQueue();
+        subscriptions.add(model);
+
+        boolean isEmpty = auctionFinder.sendPackages(subscriptions);
+
+        auctionFinder.showList();
+
+        //assertThat(isEmpty, equalTo(true));
+    }
+
 
 }

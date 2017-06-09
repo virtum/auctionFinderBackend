@@ -42,16 +42,15 @@ public class AuctionFinderImpl implements AuctionFinder {
         //doLogin(userLogin, userPassword, webApiKey);
     }
 
-    public boolean sendPackages(ConcurrentLinkedQueue subscriptionQueue) {
-        ConcurrentLinkedQueue<SubscriberModel> subscriptions = subscriptionQueue;
-
+    public boolean sendPackages(ConcurrentLinkedQueue<SubscriberModel> subscriptions) {
         int counter = 0;
         ConcurrentLinkedQueue pack = new ConcurrentLinkedQueue();
 
         for (SubscriberModel subscription : subscriptions) {
             if (counter == 100) {
                 //handle with completableFuture when response is back
-                responses.add(findAuctions(subscription.getItem()));
+                CompletableFuture<List<ItemsListType>> response =  findAuctions(subscription.getItem());
+                responses.add(response);
                 counter = 0;
                 pack.removeAll(pack);
             }
@@ -62,7 +61,8 @@ public class AuctionFinderImpl implements AuctionFinder {
 
             if (subscriptions.size() == 0) {
                 //handle with completableFuture when response is back
-                responses.add(findAuctions(subscription.getItem()));
+                CompletableFuture<List<ItemsListType>> response =  findAuctions(subscription.getItem());
+                responses.add(response);
                 return true;
             }
         }
