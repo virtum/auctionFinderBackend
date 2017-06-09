@@ -10,10 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Component
 public class AuctionFinderImpl implements AuctionFinder {
@@ -29,6 +26,8 @@ public class AuctionFinderImpl implements AuctionFinder {
 
     ServiceService allegroWebApiService;
     ServicePort allegro;
+
+    private CopyOnWriteArrayList<CompletableFuture<List<ItemsListType>>> responses = new CopyOnWriteArrayList<>();
 
     public AuctionFinderImpl() {
         allegroWebApiService = new ServiceService();
@@ -52,7 +51,7 @@ public class AuctionFinderImpl implements AuctionFinder {
         for (SubscriberModel subscription : subscriptions) {
             if (counter == 100) {
                 //handle with completableFuture when response is back
-                findAuctions(subscription.getItem());
+                responses.add(findAuctions(subscription.getItem()));
                 counter = 0;
                 pack.removeAll(pack);
             }
@@ -63,7 +62,7 @@ public class AuctionFinderImpl implements AuctionFinder {
 
             if (subscriptions.size() == 0) {
                 //handle with completableFuture when response is back
-                findAuctions(subscription.getItem());
+                responses.add(findAuctions(subscription.getItem()));
                 return true;
             }
         }
