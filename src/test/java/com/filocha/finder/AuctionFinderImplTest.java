@@ -49,17 +49,4 @@ public class AuctionFinderImplTest {
         }
     }
 
-    @Test
-    public void should() {
-        ConcurrentLinkedQueue subscriptions = new ConcurrentLinkedQueue();
-        for (int i = 0; i < 1001; i++) {
-            subscriptions.add(i);
-        }
-
-        boolean isEmpty = auctionFinder.sendPackages(subscriptions);
-
-        assertThat(isEmpty, equalTo(true));
-    }
-
-
 }
