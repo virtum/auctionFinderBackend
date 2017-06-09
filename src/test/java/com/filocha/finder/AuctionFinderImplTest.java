@@ -36,20 +36,20 @@ public class AuctionFinderImplTest {
         assertThat(result.size(), greaterThan(0));
     }
 
-    @Ignore
     @Test
     public void shouldSendMultipleAsyncRequest() throws ExecutionException, InterruptedException {
-        List<Future<?>> futures = new ArrayList<>();
+        List<Future<List<ItemsListType>>> futures = new ArrayList<>();
 
         for (int i = 0; i < 150; i++) {
             futures.add(auctionFinder.findAuctions("nokia"));
         }
 
-        for (Future<?> future : futures) {
-            future.get();
+        for (Future<List<ItemsListType>> future : futures) {
+            System.out.println(future.get().get(0));
         }
     }
 
+    @Ignore
     @Test
     public void shouldSomething() {
         SubscriberModel model = new SubscriberModel("x", "x");
