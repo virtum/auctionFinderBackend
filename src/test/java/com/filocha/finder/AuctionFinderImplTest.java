@@ -51,7 +51,7 @@ public class AuctionFinderImplTest {
     }
 
     @Test
-    public void should() {
+    public void shouldSomething() {
         SubscriberModel model = new SubscriberModel("x", "x");
         ConcurrentLinkedQueue<SubscriberModel> subscriptions = new ConcurrentLinkedQueue();
         subscriptions.add(model);
@@ -60,7 +60,7 @@ public class AuctionFinderImplTest {
 
         auctionFinder.showList();
 
-        //assertThat(isEmpty, equalTo(true));
+        assertThat(isEmpty, equalTo(true));
     }
 
 

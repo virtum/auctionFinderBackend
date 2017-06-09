@@ -72,9 +72,13 @@ public class AuctionFinderImpl implements AuctionFinder {
     //temp method
     public void showList() {
         for (CompletableFuture<List<ItemsListType>> response : responses) {
-            response.thenAcceptAsync(val -> {
-                System.out.println("val:" + val);
-            });
+            try {
+                response.get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
         }
     }
 
