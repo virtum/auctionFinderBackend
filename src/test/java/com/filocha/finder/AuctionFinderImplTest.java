@@ -1,6 +1,6 @@
 package com.filocha.finder;
 
-import com.filocha.storage.SubscriberModel;
+import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -12,12 +12,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 
 @RunWith(SpringRunner.class)
@@ -29,7 +27,8 @@ public class AuctionFinderImplTest {
 
     @Test
     public void shouldFindAnyAuction() throws ExecutionException, InterruptedException {
-        CompletableFuture<List<ItemsListType>> auctions = auctionFinder.findAuctions("nokia");
+        DoGetItemsListRequest request = auctionFinder.createRequest("nokia");
+        CompletableFuture<List<ItemsListType>> auctions = auctionFinder.findAuctions(request);
         List<ItemsListType> result = auctions.get();
 
         assertThat(result.size(), greaterThan(0));
@@ -41,7 +40,7 @@ public class AuctionFinderImplTest {
         List<Future<List<ItemsListType>>> futures = new ArrayList<>();
 
         for (int i = 0; i < 150; i++) {
-            futures.add(auctionFinder.findAuctions("nokia"));
+            //futures.add(auctionFinder.findAuctions("nokia"));
         }
 
         for (Future<List<ItemsListType>> future : futures) {

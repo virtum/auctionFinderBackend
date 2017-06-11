@@ -1,6 +1,5 @@
 package com.filocha.finder;
 
-import com.filocha.storage.SubscriberModel;
 import https.webapi_allegro_pl.service.*;
 import https.webapi_allegro_pl.service_php.ServicePort;
 import https.webapi_allegro_pl.service_php.ServiceService;
@@ -9,7 +8,10 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 @Component
 public class AuctionFinderImpl implements AuctionFinder {
@@ -43,7 +45,7 @@ public class AuctionFinderImpl implements AuctionFinder {
     }
 
     @Override
-    public CompletableFuture<List<ItemsListType>> findAuctions(String keyword) {
+    public DoGetItemsListRequest createRequest(String keyword) {
         DoGetItemsListRequest itemsreq = new DoGetItemsListRequest();
         itemsreq.setCountryId(1);
         itemsreq.setWebapiKey(webApiKey);
@@ -61,9 +63,15 @@ public class AuctionFinderImpl implements AuctionFinder {
 
         itemsreq.setFilterOptions(filter);
 
+        return itemsreq;
+    }
+
+    @Override
+    public CompletableFuture<List<ItemsListType>> findAuctions(DoGetItemsListRequest request) {
+
         CompletableFuture<List<ItemsListType>> result = new CompletableFuture<>();
 
-        allegro.doGetItemsListAsync(itemsreq, args -> {
+        allegro.doGetItemsListAsync(request, args -> {
             try {
                 result.complete(args.get().getItemsList().getItem());
             } catch (InterruptedException e) {

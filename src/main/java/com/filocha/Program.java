@@ -30,7 +30,9 @@ public class Program {
         ServerBusImpl serverBus = new ServerBusImpl();
         serverBus.setConsumerAndProducer(activeMqHost);
         serverBus.addHandler(it -> {
-            subscriptionService.saveSubscription(it.getEmail(), it.getItem());
+            // TODO move saving subscription to db to another place (use executor to handle with saving)
+            //subscriptionService.saveSubscription(it.getEmail(), it.getItem());
+            subscriptionService.fillQueueWithRequest(it.getItem());
 
             ItemFinderResponseMessage response = new ItemFinderResponseMessage();
             response.setResponse("Subscribed!");
