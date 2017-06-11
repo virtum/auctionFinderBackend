@@ -32,7 +32,7 @@ public class AuctionFinderImpl implements AuctionFinder {
 
     public AuctionFinderImpl() {
         allegroWebApiService = new ServiceService();
-        allegroWebApiService.setExecutor(Executors.newFixedThreadPool(400));
+        //allegroWebApiService.setExecutor(Executors.newFixedThreadPool(400));
         allegro = allegroWebApiService.getServicePort();
     }
 
