@@ -49,19 +49,4 @@ public class AuctionFinderImplTest {
         }
     }
 
-    @Ignore
-    @Test
-    public void shouldSomething() {
-        SubscriberModel model = new SubscriberModel("x", "x");
-        ConcurrentLinkedQueue<SubscriberModel> subscriptions = new ConcurrentLinkedQueue();
-        subscriptions.add(model);
-
-        boolean isEmpty = auctionFinder.sendPackages(subscriptions);
-
-        auctionFinder.showList();
-
-        assertThat(isEmpty, equalTo(true));
-    }
-
-
 }

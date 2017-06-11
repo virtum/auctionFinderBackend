@@ -1,13 +1,10 @@
 package com.filocha.finder;
 
-import com.filocha.Packer;
 import com.filocha.storage.SubscriberModel;
 import https.webapi_allegro_pl.service.*;
 import https.webapi_allegro_pl.service_php.ServicePort;
 import https.webapi_allegro_pl.service_php.ServiceService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -26,9 +23,6 @@ public class AuctionFinderImpl implements AuctionFinder {
     @Value("${webApiKey}")
     private String webApiKey;
 
-    @Autowired
-    private Packer packer;
-
     ServiceService allegroWebApiService;
     ServicePort allegro;
 
@@ -46,18 +40,6 @@ public class AuctionFinderImpl implements AuctionFinder {
     private void login() {
         doLogin(userLogin, userPassword, webApiKey);
 
-        ExecutorService receiver = Executors.newSingleThreadExecutor();
-        receiver.execute(() -> {
-            showList();
-        });
-
-        ExecutorService finder = Executors.newSingleThreadExecutor();
-
-        finder.execute(() -> {
-            while (true) {
-                sendPackages(packer.setSubscriptionsPackage());
-            }
-        });
     }
 
     public boolean sendPackages(ConcurrentLinkedQueue<SubscriberModel> subscriptions) {
@@ -87,14 +69,6 @@ public class AuctionFinderImpl implements AuctionFinder {
         return false;
     }
 
-    //temp method
-    public void showList() {
-        for (CompletableFuture<List<ItemsListType>> response : responses) {
-            response.thenAcceptAsync(res -> {
-                System.out.println(res.get(0));
-            });
-        }
-    }
 
     @Override
     public CompletableFuture<List<ItemsListType>> findAuctions(String keyword) {
