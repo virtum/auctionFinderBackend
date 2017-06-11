@@ -29,9 +29,5 @@ public class SubscriptionServiceImpl {
         return mongoOperations.find(query, SubscriberModel.class);
     }
 
-    public List<SubscriberModel> findAllSubscriptions() {
-        return mongoOperations.findAll(SubscriberModel.class);
-    }
-
 }
 
