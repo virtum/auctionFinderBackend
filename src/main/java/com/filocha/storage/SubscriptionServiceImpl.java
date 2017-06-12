@@ -10,8 +10,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.function.Function;
 
 @Component
 public class SubscriptionServiceImpl {
@@ -61,14 +63,36 @@ public class SubscriptionServiceImpl {
         executor.execute(() -> {
             while (true) {
                 for (CompletableFuture<List<ItemsListType>> response : responses) {
-                    response.thenAcceptAsync(val -> {
-                        System.out.println("Response val: " + val.get(0).getItemTitle());
-                    });
+                    final CompletableFuture<List<ItemsListType>> responseFuture = within(response, Duration.ofSeconds(10));
+                    CompletableFuture<Void> last = responseFuture
+                            .thenAccept(it -> System.out.println("val: " + it))
+                            .exceptionally(throwable -> {
+                                System.out.println("Timeout " + throwable);
+                                return null;
+                            });
                     responses.remove(response);
                 }
             }
         });
     }
+
+    public static <T> CompletableFuture<T> within(CompletableFuture<T> future, Duration duration) {
+        final CompletableFuture<T> timeout = failAfter(duration);
+        return future.applyToEither(timeout, Function.identity());
+    }
+
+    public static <T> CompletableFuture<T> failAfter(Duration duration) {
+        final CompletableFuture<T> promise = new CompletableFuture<>();
+        scheduler.schedule(() -> {
+            final TimeoutException ex = new TimeoutException("Timeout after " + duration);
+            return promise.completeExceptionally(ex);
+        }, duration.toMillis(), TimeUnit.MILLISECONDS);
+        return promise;
+    }
+
+
+    private static final ScheduledExecutorService scheduler =
+            Executors.newScheduledThreadPool(1);
 
     public void saveSubscription(String email, String item) {
         SubscriberModel subscriber = new SubscriberModel(email, item);
