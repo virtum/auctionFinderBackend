@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -34,19 +35,27 @@ public class SubscriptionServiceImpl {
         return requests.poll();
     }
 
-    //@PostConstruct
+    @PostConstruct
     public void sendRequets() {
         // TODO think how many threads do I need
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             while (true) {
-                CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(getRequestFromQueue());
-                responses.add(response);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (requests.size() != 0) {
+                    CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(getRequestFromQueue());
+                    responses.add(response);
+                }
+
             }
         });
     }
 
-    //@PostConstruct
+    @PostConstruct
     public void handleResponses() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -55,6 +64,7 @@ public class SubscriptionServiceImpl {
                     response.thenAcceptAsync(val -> {
                         System.out.println("Response val: " + val.get(0).getItemTitle());
                     });
+                    responses.remove(response);
                 }
             }
         });
