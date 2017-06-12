@@ -27,4 +27,5 @@ public class SubscriptionServiceTest {
 
         assertThat(request.getFilterOptions().getItem().get(0).getFilterValueId().getItem().get(0), equalTo("nokia"));
     }
+
 }
