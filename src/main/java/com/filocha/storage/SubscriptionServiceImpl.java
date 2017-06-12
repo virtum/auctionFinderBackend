@@ -24,6 +24,8 @@ public class SubscriptionServiceImpl {
     @Autowired
     private AuctionFinder auctionFinder;
 
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     //TODO Replace with synchronous queue
     private ConcurrentLinkedQueue<DoGetItemsListRequest> requests = new ConcurrentLinkedQueue<>();
     private CopyOnWriteArrayList<CompletableFuture<List<ItemsListType>>> responses = new CopyOnWriteArrayList<>();
@@ -76,7 +78,6 @@ public class SubscriptionServiceImpl {
         });
     }
 
-
     // TODO http://www.nurkiewicz.com/2014/12/asynchronous-timeouts-with.html - add documentation based on url data
     public static <T> CompletableFuture<T> within(CompletableFuture<T> future, Duration duration) {
         final CompletableFuture<T> timeout = failAfter(duration);
@@ -91,10 +92,6 @@ public class SubscriptionServiceImpl {
         }, duration.toMillis(), TimeUnit.MILLISECONDS);
         return promise;
     }
-
-
-    private static final ScheduledExecutorService scheduler =
-            Executors.newScheduledThreadPool(1);
 
     public void saveSubscription(String email, String item) {
         SubscriberModel subscriber = new SubscriberModel(email, item);
