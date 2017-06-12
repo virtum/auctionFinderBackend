@@ -64,7 +64,7 @@ public class SubscriptionServiceImpl {
             while (true) {
                 for (CompletableFuture<List<ItemsListType>> response : responses) {
                     final CompletableFuture<List<ItemsListType>> responseFuture = within(response, Duration.ofSeconds(10));
-                    CompletableFuture<Void> last = responseFuture
+                    responseFuture
                             .thenAccept(it -> System.out.println("val: " + it))
                             .exceptionally(throwable -> {
                                 System.out.println("Timeout " + throwable);
