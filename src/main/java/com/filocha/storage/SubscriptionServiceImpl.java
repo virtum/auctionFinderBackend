@@ -76,6 +76,8 @@ public class SubscriptionServiceImpl {
         });
     }
 
+
+    // TODO http://www.nurkiewicz.com/2014/12/asynchronous-timeouts-with.html - add documentation based on url data
     public static <T> CompletableFuture<T> within(CompletableFuture<T> future, Duration duration) {
         final CompletableFuture<T> timeout = failAfter(duration);
         return future.applyToEither(timeout, Function.identity());
