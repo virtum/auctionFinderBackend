@@ -15,6 +15,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SpringBootApplication
 public class Program {
@@ -30,8 +32,9 @@ public class Program {
         ServerBusImpl serverBus = new ServerBusImpl();
         serverBus.setConsumerAndProducer(activeMqHost);
         serverBus.addHandler(it -> {
-            // TODO move saving subscription to db to another place (use executor to handle with saving)
-            //subscriptionService.saveSubscription(it.getEmail(), it.getItem());
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> subscriptionService.saveSubscription(it.getEmail(), it.getItem()));
+
             subscriptionService.fillQueueWithRequest(it.getItem());
 
             ItemFinderResponseMessage response = new ItemFinderResponseMessage();
