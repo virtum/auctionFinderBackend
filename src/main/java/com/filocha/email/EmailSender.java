@@ -13,10 +13,10 @@ import java.util.Properties;
 @Component
 public class EmailSender {
 
-    @Value("${spring.mail.username}")
+    @Value("${mailUsername}")
     private String email;
 
-    @Value("${spring.mail.password}")
+    @Value("${mailPassword}")
     private String password;
 
     @Autowired
