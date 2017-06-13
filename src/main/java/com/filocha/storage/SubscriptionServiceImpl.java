@@ -76,6 +76,7 @@ public class SubscriptionServiceImpl {
                                 System.out.println("val: " + it);
 
                                 // TODO send email using user email and url to auction
+                                // to Create url: http://allegro.pl/i{auctionId}.html
                                 emailSender.sendEmail("", "");
                             })
                             .exceptionally(throwable -> {
