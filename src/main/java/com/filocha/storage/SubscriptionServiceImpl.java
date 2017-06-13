@@ -67,9 +67,13 @@ public class SubscriptionServiceImpl {
                 for (CompletableFuture<List<ItemsListType>> response : responses) {
                     final CompletableFuture<List<ItemsListType>> responseFuture = within(response, Duration.ofSeconds(10));
                     responseFuture
-                            .thenAccept(it -> System.out.println("val: " + it))
+                            .thenAccept(it -> {
+                                // TODO after removing found item, add request once again to queue with found item to skip it in next request
+                                System.out.println("val: " + it);
+                            })
                             .exceptionally(throwable -> {
                                 System.out.println("Timeout " + throwable);
+                                // TODO after removing response from list, add same request once again
                                 return null;
                             });
                     responses.remove(response);
