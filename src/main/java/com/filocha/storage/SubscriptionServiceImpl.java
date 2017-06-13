@@ -1,5 +1,6 @@
 package com.filocha.storage;
 
+import com.filocha.email.EmailSender;
 import com.filocha.finder.AuctionFinder;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
@@ -23,6 +24,9 @@ public class SubscriptionServiceImpl {
 
     @Autowired
     private AuctionFinder auctionFinder;
+
+    @Autowired
+    private EmailSender emailSender;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -70,6 +74,7 @@ public class SubscriptionServiceImpl {
                             .thenAccept(it -> {
                                 // TODO after removing found item, add request once again to queue with found item to skip it in next request
                                 System.out.println("val: " + it);
+                                // TODO send email with found item
                             })
                             .exceptionally(throwable -> {
                                 System.out.println("Timeout " + throwable);
