@@ -74,7 +74,9 @@ public class SubscriptionServiceImpl {
                             .thenAccept(it -> {
                                 // TODO after removing found item, add request once again to queue with found item to skip it in next request
                                 System.out.println("val: " + it);
-                                // TODO send email with found item
+
+                                // TODO send email using user email and url to auction
+                                emailSender.sendEmail("", "");
                             })
                             .exceptionally(throwable -> {
                                 System.out.println("Timeout " + throwable);
