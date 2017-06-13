@@ -37,7 +37,6 @@ public class EmailSender {
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
 
-        System.out.println(email + " " + password);
         mailSender.setUsername(email);
         mailSender.setPassword(password);
 

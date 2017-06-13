@@ -77,7 +77,7 @@ public class SubscriptionServiceImpl {
 
                                 // TODO send email using user email and url to auction
                                 // to Create url: http://allegro.pl/i{auctionId}.html
-                                emailSender.sendEmail("", "");
+                                //emailSender.sendEmail("", "");
                             })
                             .exceptionally(throwable -> {
                                 System.out.println("Timeout " + throwable);
