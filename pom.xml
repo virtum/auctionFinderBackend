@@ -38,6 +38,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.spotify</groupId>
             <artifactId>docker-client</artifactId>
             <classifier>shaded</classifier>
@@ -183,7 +187,8 @@
                                 <wsdlOption>
                                     <wsdl>${project.basedir}/src/main/resources/test.wsdl</wsdl>
                                     <bindingFiles>
-                                        <bindingFile>${project.basedir}/src/main/resources/test_binding.xml</bindingFile>
+                                        <bindingFile>${project.basedir}/src/main/resources/test_binding.xml
+                                        </bindingFile>
                                     </bindingFiles>
                                     <extraargs>
                                         <extraarg>-xjc-Xts</extraarg>
