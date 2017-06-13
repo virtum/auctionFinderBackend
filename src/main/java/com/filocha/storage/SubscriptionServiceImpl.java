@@ -2,6 +2,8 @@ package com.filocha.storage;
 
 import com.filocha.email.EmailSender;
 import com.filocha.finder.AuctionFinder;
+import com.filocha.finder.RequestModel;
+import com.filocha.finder.ResponseModel;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,15 +33,20 @@ public class SubscriptionServiceImpl {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     //TODO Replace with synchronous queue
-    private ConcurrentLinkedQueue<DoGetItemsListRequest> requests = new ConcurrentLinkedQueue<>();
-    private CopyOnWriteArrayList<CompletableFuture<List<ItemsListType>>> responses = new CopyOnWriteArrayList<>();
+    private ConcurrentLinkedQueue<RequestModel> requests = new ConcurrentLinkedQueue<>();
+    private CopyOnWriteArrayList<ResponseModel> responses = new CopyOnWriteArrayList<>();
 
-    public void fillQueueWithRequest(String item) {
+    public void fillQueueWithRequest(String item, String userEmail) {
         DoGetItemsListRequest request = auctionFinder.createRequest(item);
-        requests.add(request);
+
+        RequestModel model = new RequestModel();
+        model.setRequest(request);
+        model.setUserEmail(userEmail);
+
+        requests.add(model);
     }
 
-    public DoGetItemsListRequest getRequestFromQueue() {
+    public RequestModel getRequestFromQueue() {
         return requests.poll();
     }
 
@@ -55,8 +62,14 @@ public class SubscriptionServiceImpl {
                     e.printStackTrace();
                 }
                 if (requests.size() != 0) {
-                    CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(getRequestFromQueue());
-                    responses.add(response);
+                    RequestModel requestModel = getRequestFromQueue();
+                    CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(requestModel.getRequest());
+
+                    ResponseModel responseModel = new ResponseModel();
+                    responseModel.setUserEmail(requestModel.getUserEmail());
+                    responseModel.setResponse(response);
+
+                    responses.add(responseModel);
                 }
 
             }
@@ -68,16 +81,21 @@ public class SubscriptionServiceImpl {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             while (true) {
-                for (CompletableFuture<List<ItemsListType>> response : responses) {
-                    final CompletableFuture<List<ItemsListType>> responseFuture = within(response, Duration.ofSeconds(10));
+                for (ResponseModel response : responses) {
+                    final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
                     responseFuture
                             .thenAccept(it -> {
                                 // TODO after removing found item, add request once again to queue with found item to skip it in next request
                                 System.out.println("val: " + it);
 
                                 // TODO send email using user email and url to auction
-                                // to Create url: http://allegro.pl/i{auctionId}.html
-                                //emailSender.sendEmail("", "");
+                                try {
+                                    emailSender.sendEmail(response.getUserEmail(), createAuctionUrlFromAuctionId(response.getResponse().get().get(0).getItemId()));
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                } catch (ExecutionException e) {
+                                    e.printStackTrace();
+                                }
                             })
                             .exceptionally(throwable -> {
                                 System.out.println("Timeout " + throwable);
@@ -88,6 +106,11 @@ public class SubscriptionServiceImpl {
                 }
             }
         });
+    }
+
+    public String createAuctionUrlFromAuctionId(Long auctionId) {
+        String url = "http://allegro.pl/i" + auctionId + ".html";
+        return url;
     }
 
     // TODO http://www.nurkiewicz.com/2014/12/asynchronous-timeouts-with.html - add documentation based on url data

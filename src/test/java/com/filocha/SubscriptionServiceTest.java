@@ -1,8 +1,8 @@
 package com.filocha;
 
 
+import com.filocha.finder.RequestModel;
 import com.filocha.storage.SubscriptionServiceImpl;
-import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +21,11 @@ public class SubscriptionServiceTest {
 
     @Test
     public void shouldCreateRequest() {
-        service.fillQueueWithRequest("nokia");
+        service.fillQueueWithRequest("nokia", "test@mail.com");
 
-        DoGetItemsListRequest request = service.getRequestFromQueue();
+        RequestModel request = service.getRequestFromQueue();
 
-        assertThat(request.getFilterOptions().getItem().get(0).getFilterValueId().getItem().get(0), equalTo("nokia"));
+        assertThat(request.getRequest().getFilterOptions().getItem().get(0).getFilterValueId().getItem().get(0), equalTo("nokia"));
     }
 
 }

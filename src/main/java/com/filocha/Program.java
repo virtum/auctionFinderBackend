@@ -35,7 +35,7 @@ public class Program {
             ExecutorService executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> subscriptionService.saveSubscription(it.getEmail(), it.getItem()));
 
-            subscriptionService.fillQueueWithRequest(it.getItem());
+            subscriptionService.fillQueueWithRequest(it.getItem(), it.getEmail());
 
             ItemFinderResponseMessage response = new ItemFinderResponseMessage();
             response.setResponse("Subscribed!");
