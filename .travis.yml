@@ -12,9 +12,10 @@ cache:
   directories:
   - $HOME/.m2
 
-script:
+before_install:
   - docker rm -f $(docker ps -a -q)
-  - docker rmi -f $(docker images -q)
+
+script:
   - docker-compose --file docker-compose-ci.yml up &
   # produces docker images and run integration tests.
   - mvn verify
