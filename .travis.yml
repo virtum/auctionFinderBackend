@@ -13,6 +13,7 @@ cache:
   - $HOME/.m2
 
 before_install:
+  - docker stop $(docker ps -a -q)
   - docker rm -f $(docker ps -a -q)
 
 script:
