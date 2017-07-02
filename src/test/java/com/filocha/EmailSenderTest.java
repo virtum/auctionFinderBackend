@@ -16,7 +16,7 @@ public class EmailSenderTest {
     @Autowired
     private EmailSender emailSender;
 
-    //@Ignore
+    @Ignore
     @Test
     public void shouldSendEmail() {
         emailSender.sendEmail("pawel.filocha@gmail.com", "test");
