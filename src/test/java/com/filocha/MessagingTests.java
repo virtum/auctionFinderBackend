@@ -3,6 +3,7 @@ package com.filocha;
 import com.filocha.messaging.client.ClientBusImpl;
 import com.filocha.messaging.server.ServerBusImpl;
 import org.apache.log4j.BasicConfigurator;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.CompletableFuture;
@@ -13,6 +14,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class MessagingTests {
 
+    @Ignore
     @Test
     public void shouldSendAndReceiveMessageViaActiveMQ() throws ExecutionException, InterruptedException {
         BasicConfigurator.configure();
