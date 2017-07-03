@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import javax.annotation.PostConstruct;
@@ -50,9 +51,7 @@ public class SubscriptionServiceImpl {
     @PostConstruct
     public void sendRequets() {
         Observable<RequestModel> output = ThrottleGuard.throttle(requests, 1000, 100);
-
-        //TODO subscribeOn or observeOn? Remind
-        output.subscribe(request -> {
+        output.observeOn(Schedulers.computation()).subscribe(request -> {
             RequestModel requestModel = request;
             CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(requestModel.getRequest());
 
@@ -64,25 +63,22 @@ public class SubscriptionServiceImpl {
 
     @PostConstruct
     public void handleResponses() {
-        responses.subscribe(response -> {
+        responses.observeOn(Schedulers.computation()).subscribe(response -> {
             final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
             responseFuture
                     .thenAccept(it -> {
                         // TODO after removing found item, add request once again to queue with found item to skip it in next request
                         System.out.println("val: " + it);
 
-                        // TODO send email using user email and url to auction
-//                        try {
-//                            emailSender.sendEmail(response.getUserEmail(), createAuctionUrlFromAuctionId(response.getResponse().get().get(0).getItemId()));
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        } catch (ExecutionException e) {
-//                            e.printStackTrace();
-//                        }
+                        try {
+                            emailSender.sendEmail(response.getUserEmail(), createAuctionUrlFromAuctionId(response.getResponse().get().get(0).getItemId()));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
                     })
                     .exceptionally(throwable -> {
-                        System.out.println("Timeout " + throwable);
-                        // TODO after removing response from list, add same request once again
                         requests.onNext(response.getRequest());
                         return null;
                     });
