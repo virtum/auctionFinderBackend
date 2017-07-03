@@ -9,20 +9,24 @@ public class ResponseModel {
 
     private CompletableFuture<List<ItemsListType>> response;
     private String userEmail;
+    private RequestModel request;
+
+    public ResponseModel(CompletableFuture<List<ItemsListType>> response, RequestModel request) {
+        this.response = response;
+        this.userEmail = request.getUserEmail();
+        this.request = request;
+    }
 
     public CompletableFuture<List<ItemsListType>> getResponse() {
         return response;
-    }
-
-    public void setResponse(CompletableFuture<List<ItemsListType>> response) {
-        this.response = response;
     }
 
     public String getUserEmail() {
         return userEmail;
     }
 
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
+    public RequestModel getRequest() {
+        return request;
     }
+
 }

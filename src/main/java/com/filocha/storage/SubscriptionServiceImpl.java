@@ -52,13 +52,11 @@ public class SubscriptionServiceImpl {
         Observable<RequestModel> output = ThrottleGuard.throttle(requests, 1000, 100);
 
         //TODO subscribeOn or observeOn? Remind
-        output.subscribe(item -> {
-            RequestModel requestModel = item;
+        output.subscribe(request -> {
+            RequestModel requestModel = request;
             CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(requestModel.getRequest());
 
-            ResponseModel responseModel = new ResponseModel();
-            responseModel.setUserEmail(requestModel.getUserEmail());
-            responseModel.setResponse(response);
+            ResponseModel responseModel = new ResponseModel(response, request);
 
             responses.onNext(responseModel);
         });
@@ -74,20 +72,20 @@ public class SubscriptionServiceImpl {
                         System.out.println("val: " + it);
 
                         // TODO send email using user email and url to auction
-                        try {
-                            emailSender.sendEmail(response.getUserEmail(), createAuctionUrlFromAuctionId(response.getResponse().get().get(0).getItemId()));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        }
+//                        try {
+//                            emailSender.sendEmail(response.getUserEmail(), createAuctionUrlFromAuctionId(response.getResponse().get().get(0).getItemId()));
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        } catch (ExecutionException e) {
+//                            e.printStackTrace();
+//                        }
                     })
                     .exceptionally(throwable -> {
                         System.out.println("Timeout " + throwable);
                         // TODO after removing response from list, add same request once again
+                        requests.onNext(response.getRequest());
                         return null;
                     });
-            //responses.remove(response);
         });
     }
 
