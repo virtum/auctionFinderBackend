@@ -50,8 +50,7 @@ public class SubscriptionServiceImpl {
 
     @PostConstruct
     public void sendRequets() {
-        PublishSubject<RequestModel> reactiveRequests = PublishSubject.create();
-        Observable<RequestModel> output = ThrottleGuard.throttle(reactiveRequests, 1000, 100);
+        Observable<RequestModel> output = ThrottleGuard.throttle(requests, 1000, 100);
 
         //TODO subscribeOn or observeOn? Remind
         output.subscribe(item -> {
