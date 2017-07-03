@@ -36,8 +36,7 @@ public class SubscriptionServiceImpl {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     private PublishSubject<RequestModel> requests = PublishSubject.create();
-    //private Queue<RequestModel> requests = new ConcurrentLinkedQueue<>();
-    private List<ResponseModel> responses = new CopyOnWriteArrayList<>();
+    private PublishSubject<ResponseModel> responses = PublishSubject.create();
 
     public void fillQueueWithRequest(String item, String userEmail) {
         DoGetItemsListRequest request = auctionFinder.createRequest(item);
@@ -61,39 +60,34 @@ public class SubscriptionServiceImpl {
             responseModel.setUserEmail(requestModel.getUserEmail());
             responseModel.setResponse(response);
 
-            responses.add(responseModel);
+            responses.onNext(responseModel);
         });
     }
 
     @PostConstruct
     public void handleResponses() {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            while (true) {
-                for (ResponseModel response : responses) {
-                    final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
-                    responseFuture
-                            .thenAccept(it -> {
-                                // TODO after removing found item, add request once again to queue with found item to skip it in next request
-                                System.out.println("val: " + it);
+        responses.subscribe(response -> {
+            final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
+            responseFuture
+                    .thenAccept(it -> {
+                        // TODO after removing found item, add request once again to queue with found item to skip it in next request
+                        System.out.println("val: " + it);
 
-                                // TODO send email using user email and url to auction
-                                try {
-                                    emailSender.sendEmail(response.getUserEmail(), createAuctionUrlFromAuctionId(response.getResponse().get().get(0).getItemId()));
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                } catch (ExecutionException e) {
-                                    e.printStackTrace();
-                                }
-                            })
-                            .exceptionally(throwable -> {
-                                System.out.println("Timeout " + throwable);
-                                // TODO after removing response from list, add same request once again
-                                return null;
-                            });
-                    responses.remove(response);
-                }
-            }
+                        // TODO send email using user email and url to auction
+                        try {
+                            emailSender.sendEmail(response.getUserEmail(), createAuctionUrlFromAuctionId(response.getResponse().get().get(0).getItemId()));
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    })
+                    .exceptionally(throwable -> {
+                        System.out.println("Timeout " + throwable);
+                        // TODO after removing response from list, add same request once again
+                        return null;
+                    });
+            //responses.remove(response);
         });
     }
 
