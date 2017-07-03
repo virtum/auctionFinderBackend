@@ -9,6 +9,8 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 public class EmailSender {
@@ -23,11 +25,14 @@ public class EmailSender {
     public JavaMailSender emailSender;
 
     public void sendEmail(String userEmail, String auctionUrl) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(userEmail);
-        message.setSubject("test");
-        message.setText(auctionUrl);
-        emailSender.send(message);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(userEmail);
+            message.setSubject("test");
+            message.setText(auctionUrl);
+            emailSender.send(message);
+        });
     }
 
 

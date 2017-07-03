@@ -85,7 +85,7 @@ public class SubscriptionServiceImpl {
         });
     }
 
-    public String createAuctionUrlFromAuctionId(Long auctionId) {
+    private String createAuctionUrlFromAuctionId(Long auctionId) {
         String url = "http://allegro.pl/i" + auctionId + ".html";
         return url;
     }
