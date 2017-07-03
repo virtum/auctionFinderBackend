@@ -1,5 +1,6 @@
 package com.filocha.throttle;
 
+import com.filocha.finder.RequestModel;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import rx.Observable;
@@ -14,39 +15,50 @@ public class ThrottleGuardTest {
     @Test
     public void shouldNotAddNewItemAboveLimit() {
         ThrottleGuard guard = new ThrottleGuard();
-        PublishSubject<Integer> input = PublishSubject.create();
+        PublishSubject<RequestModel> input = PublishSubject.create();
 
-        Observable<Integer> output = guard.throttle(input, 1000, 2);
+        Observable<RequestModel> output = guard.throttle(input, 1000, 2);
 
-        ReplaySubject<Integer> listener = ReplaySubject.create();
+        ReplaySubject<RequestModel> listener = ReplaySubject.create();
         output.subscribe(listener);
 
-        input.onNext(1);
-        input.onNext(2);
-        input.onNext(3);
+        RequestModel model1 = new RequestModel(null, "test1");
+        RequestModel model2 = new RequestModel(null, "test2");
+        RequestModel model3 = new RequestModel(null, "test3");
 
-        List<Integer> results = listener.buffer(100, TimeUnit.MILLISECONDS).toBlocking().first();
+        input.onNext(model1);
+        input.onNext(model2);
+        input.onNext(model3);
 
-        Assertions.assertThat(results).containsExactly(1, 2);
+        List<RequestModel> results = listener.buffer(100, TimeUnit.MILLISECONDS).toBlocking().first();
+
+        Assertions.assertThat(results).containsExactly(model1, model2);
     }
 
     @Test
     public void shouldDelayNextElementsIfLimitIsExceeded() {
         ThrottleGuard guard = new ThrottleGuard();
-        PublishSubject<Integer> input = PublishSubject.create();
+        PublishSubject<RequestModel> input = PublishSubject.create();
 
-        Observable<Integer> output = guard.throttle(input, 1000, 2);
+        Observable<RequestModel> output = guard.throttle(input, 1000, 2);
 
-        ReplaySubject<Integer> listener = ReplaySubject.create();
+        ReplaySubject<RequestModel> listener = ReplaySubject.create();
         output.subscribe(listener);
 
-        input.onNext(1);
-        input.onNext(2);
-        input.onNext(3);
-        input.onNext(4);
-        input.onNext(5);
+        RequestModel model1 = new RequestModel(null, "test1");
+        RequestModel model2 = new RequestModel(null, "test2");
+        RequestModel model3 = new RequestModel(null, "test3");
+        RequestModel model4 = new RequestModel(null, "test4");
+        RequestModel model5 = new RequestModel(null, "test5");
 
-        List<Integer> results = listener.buffer(1100, TimeUnit.MILLISECONDS).toBlocking().first();
-        Assertions.assertThat(results).containsExactly(1, 2, 3, 4);
+        input.onNext(model1);
+        input.onNext(model2);
+        input.onNext(model3);
+        input.onNext(model4);
+        input.onNext(model5);
+
+        List<RequestModel> results = listener.buffer(1100, TimeUnit.MILLISECONDS).toBlocking().first();
+
+        Assertions.assertThat(results).containsExactly(model1, model2, model3, model4);
     }
 }

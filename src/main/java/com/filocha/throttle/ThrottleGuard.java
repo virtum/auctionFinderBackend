@@ -1,5 +1,6 @@
 package com.filocha.throttle;
 
+import com.filocha.finder.RequestModel;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -10,23 +11,23 @@ import java.util.concurrent.TimeUnit;
 
 public class ThrottleGuard {
 
-    public static Observable<Integer> throttle(Observable<Integer> input, long delay, int maxOfItems) {
+    public static Observable<RequestModel> throttle(Observable<RequestModel> input, long delay, int maxOfItems) {
         PublishSubject<Void> tripod = PublishSubject.create();
-        PublishSubject<TempMock> mergedSubject = PublishSubject.create();
-        List<TempRequest> requests = new ArrayList<>();
-        PublishSubject<Integer> output = PublishSubject.create();
+        PublishSubject<RequestWithFlag> mergedSubject = PublishSubject.create();
+        List<RequestWithTimestamp> requests = new ArrayList<>();
+        PublishSubject<RequestModel> output = PublishSubject.create();
 
         mergedSubject.subscribe(item -> {
             if (item.isFlag()) {
                 if (requests.size() < maxOfItems) {
-                    TempRequest request = new TempRequest(item.getValue(), new Date());
+                    RequestWithTimestamp request = new RequestWithTimestamp(item.getRequest(), new Date());
 
                     requests.add(request);
-                    output.onNext(item.getValue());
+                    output.onNext(item.getRequest());
 
                     tripod.onNext(null);
                 } else {
-                    TempMock mock = new TempMock(item.getValue(), false);
+                    RequestWithFlag mock = new RequestWithFlag(item.getRequest(), false);
 
                     mergedSubject.onNext(mock);
                 }
@@ -35,17 +36,17 @@ public class ThrottleGuard {
             }
         }, output::onError, output::onCompleted);
 
-        Observable<Integer> zip = Observable.zip(input, tripod, (sub1, sub2) -> sub1);
+        Observable<RequestModel> zip = Observable.zip(input, tripod, (sub1, sub2) -> sub1);
 
-        zip.map(item -> new TempMock(item, true)).subscribe(mergedSubject);
+        zip.map(item -> new RequestWithFlag(item, true)).subscribe(mergedSubject);
 
         tripod.onNext(null);
 
         return output;
     }
 
-    private static void removeOldestItemFromList(TempMock mock, long delay, List<TempRequest> requests, PublishSubject<TempMock> mergedSubject) {
-        TempRequest temp = requests.get(0);
+    private static void removeOldestItemFromList(RequestWithFlag mock, long delay, List<RequestWithTimestamp> requests, PublishSubject<RequestWithFlag> mergedSubject) {
+        RequestWithTimestamp temp = requests.get(0);
         requests.remove(0);
 
         long delayTime = (temp.getCreationDate().getTime() + delay) - new Date().getTime();
@@ -57,24 +58,24 @@ public class ThrottleGuard {
         Observable
                 .timer(delayTime, TimeUnit.MILLISECONDS)
                 .subscribe(it -> {
-                    TempMock mock1 = new TempMock(mock.getValue(), true);
+                    RequestWithFlag mock1 = new RequestWithFlag(mock.getRequest(), true);
 
                     mergedSubject.onNext(mock1);
                 });
     }
 }
 
-class TempMock {
-    private int value;
+class RequestWithFlag {
+    private RequestModel request;
     private boolean flag;
 
-    public TempMock(int value, boolean flag) {
-        this.value = value;
+    public RequestWithFlag(RequestModel value, boolean flag) {
+        this.request = value;
         this.flag = flag;
     }
 
-    public int getValue() {
-        return value;
+    public RequestModel getRequest() {
+        return request;
     }
 
     public boolean isFlag() {
@@ -82,11 +83,11 @@ class TempMock {
     }
 }
 
-class TempRequest {
-    private int request;
+class RequestWithTimestamp {
+    private RequestModel request;
     private Date creationDate;
 
-    public TempRequest(int request, Date creationDate) {
+    public RequestWithTimestamp(RequestModel request, Date creationDate) {
         this.request = request;
         this.creationDate = creationDate;
     }

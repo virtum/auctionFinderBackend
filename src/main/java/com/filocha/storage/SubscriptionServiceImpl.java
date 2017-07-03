@@ -4,6 +4,7 @@ import com.filocha.email.EmailSender;
 import com.filocha.finder.AuctionFinder;
 import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
+import com.filocha.throttle.ThrottleGuard;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
@@ -32,47 +35,34 @@ public class SubscriptionServiceImpl {
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    //TODO Replace with synchronous queue
-    private ConcurrentLinkedQueue<RequestModel> requests = new ConcurrentLinkedQueue<>();
-    private CopyOnWriteArrayList<ResponseModel> responses = new CopyOnWriteArrayList<>();
+    private PublishSubject<RequestModel> requests = PublishSubject.create();
+    //private Queue<RequestModel> requests = new ConcurrentLinkedQueue<>();
+    private List<ResponseModel> responses = new CopyOnWriteArrayList<>();
 
     public void fillQueueWithRequest(String item, String userEmail) {
         DoGetItemsListRequest request = auctionFinder.createRequest(item);
 
-        RequestModel model = new RequestModel();
-        model.setRequest(request);
-        model.setUserEmail(userEmail);
+        RequestModel model = new RequestModel(request, userEmail);
 
-        requests.add(model);
+        requests.onNext(model);
     }
 
-    public RequestModel getRequestFromQueue() {
-        return requests.poll();
-    }
 
     @PostConstruct
     public void sendRequets() {
-        // TODO think how many threads do I need
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if (requests.size() != 0) {
-                    RequestModel requestModel = getRequestFromQueue();
-                    CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(requestModel.getRequest());
+        PublishSubject<RequestModel> reactiveRequests = PublishSubject.create();
+        Observable<RequestModel> output = ThrottleGuard.throttle(reactiveRequests, 1000, 100);
 
-                    ResponseModel responseModel = new ResponseModel();
-                    responseModel.setUserEmail(requestModel.getUserEmail());
-                    responseModel.setResponse(response);
+        //TODO subscribeOn or observeOn? Remind
+        output.subscribe(item -> {
+            RequestModel requestModel = item;
+            CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(requestModel.getRequest());
 
-                    responses.add(responseModel);
-                }
+            ResponseModel responseModel = new ResponseModel();
+            responseModel.setUserEmail(requestModel.getUserEmail());
+            responseModel.setResponse(response);
 
-            }
+            responses.add(responseModel);
         });
     }
 

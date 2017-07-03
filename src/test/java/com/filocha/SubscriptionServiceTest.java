@@ -19,13 +19,13 @@ public class SubscriptionServiceTest {
     @Autowired
     private SubscriptionServiceImpl service;
 
-    @Test
-    public void shouldCreateRequest() {
-        service.fillQueueWithRequest("nokia", "test@mail.com");
-
-        RequestModel request = service.getRequestFromQueue();
-
-        assertThat(request.getRequest().getFilterOptions().getItem().get(0).getFilterValueId().getItem().get(0), equalTo("nokia"));
-    }
+//    @Test
+//    public void shouldCreateRequest() {
+//        service.fillQueueWithRequest("nokia", "test@mail.com");
+//
+//        RequestModel request = service.getRequestFromQueue();
+//
+//        assertThat(request.getRequest().getFilterOptions().getItem().get(0).getFilterValueId().getItem().get(0), equalTo("nokia"));
+//    }
 
 }
