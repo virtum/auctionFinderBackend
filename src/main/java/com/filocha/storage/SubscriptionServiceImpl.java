@@ -18,7 +18,9 @@ import rx.subjects.PublishSubject;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.Function;
 
@@ -35,9 +37,9 @@ public class SubscriptionServiceImpl {
     private EmailSender emailSender;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
     private PublishSubject<RequestModel> requests = PublishSubject.create();
     private PublishSubject<ResponseModel> responses = PublishSubject.create();
+    private Map<String, List<Long>> userAuctions = new ConcurrentHashMap<>();
 
     public void fillQueueWithRequest(String item, String userEmail) {
         DoGetItemsListRequest request = auctionFinder.createRequest(item);
@@ -70,7 +72,10 @@ public class SubscriptionServiceImpl {
                         // TODO after removing found item, add request once again to queue with found item to skip it in next request
                         System.out.println("val: " + it);
 
-                        emailSender.sendEmail(response);
+                        List<Long> urls = saveAuctionId(response);
+                        if (urls.size() > 0) {
+                            emailSender.sendEmail(response.getUserEmail(), urls);
+                        }
                     })
                     .exceptionally(throwable -> {
                         requests.onNext(response.getRequest());
@@ -79,8 +84,39 @@ public class SubscriptionServiceImpl {
         });
     }
 
-    private void saveAuctionId(String auctionId) {
+    private List<Long> saveAuctionId(ResponseModel response) {
+        try {
+            List<Long> auctionsId = prepareAuctionsIdList(response);
+            String userEmail = response.getUserEmail();
+            if (userAuctions.containsKey(userEmail)) {
+                List<Long> userAuctionsId = userAuctions.get(userEmail);
 
+                for (Long auction : userAuctionsId) {
+                    if (auctionsId.contains(auction)) {
+                        auctionsId.remove(auction);
+                    }
+                }
+                userAuctionsId.addAll(auctionsId);
+                return auctionsId;
+            } else {
+                userAuctions.put(response.getUserEmail(), auctionsId);
+                return auctionsId;
+            }
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private List<Long> prepareAuctionsIdList(ResponseModel response) throws ExecutionException, InterruptedException {
+        List<Long> auctionsId = new ArrayList<>();
+
+        for (ItemsListType auctions : response.getResponse().get()) {
+            auctionsId.add(auctions.getItemId());
+        }
+        return auctionsId;
     }
 
     private void checkAuctionsDuplicates(List<ItemsListType> auctions) {

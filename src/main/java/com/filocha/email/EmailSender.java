@@ -1,7 +1,5 @@
 package com.filocha.email;
 
-import com.filocha.finder.ResponseModel;
-import https.webapi_allegro_pl.service.ItemsListType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,8 +8,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,29 +25,21 @@ public class EmailSender {
     @Autowired
     public JavaMailSender emailSender;
 
-    public void sendEmail(ResponseModel response) {
+    public void sendEmail(String userEmail, List<Long> urls) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(response.getUserEmail());
+            message.setTo(userEmail);
             message.setSubject("test");
-            message.setText(prepareTestMessage(response));
+            message.setText(prepareTestMessage(urls));
             emailSender.send(message);
         });
     }
 
-    private String prepareTestMessage(ResponseModel response) {
+    private String prepareTestMessage(List<Long> urls) {
         String auctions = "";
-        try {
-            for (ItemsListType auction : response.getResponse().get()) {
-                auctions += "http://allegro.pl/i" + auction.getItemId() + ".html\n";
-            }
-        } catch (InterruptedException e) {
-            // TODO add logger
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            // TODO add logger
-            e.printStackTrace();
+        for (Long url : urls) {
+            auctions += "http://allegro.pl/i" + url + ".html\n";
         }
         return auctions;
     }
