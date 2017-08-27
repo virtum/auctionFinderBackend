@@ -19,7 +19,7 @@ public class EmailSenderTest {
     @Ignore
     @Test
     public void shouldSendEmail() {
-        emailSender.sendEmail("pawel.filocha@gmail.com", "test");
+        //emailSender.sendEmail("pawel.filocha@gmail.com", "test");
 
     }
 }

@@ -70,14 +70,7 @@ public class SubscriptionServiceImpl {
                         // TODO after removing found item, add request once again to queue with found item to skip it in next request
                         System.out.println("val: " + it);
 
-                        try {
-                            //emailSender.sendEmail(response.getUserEmail(), createAuctionUrlFromAuctionId(response.getResponse().get().get(0).getItemId()));
-                            sendEmail(response);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        }
+                        emailSender.sendEmail(response.getUserEmail(), response);
                     })
                     .exceptionally(throwable -> {
                         requests.onNext(response.getRequest());
@@ -94,14 +87,6 @@ public class SubscriptionServiceImpl {
         for (ItemsListType auction : auctions) {
 
         }
-    }
-
-    private void sendEmail(ResponseModel response) throws ExecutionException, InterruptedException {
-        String auctions = "";
-        for (ItemsListType auction : response.getResponse().get()) {
-            auctions += "http://allegro.pl/i" + auction.getItemId() + ".html\n";
-        }
-        emailSender.sendEmail(response.getUserEmail(), auctions);
     }
 
     // TODO http://www.nurkiewicz.com/2014/12/asynchronous-timeouts-with.html - add documentation based on url data
