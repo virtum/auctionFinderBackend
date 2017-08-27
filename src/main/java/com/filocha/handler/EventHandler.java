@@ -32,8 +32,8 @@ public class EventHandler {
         serverBus.setConsumerAndProducer(activeMqHost);
 
         serverBus.addHandler(it -> {
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            executor.execute(() -> subscriptionService.saveSubscription(it.getEmail(), it.getItem()));
+            //ExecutorService executor = Executors.newSingleThreadExecutor();
+            //executor.execute(() -> subscriptionService.saveSubscription(it.getEmail(), it.getItem()));
 
             subscriptionService.fillQueueWithRequest(it.getItem(), it.getEmail());
 

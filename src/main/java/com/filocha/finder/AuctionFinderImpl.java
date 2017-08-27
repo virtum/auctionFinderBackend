@@ -49,7 +49,8 @@ public class AuctionFinderImpl implements AuctionFinder {
         DoGetItemsListRequest itemsreq = new DoGetItemsListRequest();
         itemsreq.setCountryId(1);
         itemsreq.setWebapiKey(webApiKey);
-        itemsreq.setResultSize(8);
+        //itemsreq.setResultSize(10);
+
 
         ArrayOfFilteroptionstype filter = new ArrayOfFilteroptionstype();
         FilterOptionsType fotcat = new FilterOptionsType();

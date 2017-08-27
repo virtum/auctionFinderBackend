@@ -71,7 +71,8 @@ public class SubscriptionServiceImpl {
                         System.out.println("val: " + it);
 
                         try {
-                            emailSender.sendEmail(response.getUserEmail(), createAuctionUrlFromAuctionId(response.getResponse().get().get(0).getItemId()));
+                            //emailSender.sendEmail(response.getUserEmail(), createAuctionUrlFromAuctionId(response.getResponse().get().get(0).getItemId()));
+                            sendEmail(response);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } catch (ExecutionException e) {
@@ -85,9 +86,22 @@ public class SubscriptionServiceImpl {
         });
     }
 
-    private String createAuctionUrlFromAuctionId(Long auctionId) {
-        String url = "http://allegro.pl/i" + auctionId + ".html";
-        return url;
+    private void saveAuctionId(String auctionId) {
+
+    }
+
+    private void checkAuctionsDuplicates(List<ItemsListType> auctions) {
+        for (ItemsListType auction : auctions) {
+
+        }
+    }
+
+    private void sendEmail(ResponseModel response) throws ExecutionException, InterruptedException {
+        String auctions = "";
+        for (ItemsListType auction : response.getResponse().get()) {
+            auctions += "http://allegro.pl/i" + auction.getItemId() + ".html\n";
+        }
+        emailSender.sendEmail(response.getUserEmail(), auctions);
     }
 
     // TODO http://www.nurkiewicz.com/2014/12/asynchronous-timeouts-with.html - add documentation based on url data
