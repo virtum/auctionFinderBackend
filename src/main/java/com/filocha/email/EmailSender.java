@@ -27,11 +27,11 @@ public class EmailSender {
     @Autowired
     public JavaMailSender emailSender;
 
-    public void sendEmail(String userEmail, ResponseModel response) {
+    public void sendEmail(ResponseModel response) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(userEmail);
+            message.setTo(response.getUserEmail());
             message.setSubject("test");
             message.setText(prepareTestMessage(response));
             emailSender.send(message);

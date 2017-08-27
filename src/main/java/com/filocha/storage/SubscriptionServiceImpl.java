@@ -70,7 +70,7 @@ public class SubscriptionServiceImpl {
                         // TODO after removing found item, add request once again to queue with found item to skip it in next request
                         System.out.println("val: " + it);
 
-                        emailSender.sendEmail(response.getUserEmail(), response);
+                        emailSender.sendEmail(response);
                     })
                     .exceptionally(throwable -> {
                         requests.onNext(response.getRequest());
