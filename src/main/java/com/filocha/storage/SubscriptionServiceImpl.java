@@ -54,8 +54,7 @@ public class SubscriptionServiceImpl {
     public void sendRequets() {
         Observable<RequestModel> output = ThrottleGuard.throttle(requests, 1000, 100);
         output.observeOn(Schedulers.computation()).subscribe(request -> {
-            RequestModel requestModel = request;
-            CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(requestModel.getRequest());
+            CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
 
             ResponseModel responseModel = new ResponseModel(response, request);
 
