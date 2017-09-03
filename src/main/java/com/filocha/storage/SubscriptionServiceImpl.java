@@ -69,13 +69,11 @@ public class SubscriptionServiceImpl {
             final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
             responseFuture
                     .thenAccept(it -> {
-                        // TODO after removing found item, add request once again to queue with found item to skip it in next request
-                        System.out.println("val: " + it);
-
                         List<Long> urls = saveAuctionId(response);
                         if (urls.size() > 0) {
                             emailSender.sendEmail(response.getUserEmail(), urls);
                         }
+                        requests.onNext(response.getRequest());
                     })
                     .exceptionally(throwable -> {
                         requests.onNext(response.getRequest());
@@ -91,20 +89,18 @@ public class SubscriptionServiceImpl {
             if (userAuctions.containsKey(userEmail)) {
                 List<Long> userAuctionsId = userAuctions.get(userEmail);
 
-                for (Long auction : userAuctionsId) {
-                    if (auctionsId.contains(auction)) {
-                        auctionsId.remove(auction);
+                auctionsId.forEach(i -> {
+                    if (auctionsId.contains(i)) {
+                        auctionsId.remove(i);
                     }
-                }
+                });
                 userAuctionsId.addAll(auctionsId);
                 return auctionsId;
             } else {
                 userAuctions.put(response.getUserEmail(), auctionsId);
                 return auctionsId;
             }
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
         return null;
@@ -117,12 +113,6 @@ public class SubscriptionServiceImpl {
             auctionsId.add(auctions.getItemId());
         }
         return auctionsId;
-    }
-
-    private void checkAuctionsDuplicates(List<ItemsListType> auctions) {
-        for (ItemsListType auction : auctions) {
-
-        }
     }
 
     // TODO http://www.nurkiewicz.com/2014/12/asynchronous-timeouts-with.html - add documentation based on url data
