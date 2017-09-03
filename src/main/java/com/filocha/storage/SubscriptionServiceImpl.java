@@ -39,7 +39,7 @@ public class SubscriptionServiceImpl {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private PublishSubject<RequestModel> requests = PublishSubject.create();
     private PublishSubject<ResponseModel> responses = PublishSubject.create();
-    private Map<String, List<Long>> userAuctions = new ConcurrentHashMap<>();
+    public Map<String, List<Long>> userAuctions = new ConcurrentHashMap<>();
 
     public void fillQueueWithRequest(String item, String userEmail) {
         DoGetItemsListRequest request = auctionFinder.createRequest(item);
@@ -70,6 +70,7 @@ public class SubscriptionServiceImpl {
                     .thenAccept(it -> {
                         List<Long> urls = saveAuctionId(response);
                         if (urls.size() > 0) {
+                            updateUserUrls(response.getUserEmail(), urls);
                             emailSender.sendEmail(response.getUserEmail(), urls);
                         }
                         requests.onNext(response.getRequest());
@@ -88,11 +89,11 @@ public class SubscriptionServiceImpl {
             if (userAuctions.containsKey(userEmail)) {
                 List<Long> userAuctionsId = userAuctions.get(userEmail);
 
-                auctionsId.forEach(i -> {
-                    if (auctionsId.contains(i)) {
-                        auctionsId.remove(i);
+                for (Long auction : userAuctionsId) {
+                    if (auctionsId.contains(auction)) {
+                        auctionsId.remove(auction);
                     }
-                });
+                }
                 userAuctionsId.addAll(auctionsId);
                 return auctionsId;
             } else {
@@ -130,7 +131,22 @@ public class SubscriptionServiceImpl {
     }
 
     public void saveSubscription(String email, String item) {
-        SubscriberModel subscriber = new SubscriberModel(email, item);
+        SubscriberModel subscriber = new SubscriberModel();
+        subscriber.setEmail(email);
+        subscriber.setItem(item);
+        subscriber.setUrls(new ArrayList<>());
+
+        mongoOperations.save(subscriber);
+    }
+
+    private void updateUserUrls(String userEmail, List<Long> urls) {
+        Query updateQuery = Query.query(Criteria.where("email").is(userEmail));
+        SubscriberModel subscriber = mongoOperations.findOne(updateQuery, SubscriberModel.class);
+
+        List<Long> links = subscriber.getUrls();
+        links.addAll(urls);
+
+        subscriber.setUrls(links);
         mongoOperations.save(subscriber);
     }
 
