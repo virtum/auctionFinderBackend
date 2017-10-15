@@ -25,7 +25,7 @@ public class EmailSender {
     @Autowired
     public JavaMailSender emailSender;
 
-    public void sendEmail(String userEmail, List<Long> urls) {
+    public void sendEmail(String userEmail, List<String> urls) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -36,10 +36,10 @@ public class EmailSender {
         });
     }
 
-    private String prepareTestMessage(List<Long> urls) {
+    private String prepareTestMessage(List<String> urls) {
         String auctions = "";
-        for (Long url : urls) {
-            auctions += "http://allegro.pl/i" + url + ".html\n";
+        for (String url : urls) {
+            auctions += url;
         }
         return auctions;
     }

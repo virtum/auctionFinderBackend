@@ -49,9 +49,11 @@ public class EventHandler {
             List<SubscriberModel> subscriptions = subscriptionService.findAllUserSubscriptions(it.getEmail());
             List<String> auctions = new ArrayList<>();
 
-            for (SubscriberModel subscription : subscriptions) {
-                auctions.add(subscription.getItem());
-            }
+            //FIXME change for due to new model
+//
+//            for (SubscriberModel subscription : subscriptions) {
+//                auctions.add(subscription.getItem());
+//            }
 
             SubscriptionsResponseModel response = new SubscriptionsResponseModel();
             response.setUserSubscriptions(auctions);
