@@ -32,7 +32,9 @@ public class EventHandler {
         serverBus.setConsumerAndProducer(activeMqHost);
 
         serverBus.addHandler(it -> {
-            if (!subscriptionService.userAuctions.containsKey(it.getEmail())) {
+            // TODO make a method instead if
+            // TODO if same user will have another item, update user by adding new item
+            if (!subscriptionService.userAuctions.containsKey(it.getEmail()) && subscriptionService.userAuctions.get(it.getEmail()).containsKey(it.getItem())) {
                 ExecutorService executor = Executors.newSingleThreadExecutor();
                 executor.execute(() -> subscriptionService.saveSubscription(it.getEmail(), it.getItem()));
             }

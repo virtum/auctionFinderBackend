@@ -54,6 +54,11 @@ public class SubscriptionServiceImpl {
 
 
     @PostConstruct
+    public void initializeUserAuctions() {
+        userAuctions = getUsersWithItems();
+    }
+
+    @PostConstruct
     public void sendRequets() {
         Observable<RequestModel> output = ThrottleGuard.throttle(requests, 1000, 100);
         output.observeOn(Schedulers.computation()).subscribe(request -> {
@@ -177,6 +182,12 @@ public class SubscriptionServiceImpl {
     public List<SubscriberModel> findAllUserSubscriptions(String email) {
         Query query = new Query(Criteria.where("email").is(email));
         return mongoOperations.find(query, SubscriberModel.class);
+    }
+
+    private Map<String, Map<String, List<String>>> getUsersWithItems() {
+        return mongoOperations
+                .findAll(SubscriberModel.class)
+                .stream().collect(Collectors.toMap(SubscriberModel::getEmail, SubscriberModel::getItemWithUrls));
     }
 
 }
