@@ -90,7 +90,7 @@ public class SubscriptionServiceImpl {
         });
     }
 
-    private List<String> handleUserAuctions(ResponseModel response) {
+    public List<String> handleUserAuctions(ResponseModel response) {
         List<String> foundUrls = prepareAuctionsIdList(response);
         String userEmail = response.getUserEmail();
 
