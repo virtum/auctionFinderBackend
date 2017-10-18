@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@Data
+@Data //replace with Value
 public class ResponseModel {
 
     private CompletableFuture<List<ItemsListType>> response;

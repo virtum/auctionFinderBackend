@@ -6,6 +6,7 @@ import com.filocha.messaging.messages.subscriptions.SubscriptionsRequestModel;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
 import com.filocha.messaging.server.ServerBusImpl;
 import com.filocha.storage.SubscriberModel;
+import com.filocha.storage.SubscriberRepository;
 import com.filocha.storage.SubscriptionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,9 @@ public class EventHandler {
     @Autowired
     private SubscriptionServiceImpl subscriptionService;
 
+    @Autowired
+    private SubscriberRepository repository;
+
     @PostConstruct
     public void createHandlers() {
         ServerBusImpl serverBus = new ServerBusImpl();
@@ -34,9 +38,12 @@ public class EventHandler {
         serverBus.addHandler(it -> {
             // TODO make a method instead if
             // TODO if same user will have another item, update user by adding new item
-            if (!subscriptionService.userAuctions.containsKey(it.getEmail()) && subscriptionService.userAuctions.get(it.getEmail()).containsKey(it.getItem())) {
+            if (!subscriptionService.userAuctions.containsKey(it.getEmail())) {
+//                if (subscriptionService.userAuctions.get(it.getEmail()).containsKey(it.getItem())) {
+//                }
+//
                 ExecutorService executor = Executors.newSingleThreadExecutor();
-                executor.execute(() -> subscriptionService.saveSubscription(it.getEmail(), it.getItem()));
+                executor.execute(() -> repository.saveSubscription(it.getEmail(), it.getItem()));
             }
 
             subscriptionService.fillQueueWithRequest(it.getItem(), it.getEmail());
@@ -48,7 +55,7 @@ public class EventHandler {
         }, ItemFinderRequestMessage.class, ItemFinderResponseMessage.class);
 
         serverBus.addHandler(it -> {
-            List<SubscriberModel> subscriptions = subscriptionService.findAllUserSubscriptions(it.getEmail());
+            List<SubscriberModel> subscriptions = repository.findAllUserSubscriptions(it.getEmail());
             List<String> auctions = new ArrayList<>();
 
             //FIXME change for due to new model

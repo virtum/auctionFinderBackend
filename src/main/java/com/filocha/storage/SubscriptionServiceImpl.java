@@ -9,9 +9,6 @@ import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import rx.Observable;
 import rx.schedulers.Schedulers;
@@ -19,7 +16,6 @@ import rx.subjects.PublishSubject;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -29,15 +25,14 @@ import java.util.stream.Collectors;
 
 @Component
 public class SubscriptionServiceImpl {
-
-    @Autowired
-    private MongoOperations mongoOperations;
-
     @Autowired
     private AuctionFinder auctionFinder;
 
     @Autowired
     private EmailSender emailSender;
+
+    @Autowired
+    private SubscriberRepository repository;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private PublishSubject<RequestModel> requests = PublishSubject.create();
@@ -52,14 +47,14 @@ public class SubscriptionServiceImpl {
         requests.onNext(model);
     }
 
-
     @PostConstruct
-    public void initializeUserAuctions() {
-        userAuctions = getUsersWithItems();
+    private void initialize() {
+        userAuctions = repository.getUsersWithItems();
+        handleResponses();
+        sendRequets();
     }
 
-    @PostConstruct
-    public void sendRequets() {
+    private void sendRequets() {
         Observable<RequestModel> output = ThrottleGuard.throttle(requests, 1000, 100);
         output.observeOn(Schedulers.computation()).subscribe(request -> {
             CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
@@ -70,15 +65,14 @@ public class SubscriptionServiceImpl {
         });
     }
 
-    @PostConstruct
-    public void handleResponses() {
+    private void handleResponses() {
         responses.observeOn(Schedulers.computation()).subscribe(response -> {
             final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
             responseFuture
                     .thenAccept(it -> {
                         List<String> urls = handleUserAuctions(response);
                         if (urls.size() > 0) {
-                            updateUserUrls(response.getUserEmail(), urls, response.getItem());
+                            repository.updateUserUrls(response.getUserEmail(), urls, response.getItem());
                             emailSender.sendEmail(response.getUserEmail(), urls);
                         }
                         requests.onNext(response.getRequest());
@@ -119,20 +113,10 @@ public class SubscriptionServiceImpl {
 
     @SneakyThrows
     private List<String> prepareAuctionsIdList(ResponseModel response) {
-        List<Long> auctionsId = new ArrayList<>();
-
-        //FIXME get? wtf?
-        auctionsId.addAll(response.getResponse().get()
+        // get() method is allowed here because we already have completed completableFuture
+        return response.getResponse().get()
                 .stream()
                 .map(ItemsListType::getItemId)
-                .collect(Collectors.toList()));
-
-        return prepareTestMessage(auctionsId);
-    }
-
-    private List<String> prepareTestMessage(List<Long> urlsId) {
-        return urlsId
-                .stream()
                 .map(url -> "http://allegro.pl/i" + url + ".html\n")
                 .collect(Collectors.toList());
     }
@@ -143,7 +127,7 @@ public class SubscriptionServiceImpl {
         return future.applyToEither(timeout, Function.identity());
     }
 
-    public static <T> CompletableFuture<T> failAfter(Duration duration) {
+    private static <T> CompletableFuture<T> failAfter(Duration duration) {
         final CompletableFuture<T> promise = new CompletableFuture<>();
         scheduler.schedule(() -> {
             final TimeoutException ex = new TimeoutException("Timeout after " + duration);
@@ -151,44 +135,5 @@ public class SubscriptionServiceImpl {
         }, duration.toMillis(), TimeUnit.MILLISECONDS);
         return promise;
     }
-
-    public void saveSubscription(String email, String item) {
-        SubscriberModel subscriber = new SubscriberModel();
-        subscriber.setEmail(email);
-        subscriber.setItemWithUrls(Collections.singletonMap(item, new ArrayList<>()));
-
-        mongoOperations.save(subscriber);
-    }
-
-    private void updateUserUrls(String userEmail, List<String> urls, String item) {
-        Query updateQuery = Query.query(Criteria.where("email").is(userEmail));
-        SubscriberModel subscriber = mongoOperations.findOne(updateQuery, SubscriberModel.class);
-
-        List<String> links = subscriber.getItemWithUrls().get(item);
-        links.addAll(urls);
-
-        Map<String, List<String>> updatedMap = subscriber.getItemWithUrls();
-        updatedMap.put(item, links);
-
-        subscriber.setItemWithUrls(updatedMap);
-        mongoOperations.save(subscriber);
-    }
-
-    public SubscriberModel findSubscriber(String email) {
-        Query query = new Query(Criteria.where("email").is(email));
-        return mongoOperations.findOne(query, SubscriberModel.class);
-    }
-
-    public List<SubscriberModel> findAllUserSubscriptions(String email) {
-        Query query = new Query(Criteria.where("email").is(email));
-        return mongoOperations.find(query, SubscriberModel.class);
-    }
-
-    private Map<String, Map<String, List<String>>> getUsersWithItems() {
-        return mongoOperations
-                .findAll(SubscriberModel.class)
-                .stream().collect(Collectors.toMap(SubscriberModel::getEmail, SubscriberModel::getItemWithUrls));
-    }
-
 }
 
