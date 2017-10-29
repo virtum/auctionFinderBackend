@@ -5,14 +5,13 @@ import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rx.subjects.PublishSubject;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +22,7 @@ public class SubscriptionStorage {
     @Autowired
     private AuctionFinder auctionFinder;
 
-    public static Map<String, List<String>> userAuctions = new ConcurrentHashMap<>();
+    public static Map<String, Map<String, List<String>>> userAuctions = new ConcurrentHashMap<>();
     public static PublishSubject<RequestModel> requests = PublishSubject.create();
     public static PublishSubject<ResponseModel> responses = PublishSubject.create();
 
@@ -33,6 +32,8 @@ public class SubscriptionStorage {
     @PostConstruct
     private void initialize() {
         // TODO add second map for user and his items with found urls or thinkg about one for both subscriptions and found
+        // TODO second thought - make userSctions as Map<String, List<AuctionModel>> then change code for checking url duplicates
+        // TODO from SubscriptionServiceImpl class
         subscriptions
                 .subscribe(request -> {
                     String userEmail = request.getEmail();
@@ -54,14 +55,18 @@ public class SubscriptionStorage {
     }
 
     private void addSubscription(String userEmail, String itemName) {
-        userAuctions.put(userEmail, new ArrayList<>(Collections.singletonList(itemName)));
+        Map<String, List<String>> itemsWithUrls = new HashMap<>();
+        itemsWithUrls.put(itemName, new ArrayList<>());
+
+        userAuctions.put(userEmail, itemsWithUrls);
     }
 
     private boolean updateUserSubscription(String userEmail, String itemName) {
-        if (userAuctions.get(userEmail).contains(itemName)) {
+        if (userAuctions.get(userEmail).containsKey(itemName)) {
             return false;
         }
-        userAuctions.get(userEmail).add(itemName);
+        userAuctions.get(userEmail).put(itemName, new ArrayList<>());
+
         return true;
     }
 
@@ -72,10 +77,4 @@ public class SubscriptionStorage {
 
         requests.onNext(model);
     }
-}
-
-@Data
-class AuctionModel {
-    private String itemName;
-    private List<String> urls;
 }

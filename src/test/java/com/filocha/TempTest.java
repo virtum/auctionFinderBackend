@@ -4,12 +4,13 @@ package com.filocha;
 import com.filocha.finder.ResponseModel;
 import https.webapi_allegro_pl.service.ItemsListType;
 import lombok.SneakyThrows;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
 
 public class TempTest {
     public static Map<String, Map<String, List<String>>> userAuctions = new ConcurrentHashMap<>();
@@ -26,7 +27,7 @@ public class TempTest {
 
         updateUserUrls(user, item, Arrays.asList("2", "4"));
 
-        Assert.assertEquals(3, userAuctions.get(user).get(item).size());
+        assertEquals(3, userAuctions.get(user).get(item).size());
 
     }
 
