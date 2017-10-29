@@ -14,9 +14,10 @@ import rx.schedulers.Schedulers;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -57,10 +58,12 @@ public class SubscriptionServiceImpl {
             final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
             responseFuture
                     .thenAccept(it -> {
-                        List<String> urls = handleUserAuctions(response);
+                        //List<String> urls = handleUserAuctions(response);
+                        List<String> urls = new ArrayList<>();
                         if (urls.size() > 0) {
-                            repository.updateUserUrls(response.getUserEmail(), urls, response.getItem());
-                            emailSender.sendEmail(response.getUserEmail(), urls);
+                            System.out.println("NEW URLS: " + urls.size());
+                            //repository.updateUserUrls(response.getUserEmail(), urls, response.getItem());
+                            //emailSender.sendEmail(response.getUserEmail(), urls);
                         }
                         SubscriptionStorage.requests.onNext(response.getRequest());
                     })
@@ -71,12 +74,13 @@ public class SubscriptionServiceImpl {
         });
     }
 
+    // TODO change update of map to onNext call of userAuctions
     public List<String> handleUserAuctions(ResponseModel response) {
         List<String> foundUrls = prepareAuctionsIdList(response);
         String userEmail = response.getUserEmail();
 
         if (!SubscriptionStorage.userAuctions.containsKey(userEmail)) {
-            SubscriptionStorage.userAuctions.put(userEmail, Collections.singletonMap(response.getItem(), foundUrls));
+            SubscriptionStorage.userAuctions.put(userEmail, new HashMap<>(Collections.singletonMap(response.getItem(), foundUrls)));
             return foundUrls;
         }
         return updateUserUrls(userEmail, response.getItem(), foundUrls);
@@ -91,9 +95,8 @@ public class SubscriptionServiceImpl {
                 .collect(Collectors.toList());
 
         currentUrls.addAll(urlToAdd);
-        Map<String, List<String>> newMap = Collections.singletonMap(item, currentUrls);
 
-        SubscriptionStorage.userAuctions.put(userEmail, newMap);
+        SubscriptionStorage.userAuctions.put(userEmail, new HashMap<>(Collections.singletonMap(item, currentUrls)));
 
         return urlToAdd;
     }
