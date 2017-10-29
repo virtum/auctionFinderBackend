@@ -5,14 +5,12 @@ import com.filocha.finder.AuctionFinder;
 import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.throttle.ThrottleGuard;
-import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rx.Observable;
 import rx.schedulers.Schedulers;
-import rx.subjects.PublishSubject;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
@@ -35,38 +33,28 @@ public class SubscriptionServiceImpl {
     private SubscriberRepository repository;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private PublishSubject<RequestModel> requests = PublishSubject.create();
-    private PublishSubject<ResponseModel> responses = PublishSubject.create();
     public Map<String, Map<String, List<String>>> userAuctions = new ConcurrentHashMap<>();
-
-    public void fillQueueWithRequest(String item, String userEmail) {
-        DoGetItemsListRequest request = auctionFinder.createRequest(item);
-
-        RequestModel model = new RequestModel(request, userEmail, item);
-
-        requests.onNext(model);
-    }
 
     @PostConstruct
     private void initialize() {
-        userAuctions = repository.getUsersWithItems();
+        // userAuctions = repository.getUsersWithItems();
         handleResponses();
         sendRequets();
     }
 
     private void sendRequets() {
-        Observable<RequestModel> output = ThrottleGuard.throttle(requests, 1000, 100);
+        Observable<RequestModel> output = ThrottleGuard.throttle(SubscriptionStorage.requests, 1000, 100);
         output.observeOn(Schedulers.computation()).subscribe(request -> {
             CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
 
             ResponseModel responseModel = new ResponseModel(response, request, request.getItem());
 
-            responses.onNext(responseModel);
+            SubscriptionStorage.responses.onNext(responseModel);
         });
     }
 
     private void handleResponses() {
-        responses.observeOn(Schedulers.computation()).subscribe(response -> {
+        SubscriptionStorage.responses.observeOn(Schedulers.computation()).subscribe(response -> {
             final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
             responseFuture
                     .thenAccept(it -> {
@@ -75,10 +63,10 @@ public class SubscriptionServiceImpl {
                             repository.updateUserUrls(response.getUserEmail(), urls, response.getItem());
                             emailSender.sendEmail(response.getUserEmail(), urls);
                         }
-                        requests.onNext(response.getRequest());
+                        SubscriptionStorage.requests.onNext(response.getRequest());
                     })
                     .exceptionally(throwable -> {
-                        requests.onNext(response.getRequest());
+                        SubscriptionStorage.requests.onNext(response.getRequest());
                         return null;
                     });
         });

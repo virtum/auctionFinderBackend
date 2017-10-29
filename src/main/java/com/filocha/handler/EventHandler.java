@@ -8,15 +8,15 @@ import com.filocha.messaging.server.ServerBusImpl;
 import com.filocha.storage.SubscriberModel;
 import com.filocha.storage.SubscriberRepository;
 import com.filocha.storage.SubscriptionServiceImpl;
+import com.filocha.storage.SubscriptionStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Component
 public class EventHandler {
@@ -28,29 +28,29 @@ public class EventHandler {
     private SubscriptionServiceImpl subscriptionService;
 
     @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
     private SubscriberRepository repository;
+
+    @Autowired
+    private SubscriptionStorage subscriptionStorage;
 
     @PostConstruct
     public void createHandlers() {
         ServerBusImpl serverBus = new ServerBusImpl();
         serverBus.setConsumerAndProducer(activeMqHost);
 
-        serverBus.addHandler(it -> {
-            // TODO make a method instead if
-            // TODO if same user will have another item, update user by adding new item
-            if (!subscriptionService.userAuctions.containsKey(it.getEmail())) {
-//                if (subscriptionService.userAuctions.get(it.getEmail()).containsKey(it.getItem())) {
-//                }
-//
-                ExecutorService executor = Executors.newSingleThreadExecutor();
-                executor.execute(() -> repository.saveSubscription(it.getEmail(), it.getItem()));
-            }
+        serverBus.addHandler(message -> {
+            //subscriptionStorage.addSubscription(message.getEmail(), message.getItem());
+            SubscriptionStorage.subscriptions
+                    .onNext(message);
 
-            subscriptionService.fillQueueWithRequest(it.getItem(), it.getEmail());
+            //subscriptionService.fillQueueWithRequest(it.getItem(), it.getEmail());
 
             ItemFinderResponseMessage response = new ItemFinderResponseMessage();
             response.setResponse("Subscribed!");
-            System.out.println("User: " + it.getEmail() + " item: " + it.getItem());
+            System.out.println("User: " + message.getEmail() + " item: " + message.getItem());
             return response;
         }, ItemFinderRequestMessage.class, ItemFinderResponseMessage.class);
 
