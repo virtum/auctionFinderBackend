@@ -33,7 +33,6 @@ public class SubscriptionServiceImpl {
     private SubscriberRepository repository;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    public Map<String, Map<String, List<String>>> userAuctions = new ConcurrentHashMap<>();
 
     @PostConstruct
     private void initialize() {
@@ -76,15 +75,15 @@ public class SubscriptionServiceImpl {
         List<String> foundUrls = prepareAuctionsIdList(response);
         String userEmail = response.getUserEmail();
 
-        if (!userAuctions.containsKey(userEmail)) {
-            userAuctions.put(userEmail, Collections.singletonMap(response.getItem(), foundUrls));
+        if (!SubscriptionStorage.userAuctions.containsKey(userEmail)) {
+            SubscriptionStorage.userAuctions.put(userEmail, Collections.singletonMap(response.getItem(), foundUrls));
             return foundUrls;
         }
         return updateUserUrls(userEmail, response.getItem(), foundUrls);
     }
 
     private List<String> updateUserUrls(String userEmail, String item, List<String> newUrls) {
-        List<String> currentUrls = userAuctions.get(userEmail).get(item);
+        List<String> currentUrls = SubscriptionStorage.userAuctions.get(userEmail).get(item);
 
         List<String> urlToAdd = newUrls
                 .stream()
@@ -94,7 +93,7 @@ public class SubscriptionServiceImpl {
         currentUrls.addAll(urlToAdd);
         Map<String, List<String>> newMap = Collections.singletonMap(item, currentUrls);
 
-        userAuctions.put(userEmail, newMap);
+        SubscriptionStorage.userAuctions.put(userEmail, newMap);
 
         return urlToAdd;
     }
