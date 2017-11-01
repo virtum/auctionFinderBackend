@@ -2,11 +2,11 @@ package com.filocha.storage;
 
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class AuctionModel {
 
     private String itemName;
-    private List<String> urls;
+    private Set<String> urls;
 }

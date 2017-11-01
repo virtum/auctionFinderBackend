@@ -49,7 +49,7 @@ public class TempTest {
 
         SubscriptionStorage.userAuctions1.add(model);
 
-        //assertTrue(SubscriptionStorage.containsItem("model", "test2"));
+        //assertTrue(SubscriptionStorage.getAuction("model", "test2"));
 
     }
 

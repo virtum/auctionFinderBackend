@@ -58,6 +58,7 @@ public class SubscriptionServiceImpl {
             final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
             responseFuture
                     .thenAccept(it -> {
+                        SubscriptionStorage.urls.onNext(response);
                         //List<String> urls = handleUserAuctions(response);
                         List<String> urls = new ArrayList<>();
                         if (urls.size() > 0) {
