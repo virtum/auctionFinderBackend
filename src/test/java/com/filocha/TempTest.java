@@ -2,6 +2,8 @@ package com.filocha;
 
 
 import com.filocha.finder.ResponseModel;
+import com.filocha.storage.SubscriberModel;
+import com.filocha.storage.SubscriptionStorage;
 import https.webapi_allegro_pl.service.ItemsListType;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -11,9 +13,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TempTest {
     public static Map<String, Map<String, List<String>>> userAuctions = new ConcurrentHashMap<>();
+
+    @Test
+    public void shouldFindUserEmailInList() {
+        SubscriberModel model1 = new SubscriberModel();
+        model1.setEmail("model1");
+
+        SubscriberModel model2 = new SubscriberModel();
+        model2.setEmail("model2");
+
+        SubscriptionStorage.userAuctions1.add(model1);
+        SubscriptionStorage.userAuctions1.add(model2);
+
+        assertTrue(SubscriptionStorage.containsEmail("model1"));
+    }
 
     @Test
     public void shouldAddNewValues() {

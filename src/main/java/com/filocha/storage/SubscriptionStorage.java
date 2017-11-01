@@ -23,6 +23,8 @@ public class SubscriptionStorage {
     private AuctionFinder auctionFinder;
 
     public static Map<String, Map<String, List<String>>> userAuctions = new ConcurrentHashMap<>();
+
+    public static List<SubscriberModel> userAuctions1 = new ArrayList<>();
     public static PublishSubject<RequestModel> requests = PublishSubject.create();
     public static PublishSubject<ResponseModel> responses = PublishSubject.create();
 
@@ -45,6 +47,14 @@ public class SubscriptionStorage {
                 });
     }
 
+    public static boolean containsEmail(final String name) {
+        return userAuctions1
+                .stream()
+                .map(SubscriberModel::getEmail)
+                .filter(name::equals)
+                .findFirst()
+                .isPresent();
+    }
 
     private boolean handleSubscription(String userEmail, String itemName) {
         if (!userAuctions.containsKey(userEmail)) {
@@ -77,4 +87,9 @@ public class SubscriptionStorage {
 
         requests.onNext(model);
     }
+}
+
+class ItemsModel {
+    private String itemName;
+    private List<String> urls;
 }
