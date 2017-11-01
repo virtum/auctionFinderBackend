@@ -30,7 +30,9 @@ public class TempTest {
         SubscriptionStorage.userAuctions1.add(model1);
         SubscriptionStorage.userAuctions1.add(model2);
 
-        assertTrue(SubscriptionStorage.containsEmail("model1"));
+        Optional<SubscriberModel1> result = SubscriptionStorage.findSubscriberByEmail("model2");
+
+        assertTrue(result.isPresent());
     }
 
     @Test

@@ -44,25 +44,54 @@ public class SubscriptionStorage {
                 });
     }
 
-    public static boolean containsEmail(final String email) {
-        return userAuctions1
-                .stream()
-                .map(SubscriberModel1::getEmail)
-                .filter(email::equals)
-                .findFirst()
-                .isPresent();
-    }
-
-    public static boolean containsItem(final String email, final String itemName) {
+    public static Optional<SubscriberModel1> findSubscriberByEmail(final String email) {
         return userAuctions1
                 .stream()
                 .filter(sub -> sub.getEmail().equals(email))
-                .map(SubscriberModel1::getAuctions)
-                .flatMap(Collection::stream)
+                .findFirst();
+    }
+
+    // TODO think how to change and reuse this method to during updating urls like in findSubscriberByEmail method
+    public static boolean containsItem(final List<AuctionModel> auctions, String itemName) {
+        return auctions
+                .stream()
                 .map(AuctionModel::getItemName)
                 .filter(itemName::equals)
                 .findFirst()
                 .isPresent();
+    }
+
+    private boolean handleSubscription1(String email, String itemName) {
+        Optional<SubscriberModel1> subscriber = findSubscriberByEmail(email);
+        if (!subscriber.isPresent()) {
+            addSubscription1(email, itemName);
+            return true;
+        }
+
+        return updateUserSubscription1(subscriber.get(), itemName);
+    }
+
+    private void addSubscription1(String userEmail, String itemName) {
+        AuctionModel auction = new AuctionModel();
+        auction.setItemName(itemName);
+        auction.setUrls(new ArrayList<>());
+
+        SubscriberModel1 subscriber = new SubscriberModel1();
+        subscriber.setEmail(userEmail);
+        subscriber.setAuctions(new ArrayList<>(Arrays.asList(auction)));
+
+        userAuctions1.add(subscriber);
+    }
+
+    private boolean updateUserSubscription1(SubscriberModel1 subscriber, String itemName) {
+        if (containsItem(subscriber.getAuctions(), itemName)) {
+            return false;
+        }
+
+        //TODO add new method for updating userItems (for now without urls)
+        //userAuctions.get(userEmail).put(itemName, new ArrayList<>());
+
+        return true;
     }
 
     private boolean handleSubscription(String userEmail, String itemName) {
