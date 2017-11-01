@@ -5,6 +5,7 @@ import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import rx.subjects.PublishSubject;
@@ -38,7 +39,7 @@ public class SubscriptionStorage {
                     String userEmail = request.getEmail();
                     String itemName = request.getItem();
 
-                    if (handleSubscription(userEmail, itemName)) {
+                    if (handleSubscription1(userEmail, itemName)) {
                         onNextRequest(userEmail, itemName);
                     }
                 });
@@ -90,6 +91,16 @@ public class SubscriptionStorage {
 
         //TODO add new method for updating userItems (for now without urls)
         //userAuctions.get(userEmail).put(itemName, new ArrayList<>());
+        SubscriberModel1 updatedSubscriber = new SubscriberModel1();
+        BeanUtils.copyProperties(subscriber, updatedSubscriber);
+
+        AuctionModel newAuction = new AuctionModel();
+        newAuction.setItemName(itemName);
+        newAuction.setUrls(new ArrayList<>());
+
+        updatedSubscriber.getAuctions().add(newAuction);
+
+        userAuctions1.set(userAuctions1.indexOf(subscriber), updatedSubscriber);
 
         return true;
     }
