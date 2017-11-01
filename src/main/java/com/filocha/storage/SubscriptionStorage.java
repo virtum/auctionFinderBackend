@@ -89,8 +89,6 @@ public class SubscriptionStorage {
             return false;
         }
 
-        //TODO add new method for updating userItems (for now without urls)
-        //userAuctions.get(userEmail).put(itemName, new ArrayList<>());
         SubscriberModel1 updatedSubscriber = new SubscriberModel1();
         BeanUtils.copyProperties(subscriber, updatedSubscriber);
 
@@ -105,30 +103,6 @@ public class SubscriptionStorage {
         return true;
     }
 
-    private boolean handleSubscription(String userEmail, String itemName) {
-        if (!userAuctions.containsKey(userEmail)) {
-            addSubscription(userEmail, itemName);
-            return true;
-        }
-        return updateUserSubscription(userEmail, itemName);
-    }
-
-    private void addSubscription(String userEmail, String itemName) {
-        Map<String, List<String>> itemsWithUrls = new HashMap<>();
-        itemsWithUrls.put(itemName, new ArrayList<>());
-
-        userAuctions.put(userEmail, itemsWithUrls);
-    }
-
-    private boolean updateUserSubscription(String userEmail, String itemName) {
-        if (userAuctions.get(userEmail).containsKey(itemName)) {
-            return false;
-        }
-        userAuctions.get(userEmail).put(itemName, new ArrayList<>());
-
-        return true;
-    }
-
     private void onNextRequest(String userEmail, String item) {
         DoGetItemsListRequest request = auctionFinder.createRequest(item);
 
@@ -136,9 +110,4 @@ public class SubscriptionStorage {
 
         requests.onNext(model);
     }
-}
-
-class ItemsModel {
-    private String itemName;
-    private List<String> urls;
 }
