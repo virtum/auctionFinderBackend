@@ -2,7 +2,8 @@ package com.filocha;
 
 
 import com.filocha.finder.ResponseModel;
-import com.filocha.storage.SubscriberModel;
+import com.filocha.storage.AuctionModel;
+import com.filocha.storage.SubscriberModel1;
 import com.filocha.storage.SubscriptionStorage;
 import https.webapi_allegro_pl.service.ItemsListType;
 import lombok.SneakyThrows;
@@ -20,16 +21,34 @@ public class TempTest {
 
     @Test
     public void shouldFindUserEmailInList() {
-        SubscriberModel model1 = new SubscriberModel();
+        SubscriberModel1 model1 = new SubscriberModel1();
         model1.setEmail("model1");
 
-        SubscriberModel model2 = new SubscriberModel();
+        SubscriberModel1 model2 = new SubscriberModel1();
         model2.setEmail("model2");
 
         SubscriptionStorage.userAuctions1.add(model1);
         SubscriptionStorage.userAuctions1.add(model2);
 
         assertTrue(SubscriptionStorage.containsEmail("model1"));
+    }
+
+    @Test
+    public void shouldFindItem() {
+        AuctionModel item1 = new AuctionModel();
+        item1.setItemName("test1");
+
+        AuctionModel item2 = new AuctionModel();
+        item2.setItemName("test2");
+
+        SubscriberModel1 model = new SubscriberModel1();
+        model.setEmail("model");
+        model.setAuctions(new ArrayList<>(Arrays.asList(item1, item2)));
+
+        SubscriptionStorage.userAuctions1.add(model);
+
+        assertTrue(SubscriptionStorage.containsItem("model", "test2"));
+
     }
 
     @Test

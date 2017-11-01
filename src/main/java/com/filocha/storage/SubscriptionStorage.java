@@ -10,10 +10,7 @@ import org.springframework.stereotype.Component;
 import rx.subjects.PublishSubject;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -24,7 +21,7 @@ public class SubscriptionStorage {
 
     public static Map<String, Map<String, List<String>>> userAuctions = new ConcurrentHashMap<>();
 
-    public static List<SubscriberModel> userAuctions1 = new ArrayList<>();
+    public static List<SubscriberModel1> userAuctions1 = new ArrayList<>();
     public static PublishSubject<RequestModel> requests = PublishSubject.create();
     public static PublishSubject<ResponseModel> responses = PublishSubject.create();
 
@@ -47,11 +44,23 @@ public class SubscriptionStorage {
                 });
     }
 
-    public static boolean containsEmail(final String name) {
+    public static boolean containsEmail(final String email) {
         return userAuctions1
                 .stream()
-                .map(SubscriberModel::getEmail)
-                .filter(name::equals)
+                .map(SubscriberModel1::getEmail)
+                .filter(email::equals)
+                .findFirst()
+                .isPresent();
+    }
+
+    public static boolean containsItem(final String email, final String itemName) {
+        return userAuctions1
+                .stream()
+                .filter(sub -> sub.getEmail().equals(email))
+                .map(SubscriberModel1::getAuctions)
+                .flatMap(Collection::stream)
+                .map(AuctionModel::getItemName)
+                .filter(itemName::equals)
                 .findFirst()
                 .isPresent();
     }
