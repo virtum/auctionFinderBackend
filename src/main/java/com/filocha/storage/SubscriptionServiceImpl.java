@@ -37,30 +37,30 @@ public class SubscriptionServiceImpl {
 
     private void sendRequets() {
         ThrottleGuard
-                .throttle(SubscriptionStorage.requests, 1000, 100)
+                .throttle(SubscriptionCache.requests, 1000, 100)
                 .observeOn(Schedulers.computation())
                 .subscribe(request -> {
                     CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
 
                     ResponseModel responseModel = new ResponseModel(response, request, request.getItem());
 
-                    SubscriptionStorage.responses.onNext(responseModel);
+                    SubscriptionCache.responses.onNext(responseModel);
                 });
     }
 
     private void handleResponses() {
-        SubscriptionStorage
+        SubscriptionCache
                 .responses
                 .observeOn(Schedulers.computation())
                 .subscribe(response -> {
                     final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
                     responseFuture
                             .thenAccept(it -> {
-                                SubscriptionStorage.urls.onNext(response);
-                                SubscriptionStorage.requests.onNext(response.getRequest());
+                                SubscriptionCache.urls.onNext(response);
+                                SubscriptionCache.requests.onNext(response.getRequest());
                             })
                             .exceptionally(throwable -> {
-                                SubscriptionStorage.requests.onNext(response.getRequest());
+                                SubscriptionCache.requests.onNext(response.getRequest());
                                 return null;
                             });
                 });

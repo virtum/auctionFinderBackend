@@ -13,7 +13,7 @@ import rx.subjects.PublishSubject;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SubscriptionStorage {
+public class SubscriptionCache {
 
     public static List<SubscriberModel1> userAuctions1 = new ArrayList<>();
     public static PublishSubject<RequestModel> requests = PublishSubject.create();
@@ -33,7 +33,7 @@ public class SubscriptionStorage {
                 });
 
         urls
-                .subscribe(SubscriptionStorage::updateUrls);
+                .subscribe(SubscriptionCache::updateUrls);
     }
 
     private static void updateUrls(ResponseModel responseWithUrls) {

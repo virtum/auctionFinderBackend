@@ -17,16 +17,16 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
 
-public class SubscriptionStorageTest {
+public class SubscriptionCacheTest {
 
     @BeforeClass
     public static void initialize() {
-        SubscriptionStorage.initialize(new AuctionFinderImpl());
+        SubscriptionCache.initialize(new AuctionFinderImpl());
     }
 
     @After
     public void clear() {
-        SubscriptionStorage.userAuctions1.clear();
+        SubscriptionCache.userAuctions1.clear();
     }
 
     @Test
@@ -39,12 +39,12 @@ public class SubscriptionStorageTest {
 
 
         // push subscriptions
-        SubscriptionStorage.subscriptions.onNext(firstSubscription);
-        SubscriptionStorage.subscriptions.onNext(secondSubscription);
+        SubscriptionCache.subscriptions.onNext(firstSubscription);
+        SubscriptionCache.subscriptions.onNext(secondSubscription);
 
-        assertEquals(1, SubscriptionStorage.userAuctions1.size());
+        assertEquals(1, SubscriptionCache.userAuctions1.size());
 
-        SubscriberModel1 subscriber = SubscriptionStorage.userAuctions1.get(0);
+        SubscriberModel1 subscriber = SubscriptionCache.userAuctions1.get(0);
         assertEquals(email, subscriber.getEmail());
         assertEquals(2, subscriber.getAuctions().size());
     }
@@ -58,10 +58,10 @@ public class SubscriptionStorageTest {
         ItemFinderRequestMessage subscription = prepareTestSubscription(email, item);
 
         // push subscription
-        SubscriptionStorage.subscriptions.onNext(subscription);
-        assertEquals(1, SubscriptionStorage.userAuctions1.size());
+        SubscriptionCache.subscriptions.onNext(subscription);
+        assertEquals(1, SubscriptionCache.userAuctions1.size());
 
-        SubscriberModel1 subscriber = SubscriptionStorage.userAuctions1.get(0);
+        SubscriberModel1 subscriber = SubscriptionCache.userAuctions1.get(0);
         assertEquals(email, subscriber.getEmail());
 
         // prepare test responses
@@ -69,8 +69,8 @@ public class SubscriptionStorageTest {
         ResponseModel response2 = preapreTestResponse(email, item);
 
         // push responses
-        SubscriptionStorage.urls.onNext(response1);
-        SubscriptionStorage.urls.onNext(response2);
+        SubscriptionCache.urls.onNext(response1);
+        SubscriptionCache.urls.onNext(response2);
 
         assertEquals(2, subscriber.getAuctions().get(0).getUrls().size());
     }

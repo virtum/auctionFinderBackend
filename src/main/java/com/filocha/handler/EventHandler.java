@@ -7,8 +7,8 @@ import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
 import com.filocha.messaging.server.ServerBusImpl;
 import com.filocha.storage.SubscriberModel;
 import com.filocha.storage.SubscriberRepository;
+import com.filocha.storage.SubscriptionCache;
 import com.filocha.storage.SubscriptionServiceImpl;
-import com.filocha.storage.SubscriptionStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -33,17 +33,14 @@ public class EventHandler {
     @Autowired
     private SubscriberRepository repository;
 
-    @Autowired
-    private SubscriptionStorage subscriptionStorage;
-
     @PostConstruct
     public void createHandlers() {
         ServerBusImpl serverBus = new ServerBusImpl();
         serverBus.setConsumerAndProducer(activeMqHost);
 
         serverBus.addHandler(message -> {
-            //subscriptionStorage.addSubscription(message.getEmail(), message.getItem());
-            SubscriptionStorage.subscriptions
+            //subscriptionCache.addSubscription(message.getEmail(), message.getItem());
+            SubscriptionCache.subscriptions
                     .onNext(message);
 
             //subscriptionService.fillQueueWithRequest(it.getItem(), it.getEmail());
