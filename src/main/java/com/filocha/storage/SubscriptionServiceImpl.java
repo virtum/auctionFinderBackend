@@ -2,14 +2,12 @@ package com.filocha.storage;
 
 import com.filocha.email.EmailSender;
 import com.filocha.finder.AuctionFinder;
-import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.throttle.ThrottleGuard;
 import https.webapi_allegro_pl.service.ItemsListType;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import rx.Observable;
 import rx.schedulers.Schedulers;
 
 import javax.annotation.PostConstruct;
@@ -43,36 +41,41 @@ public class SubscriptionServiceImpl {
     }
 
     private void sendRequets() {
-        Observable<RequestModel> output = ThrottleGuard.throttle(SubscriptionStorage.requests, 1000, 100);
-        output.observeOn(Schedulers.computation()).subscribe(request -> {
-            CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
+        ThrottleGuard
+                .throttle(SubscriptionStorage.requests, 1000, 100)
+                .observeOn(Schedulers.computation())
+                .subscribe(request -> {
+                    CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
 
-            ResponseModel responseModel = new ResponseModel(response, request, request.getItem());
+                    ResponseModel responseModel = new ResponseModel(response, request, request.getItem());
 
-            SubscriptionStorage.responses.onNext(responseModel);
-        });
+                    SubscriptionStorage.responses.onNext(responseModel);
+                });
     }
 
     private void handleResponses() {
-        SubscriptionStorage.responses.observeOn(Schedulers.computation()).subscribe(response -> {
-            final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
-            responseFuture
-                    .thenAccept(it -> {
-                        SubscriptionStorage.urls.onNext(response);
-                        //List<String> urls = handleUserAuctions(response);
-                        List<String> urls = new ArrayList<>();
-                        if (urls.size() > 0) {
-                            System.out.println("NEW URLS: " + urls.size());
-                            //repository.updateUserUrls(response.getUserEmail(), urls, response.getItem());
-                            //emailSender.sendEmail(response.getUserEmail(), urls);
-                        }
-                        SubscriptionStorage.requests.onNext(response.getRequest());
-                    })
-                    .exceptionally(throwable -> {
-                        SubscriptionStorage.requests.onNext(response.getRequest());
-                        return null;
-                    });
-        });
+        SubscriptionStorage
+                .responses
+                .observeOn(Schedulers.computation())
+                .subscribe(response -> {
+                    final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
+                    responseFuture
+                            .thenAccept(it -> {
+                                SubscriptionStorage.urls.onNext(response);
+                                //List<String> urls = handleUserAuctions(response);
+                                List<String> urls = new ArrayList<>();
+                                if (urls.size() > 0) {
+                                    System.out.println("NEW URLS: " + urls.size());
+                                    //repository.updateUserUrls(response.getUserEmail(), urls, response.getItem());
+                                    //emailSender.sendEmail(response.getUserEmail(), urls);
+                                }
+                                SubscriptionStorage.requests.onNext(response.getRequest());
+                            })
+                            .exceptionally(throwable -> {
+                                SubscriptionStorage.requests.onNext(response.getRequest());
+                                return null;
+                            });
+                });
     }
 
     // TODO change update of map to onNext call of userAuctions
