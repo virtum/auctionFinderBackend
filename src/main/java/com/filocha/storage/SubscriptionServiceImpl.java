@@ -34,7 +34,8 @@ public class SubscriptionServiceImpl {
         requests = PublishSubject.create();
         subscriptions = PublishSubject.create();
 
-        new SubscriptionCache(subscriptions, new ArrayList<>(), requests, auctionFinder);
+        //new SubscriptionCache(subscriptions, new ArrayList<>(), requests, auctionFinder);
+
 
         handleResponses1();
         sendRequets1();
