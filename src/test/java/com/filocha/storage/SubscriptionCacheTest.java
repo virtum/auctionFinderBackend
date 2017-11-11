@@ -59,7 +59,7 @@ public class SubscriptionCacheTest {
 
 
     @Test
-    public void shouldNotEmitRequesOnDuplicatedeSubscription() {
+    public void shouldNotEmitRequestOnDuplicatedSubscription() {
         List<SubscriberModel1> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
 
