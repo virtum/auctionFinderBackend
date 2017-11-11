@@ -7,7 +7,6 @@ import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
 import com.filocha.messaging.server.ServerBusImpl;
 import com.filocha.storage.SubscriberModel;
 import com.filocha.storage.SubscriberRepository;
-import com.filocha.storage.SubscriptionCache;
 import com.filocha.storage.SubscriptionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +39,9 @@ public class EventHandler {
 
         serverBus.addHandler(message -> {
             //subscriptionCache.addSubscription(message.getEmail(), message.getItem());
-            SubscriptionCache.subscriptions
-                    .onNext(message);
+//            SubscriptionCache.subscriptions
+//                    .onNext(message);
+            subscriptionService.pushSubscription(message);
 
             //subscriptionService.fillQueueWithRequest(it.getItem(), it.getEmail());
 
