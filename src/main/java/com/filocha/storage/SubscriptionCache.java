@@ -12,12 +12,13 @@ import java.util.stream.Collectors;
 
 public class SubscriptionCache {
 
+    private PublishSubject<Model> subscriptions;
     private List<SubscriberModel1> userAuctions;
     private PublishSubject<RequestModel> requests;
     private AuctionFinder auctionFinder;
-    public PublishSubject<Model> subscriptions = PublishSubject.create();
 
-    public SubscriptionCache(List<SubscriberModel1> userAuctions, PublishSubject<RequestModel> requests, AuctionFinder auctionFinder) {
+    public SubscriptionCache(PublishSubject<Model> subscriptions, List<SubscriberModel1> userAuctions, PublishSubject<RequestModel> requests, AuctionFinder auctionFinder) {
+        this.subscriptions = subscriptions;
         this.userAuctions = userAuctions;
         this.requests = requests;
         this.auctionFinder = auctionFinder;

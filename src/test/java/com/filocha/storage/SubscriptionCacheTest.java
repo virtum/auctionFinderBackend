@@ -17,15 +17,16 @@ public class SubscriptionCacheTest {
 
     @Test
     public void shouldAddTwoSubscriptionsForTheSameUser() {
+        PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel1> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
 
-        SubscriptionCache cache = new SubscriptionCache(userAuctions, requests, new AuctionFinderImpl());
+        new SubscriptionCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
 
         String email = "user@email";
 
-        cache.subscriptions.onNext(Model.createNewSubscription(email, "item1"));
-        cache.subscriptions.onNext(Model.createNewSubscription(email, "item2"));
+        subscriptions.onNext(Model.createNewSubscription(email, "item1"));
+        subscriptions.onNext(Model.createNewSubscription(email, "item2"));
 
         assertEquals(1, userAuctions.size());
 
@@ -36,23 +37,24 @@ public class SubscriptionCacheTest {
 
     @Test
     public void shouldUpdateUrls() {
+        PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel1> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
 
-        SubscriptionCache cache = new SubscriptionCache(userAuctions, requests, new AuctionFinderImpl());
+        new SubscriptionCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
 
         String email = "user@email";
         String item = "item";
 
-        cache.subscriptions.onNext(Model.createNewSubscription(email, item));
+        subscriptions.onNext(Model.createNewSubscription(email, item));
 
         assertEquals(1, userAuctions.size());
 
         SubscriberModel1 subscriber = userAuctions.get(0);
         assertEquals(email, subscriber.getEmail());
 
-        cache.subscriptions.onNext(Model.createModelForUpdate(email, item, new ArrayList<>(Collections.singletonList("url1"))));
-        cache.subscriptions.onNext(Model.createModelForUpdate(email, item, new ArrayList<>(Collections.singletonList("url2"))));
+        subscriptions.onNext(Model.createModelForUpdate(email, item, new ArrayList<>(Collections.singletonList("url1"))));
+        subscriptions.onNext(Model.createModelForUpdate(email, item, new ArrayList<>(Collections.singletonList("url2"))));
 
         assertEquals(2, subscriber.getAuctions().get(0).getUrls().size());
     }
@@ -60,18 +62,19 @@ public class SubscriptionCacheTest {
 
     @Test
     public void shouldNotEmitRequestOnDuplicatedSubscription() {
+        PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel1> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
 
-        SubscriptionCache cache = new SubscriptionCache(userAuctions, requests, new AuctionFinderImpl());
+        new SubscriptionCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
 
         String email = "user@email";
 
         ReplaySubject<RequestModel> emitted = ReplaySubject.create();
         requests.subscribe(emitted);
 
-        cache.subscriptions.onNext(Model.createNewSubscription(email, "item1"));
-        cache.subscriptions.onNext(Model.createNewSubscription(email, "item1"));
+        subscriptions.onNext(Model.createNewSubscription(email, "item1"));
+        subscriptions.onNext(Model.createNewSubscription(email, "item1"));
 
         requests.onCompleted();
 

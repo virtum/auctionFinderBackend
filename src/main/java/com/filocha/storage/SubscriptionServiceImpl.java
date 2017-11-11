@@ -26,21 +26,22 @@ public class SubscriptionServiceImpl {
     private AuctionFinder auctionFinder;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private SubscriptionCache cache1;
     private PublishSubject<RequestModel> requests;
+    private PublishSubject<Model> subscriptions;
 
     @PostConstruct
     private void initialize() {
         requests = PublishSubject.create();
+        subscriptions = PublishSubject.create();
 
-        cache1 = new SubscriptionCache(new ArrayList<>(), requests, auctionFinder);
+        new SubscriptionCache(subscriptions, new ArrayList<>(), requests, auctionFinder);
 
         handleResponses1();
         sendRequets1();
     }
 
     public void pushSubscription(ItemFinderRequestMessage request) {
-        cache1.subscriptions.onNext(Model.createNewSubscription(request.getEmail(), request.getItem()));
+        subscriptions.onNext(Model.createNewSubscription(request.getEmail(), request.getItem()));
     }
 
     private PublishSubject<ResponseModel> responses = PublishSubject.create();
@@ -67,7 +68,7 @@ public class SubscriptionServiceImpl {
                             .thenAccept(it -> {
                                 List<String> urls = prepareAuctionsIdList(response);
 
-                                cache1.subscriptions.onNext(Model.createModelForUpdate(response.getUserEmail(), response.getItem(), urls));
+                                subscriptions.onNext(Model.createModelForUpdate(response.getUserEmail(), response.getItem(), urls));
                                 requests.onNext(response.getRequest());
                             })
                             .exceptionally(throwable -> {
