@@ -8,40 +8,27 @@ import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
 import lombok.SneakyThrows;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import rx.subjects.PublishSubject;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-@Component
 public class SubscriptionStorage {
-
-    @Autowired
-    private AuctionFinder auctionFinder;
-
-    public static Map<String, Map<String, List<String>>> userAuctions = new ConcurrentHashMap<>();
 
     public static List<SubscriberModel1> userAuctions1 = new ArrayList<>();
     public static PublishSubject<RequestModel> requests = PublishSubject.create();
     public static PublishSubject<ResponseModel> responses = PublishSubject.create();
-
-
     public static PublishSubject<ItemFinderRequestMessage> subscriptions = PublishSubject.create();
     public static PublishSubject<ResponseModel> urls = PublishSubject.create();
 
-    @PostConstruct
-    public void initialize() {
+    public static void initialize(AuctionFinder auctionFinder) {
         subscriptions
                 .subscribe(request -> {
                     String userEmail = request.getEmail();
                     String itemName = request.getItem();
 
                     if (handleSubscription1(userEmail, itemName)) {
-                        onNextRequest(userEmail, itemName);
+                        onNextRequest(auctionFinder, userEmail, itemName);
                     }
                 });
 
@@ -96,7 +83,7 @@ public class SubscriptionStorage {
                 .findFirst();
     }
 
-    private boolean handleSubscription1(String email, String itemName) {
+    private static boolean handleSubscription1(String email, String itemName) {
         Optional<SubscriberModel1> subscriber = findSubscriberByEmail(email);
         if (!subscriber.isPresent()) {
             addSubscription1(email, itemName);
@@ -106,7 +93,7 @@ public class SubscriptionStorage {
         return updateUserSubscription1(subscriber.get(), itemName);
     }
 
-    private void addSubscription1(String userEmail, String itemName) {
+    private static void addSubscription1(String userEmail, String itemName) {
         AuctionModel auction = new AuctionModel();
         auction.setItemName(itemName);
         auction.setUrls(new HashSet<>());
@@ -118,7 +105,7 @@ public class SubscriptionStorage {
         userAuctions1.add(subscriber);
     }
 
-    private boolean updateUserSubscription1(SubscriberModel1 subscriber, String itemName) {
+    private static boolean updateUserSubscription1(SubscriberModel1 subscriber, String itemName) {
         if (getAuction(subscriber.getAuctions(), itemName).isPresent()) {
             return false;
         }
@@ -137,7 +124,7 @@ public class SubscriptionStorage {
         return true;
     }
 
-    private void onNextRequest(String userEmail, String item) {
+    private static void onNextRequest(AuctionFinder auctionFinder, String userEmail, String item) {
         DoGetItemsListRequest request = auctionFinder.createRequest(item);
 
         RequestModel model = new RequestModel(request, userEmail, item);

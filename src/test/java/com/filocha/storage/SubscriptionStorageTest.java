@@ -1,15 +1,13 @@
 package com.filocha.storage;
 
+import com.filocha.finder.AuctionFinderImpl;
 import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import https.webapi_allegro_pl.service.ItemsListType;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,12 +17,12 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
 public class SubscriptionStorageTest {
 
-    @Autowired
-    private SubscriptionStorage storage;
+    @BeforeClass
+    public static void initialize() {
+        SubscriptionStorage.initialize(new AuctionFinderImpl());
+    }
 
     @After
     public void clear() {
@@ -38,6 +36,7 @@ public class SubscriptionStorageTest {
         // create subscriptions
         ItemFinderRequestMessage firstSubscription = prepareTestSubscription(email, "item1");
         ItemFinderRequestMessage secondSubscription = prepareTestSubscription(email, "item2");
+
 
         // push subscriptions
         SubscriptionStorage.subscriptions.onNext(firstSubscription);
