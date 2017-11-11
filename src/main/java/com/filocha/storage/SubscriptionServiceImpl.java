@@ -1,7 +1,7 @@
 package com.filocha.storage;
 
-import com.filocha.email.EmailSender;
 import com.filocha.finder.AuctionFinder;
+import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.throttle.ThrottleGuard;
@@ -25,25 +25,15 @@ public class SubscriptionServiceImpl {
     @Autowired
     private AuctionFinder auctionFinder;
 
-    @Autowired
-    private EmailSender emailSender;
-
-    @Autowired
-    private SubscriberRepository repository;
-
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
     private SubscriptionCache1 cache1;
+    private PublishSubject<RequestModel> requests;
 
     @PostConstruct
     private void initialize() {
-        // userAuctions = repository.getUsersWithItems();
-        //handleResponses();
-        //sendRequets();
+        requests = PublishSubject.create();
 
-
-        cache1 = new SubscriptionCache1(new ArrayList<>());
-        cache1.initialize(auctionFinder);
+        cache1 = new SubscriptionCache1(new ArrayList<>(), requests, auctionFinder);
 
         handleResponses1();
         sendRequets1();
@@ -57,7 +47,7 @@ public class SubscriptionServiceImpl {
 
     private void sendRequets1() {
         ThrottleGuard
-                .throttle(cache1.requests, 1000, 100)
+                .throttle(requests, 1000, 100)
                 .observeOn(Schedulers.computation())
                 .subscribe(request -> {
                     CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
@@ -78,10 +68,10 @@ public class SubscriptionServiceImpl {
                                 List<String> urls = prepareAuctionsIdList(response);
 
                                 cache1.subscriptions.onNext(Model.createModelForUpdate(response.getUserEmail(), response.getItem(), urls));
-                                cache1.requests.onNext(response.getRequest());
+                                requests.onNext(response.getRequest());
                             })
                             .exceptionally(throwable -> {
-                                cache1.requests.onNext(response.getRequest());
+                                requests.onNext(response.getRequest());
                                 return null;
                             });
                 });
@@ -95,37 +85,6 @@ public class SubscriptionServiceImpl {
                 .map(ItemsListType::getItemId)
                 .map(url -> "http://allegro.pl/i" + url + ".html\n")
                 .collect(Collectors.toList());
-    }
-
-    private void sendRequets() {
-        ThrottleGuard
-                .throttle(SubscriptionCache.requests, 1000, 100)
-                .observeOn(Schedulers.computation())
-                .subscribe(request -> {
-                    CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
-
-                    ResponseModel responseModel = new ResponseModel(response, request, request.getItem());
-
-                    SubscriptionCache.responses.onNext(responseModel);
-                });
-    }
-
-    private void handleResponses() {
-        SubscriptionCache
-                .responses
-                .observeOn(Schedulers.computation())
-                .subscribe(response -> {
-                    final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
-                    responseFuture
-                            .thenAccept(it -> {
-                                SubscriptionCache.urls.onNext(response);
-                                SubscriptionCache.requests.onNext(response.getRequest());
-                            })
-                            .exceptionally(throwable -> {
-                                SubscriptionCache.requests.onNext(response.getRequest());
-                                return null;
-                            });
-                });
     }
 
     // TODO http://www.nurkiewicz.com/2014/12/asynchronous-timeouts-with.html - add documentation based on url data

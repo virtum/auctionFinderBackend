@@ -13,14 +13,19 @@ import java.util.stream.Collectors;
 public class SubscriptionCache1 {
 
     private List<SubscriberModel1> userAuctions;
-    public PublishSubject<RequestModel> requests = PublishSubject.create();
+    private PublishSubject<RequestModel> requests;
+    private AuctionFinder auctionFinder;
     public PublishSubject<Model> subscriptions = PublishSubject.create();
 
-    public SubscriptionCache1(List<SubscriberModel1> userAuctions) {
+    public SubscriptionCache1(List<SubscriberModel1> userAuctions, PublishSubject<RequestModel> requests, AuctionFinder auctionFinder) {
         this.userAuctions = userAuctions;
+        this.requests = requests;
+        this.auctionFinder = auctionFinder;
+
+        initialize();
     }
 
-    public void initialize(AuctionFinder auctionFinder) {
+    private void initialize() {
         subscriptions
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
