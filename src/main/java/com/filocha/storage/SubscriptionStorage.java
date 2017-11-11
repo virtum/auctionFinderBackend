@@ -50,10 +50,12 @@ public class SubscriptionStorage {
     }
 
     private static void updateUrls(ResponseModel responseWithUrls) {
-        SubscriberModel1 subscriber = findSubscriberByEmail(responseWithUrls.getUserEmail()).get();
+        SubscriberModel1 subscriber = findSubscriberByEmail(responseWithUrls.getUserEmail())
+                .orElseThrow(() -> new NoSuchElementException("Email: " + responseWithUrls.getUserEmail() + " was not found"));
 
         List<String> urlsToUpdate = prepareAuctionsIdList(responseWithUrls);
-        AuctionModel auctionToUpdate = getAuction(subscriber.getAuctions(), responseWithUrls.getItem()).get();
+        AuctionModel auctionToUpdate = getAuction(subscriber.getAuctions(), responseWithUrls.getItem()).
+                orElseThrow(() -> new NoSuchElementException("Auctions for item:" + responseWithUrls.getItem() + " was not found"));
 
         //TODO send email with urls
         List<String> urlsToSend = prepareNewAuctionsUrl(auctionToUpdate.getUrls(), urlsToUpdate);
