@@ -34,10 +34,7 @@ public class SubscriptionStorage {
     public static PublishSubject<ResponseModel> urls = PublishSubject.create();
 
     @PostConstruct
-    private void initialize() {
-        // TODO add second map for user and his items with found urls or thinkg about one for both subscriptions and found
-        // TODO second thought - make userSctions as Map<String, List<AuctionModel>> then change code for checking url duplicates
-        // TODO from SubscriptionServiceImpl class
+    public void initialize() {
         subscriptions
                 .subscribe(request -> {
                     String userEmail = request.getEmail();
@@ -58,6 +55,7 @@ public class SubscriptionStorage {
         List<String> urlsToUpdate = prepareAuctionsIdList(responseWithUrls);
         AuctionModel auctionToUpdate = getAuction(subscriber.getAuctions(), responseWithUrls.getItem()).get();
 
+        //TODO send email with urls
         List<String> urlsToSend = prepareNewAuctionsUrl(auctionToUpdate.getUrls(), urlsToUpdate);
 
         // FIXME this update works through reference, how to do it better?
@@ -113,7 +111,7 @@ public class SubscriptionStorage {
 
         SubscriberModel1 subscriber = new SubscriberModel1();
         subscriber.setEmail(userEmail);
-        subscriber.setAuctions(new ArrayList<>(Arrays.asList(auction)));
+        subscriber.setAuctions(new ArrayList<>(Collections.singletonList(auction)));
 
         userAuctions1.add(subscriber);
     }
