@@ -80,14 +80,14 @@ public class SubscriptionStorage {
                 .collect(Collectors.toList());
     }
 
-    public static Optional<SubscriberModel1> findSubscriberByEmail(final String email) {
+    private static Optional<SubscriberModel1> findSubscriberByEmail(final String email) {
         return userAuctions1
                 .stream()
                 .filter(sub -> sub.getEmail().equals(email))
                 .findFirst();
     }
 
-    public static Optional<AuctionModel> getAuction(final List<AuctionModel> auctions, String itemName) {
+    private static Optional<AuctionModel> getAuction(final List<AuctionModel> auctions, String itemName) {
         return auctions
                 .stream()
                 .filter(auction -> auction.getItemName().equals(itemName))
