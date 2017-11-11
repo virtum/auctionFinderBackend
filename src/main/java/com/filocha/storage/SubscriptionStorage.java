@@ -49,12 +49,10 @@ public class SubscriptionStorage {
                 });
 
         urls
-                .subscribe(it -> {
-                    updateUrls(it);
-                });
+                .subscribe(SubscriptionStorage::updateUrls);
     }
 
-    public static void updateUrls(ResponseModel responseWithUrls) {
+    private static void updateUrls(ResponseModel responseWithUrls) {
         SubscriberModel1 subscriber = findSubscriberByEmail(responseWithUrls.getUserEmail()).get();
 
         List<String> urlsToUpdate = prepareAuctionsIdList(responseWithUrls);
