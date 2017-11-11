@@ -26,14 +26,14 @@ public class SubscriptionServiceImpl {
     private AuctionFinder auctionFinder;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private SubscriptionCache1 cache1;
+    private SubscriptionCache cache1;
     private PublishSubject<RequestModel> requests;
 
     @PostConstruct
     private void initialize() {
         requests = PublishSubject.create();
 
-        cache1 = new SubscriptionCache1(new ArrayList<>(), requests, auctionFinder);
+        cache1 = new SubscriptionCache(new ArrayList<>(), requests, auctionFinder);
 
         handleResponses1();
         sendRequets1();
