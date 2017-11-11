@@ -4,6 +4,7 @@ import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import https.webapi_allegro_pl.service.ItemsListType;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,11 @@ public class SubscriptionStorageTest {
 
     @Autowired
     private SubscriptionStorage storage;
+
+    @After
+    public void clear() {
+        SubscriptionStorage.userAuctions1.clear();
+    }
 
     @Test
     public void shouldAddTwoSubscriptionsForTheSameUser() {
