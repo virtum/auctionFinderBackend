@@ -5,9 +5,13 @@ import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import https.webapi_allegro_pl.service.ItemsListType;
+import lombok.SneakyThrows;
+import lombok.val;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import rx.subjects.ReplaySubject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,6 +77,25 @@ public class SubscriptionCacheTest {
         SubscriptionCache.urls.onNext(response2);
 
         assertEquals(2, subscriber.getAuctions().get(0).getUrls().size());
+    }
+
+    @Test
+    @SneakyThrows
+    public void shouldNotEmitRequesOnDuplicatedeSubscription() {
+        String email = "user@email";
+
+        ReplaySubject<RequestModel> emitted = ReplaySubject.create();
+        SubscriptionCache.requests.subscribe(emitted);
+
+        // push subscriptions
+        SubscriptionCache.subscriptions.onNext(prepareTestSubscription(email, "item1"));
+        SubscriptionCache.subscriptions.onNext(prepareTestSubscription(email, "item1"));
+
+        SubscriptionCache.requests.onCompleted();
+
+        val items = emitted.toBlocking().toIterable();
+        Assertions.assertThat(items).hasSize(1);
+
     }
 
     private ItemFinderRequestMessage prepareTestSubscription(String email, String item) {
