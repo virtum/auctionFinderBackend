@@ -34,8 +34,8 @@ public class SubscriptionServiceImpl {
         requests = PublishSubject.create();
         subscriptions = PublishSubject.create();
 
-        //new SubscriptionCache(subscriptions, new ArrayList<>(), requests, auctionFinder);
-
+        // new SubscriptionCache(subscriptions, new ArrayList<>(), requests, auctionFinder);
+        //Closable =  static
 
         handleResponses1();
         sendRequets1();
@@ -50,7 +50,7 @@ public class SubscriptionServiceImpl {
     private void sendRequets1() {
         ThrottleGuard
                 .throttle(requests, 1000, 100)
-                .observeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
                 .subscribe(request -> {
                     CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
 
@@ -62,7 +62,7 @@ public class SubscriptionServiceImpl {
 
     private void handleResponses1() {
         responses
-                .observeOn(Schedulers.computation())
+                .observeOn(Schedulers.io())
                 .subscribe(response -> {
                     final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
                     responseFuture

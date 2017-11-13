@@ -34,7 +34,7 @@ public class ServiceService extends Service {
         try {
             url = new URL("file:/C:/Users/Virtum/IdeaProjects/auctionfinderBackend/src/main/resources/test.wsdl");
         } catch (MalformedURLException e) {
-            System.err.println("Can not initialize the default wsdl from file:/C:/Users/Virtum/IdeaProjects/auctionfinderBackend/src/main/resources/test.wsdl");
+            System.err.println("Can not startCache the default wsdl from file:/C:/Users/Virtum/IdeaProjects/auctionfinderBackend/src/main/resources/test.wsdl");
             // e.printStackTrace();
         }
         WSDL_LOCATION = url;

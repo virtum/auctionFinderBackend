@@ -22,7 +22,7 @@ public class SubscriptionCacheTest {
         PublishSubject<RequestModel> requests = PublishSubject.create();
 
         //new SubscriptionCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
-        SubscriptionCache.initialize(subscriptions, userAuctions, requests, new AuctionFinderImpl());
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
 
         String email = "user@email";
 
@@ -43,7 +43,7 @@ public class SubscriptionCacheTest {
         PublishSubject<RequestModel> requests = PublishSubject.create();
 
         //new SubscriptionCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
-        SubscriptionCache.initialize(subscriptions, userAuctions, requests, new AuctionFinderImpl());
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
 
         String email = "user@email";
         String item = "item";
@@ -69,7 +69,7 @@ public class SubscriptionCacheTest {
         PublishSubject<RequestModel> requests = PublishSubject.create();
 
         //new SubscriptionCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
-        SubscriptionCache.initialize(subscriptions, userAuctions, requests, new AuctionFinderImpl());
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
 
         String email = "user@email";
 

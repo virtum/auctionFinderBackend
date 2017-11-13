@@ -5,14 +5,14 @@ import com.filocha.finder.RequestModel;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import rx.subjects.PublishSubject;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class SubscriptionCache {
 
-    public static void initialize(PublishSubject<Model> subscriptions, List<SubscriberModel1> userAuctions, PublishSubject<RequestModel> requests, AuctionFinder auctionFinder) {
+    // TODO replace void closable
+    public static void startCache(rx.Observable<Model> subscriptions, List<SubscriberModel1> userAuctions, rx.Observer<RequestModel> requests, AuctionFinder auctionFinder) {
         subscriptions
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
@@ -36,7 +36,6 @@ public class SubscriptionCache {
         //TODO send email with urls
         List<String> urlsToSend = prepareNewAuctionsUrl(auctionToUpdate.getUrls(), urlsToUpdate);
 
-        // FIXME this update works through reference, how to do it better?
         // TODO should not be urlToSend instead?
         auctionToUpdate.getUrls().addAll(urlsToUpdate);
     }
@@ -104,7 +103,7 @@ public class SubscriptionCache {
         return true;
     }
 
-    private static void onNextRequest(AuctionFinder auctionFinder, Model model, PublishSubject<RequestModel> requests) {
+    private static void onNextRequest(AuctionFinder auctionFinder, Model model, rx.Observer<RequestModel> requests) {
         DoGetItemsListRequest request = auctionFinder.createRequest(model.getItem());
 
         RequestModel req = new RequestModel(request, model.getEmail(), model.getItem());
