@@ -42,4 +42,19 @@ public class RepositoryExtensionTest {
         assertEquals(item, subscriber.getAuctions().get(0).getItemName());
     }
 
+    @Test
+    public void shouldSaveTwoDifferentSubscriptionsForSameUser() {
+
+    }
+
+    @Test
+    public void shouldSaveNewSubscriptionForDifferentUsers() {
+
+    }
+
+    @Test
+    public void shouldNotSaveSameSubscriptionForSameUser() {
+
+    }
+
 }
