@@ -18,7 +18,7 @@ public class SubscriptionCache {
     // TODO replace void closable
     public static void startCache(Observable<Model> subscriptions, List<SubscriberModel> userAuctions,
                                   Observer<RequestModel> requests, AuctionFinder auctionFinder, MongoTemplate mongoTemplate) {
-        PublishSubject<SubscriberModel> repository = SubscriberRepository1.updateSubscriber(mongoTemplate);
+        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
 
         subscriptions
                 .subscribe(it -> {

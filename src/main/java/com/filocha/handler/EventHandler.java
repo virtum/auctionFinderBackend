@@ -5,7 +5,6 @@ import com.filocha.messaging.messages.finder.ItemFinderResponseMessage;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsRequestModel;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
 import com.filocha.messaging.server.ServerBusImpl;
-import com.filocha.storage.SubscriberRepository;
 import com.filocha.storage.SubscriptionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,9 +26,6 @@ public class EventHandler {
 
     @Autowired
     private MongoTemplate mongoTemplate;
-
-    @Autowired
-    private SubscriberRepository repository;
 
     @PostConstruct
     public void createHandlers() {
