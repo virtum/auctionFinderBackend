@@ -5,8 +5,10 @@ import com.filocha.finder.RequestModel;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import rx.Observable;
 import rx.Observer;
+import rx.subjects.PublishSubject;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,9 +16,14 @@ import java.util.stream.Collectors;
 public class SubscriptionCache {
 
     // TODO replace void closable
-    public static void startCache(Observable<Model> subscriptions, List<SubscriberModel> userAuctions, Observer<RequestModel> requests, AuctionFinder auctionFinder) {
+    public static void startCache(Observable<Model> subscriptions, List<SubscriberModel> userAuctions,
+                                  Observer<RequestModel> requests, AuctionFinder auctionFinder, MongoTemplate mongoTemplate) {
+        PublishSubject<Model> repository = SubscriberRepository1.updateSubscriber(mongoTemplate);
+
         subscriptions
                 .subscribe(it -> {
+                    repository.onNext(it);
+
                     if (it.isNewSubscription()) {
                         if (handleSubscription(it, userAuctions)) {
                             onNextRequest(auctionFinder, it, requests);
