@@ -18,7 +18,7 @@ public class SubscriptionCache {
         subscriptions
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
-                        if (handleSubscription1(it, userAuctions)) {
+                        if (handleSubscription(it, userAuctions)) {
                             onNextRequest(auctionFinder, it, requests);
                         }
                     } else {
@@ -64,17 +64,17 @@ public class SubscriptionCache {
                 .findFirst();
     }
 
-    private static boolean handleSubscription1(Model model, List<SubscriberModel> userAuctions) {
+    private static boolean handleSubscription(Model model, List<SubscriberModel> userAuctions) {
         Optional<SubscriberModel> subscriber = findSubscriberByEmail(model.getEmail(), userAuctions);
         if (!subscriber.isPresent()) {
-            addSubscription1(model.getEmail(), model.getItem(), userAuctions);
+            addSubscription(model.getEmail(), model.getItem(), userAuctions);
             return true;
         }
 
-        return updateUserSubscription1(subscriber.get(), model.getItem(), userAuctions);
+        return updateUserSubscription(subscriber.get(), model.getItem(), userAuctions);
     }
 
-    private static void addSubscription1(String userEmail, String itemName, List<SubscriberModel> userAuctions) {
+    private static void addSubscription(String userEmail, String itemName, List<SubscriberModel> userAuctions) {
         AuctionModel auction = new AuctionModel();
         auction.setItemName(itemName);
         auction.setUrls(new HashSet<>());
@@ -86,7 +86,7 @@ public class SubscriptionCache {
         userAuctions.add(subscriber);
     }
 
-    private static boolean updateUserSubscription1(SubscriberModel subscriber, String itemName, List<SubscriberModel> userAuctions) {
+    private static boolean updateUserSubscription(SubscriberModel subscriber, String itemName, List<SubscriberModel> userAuctions) {
         if (getAuction(subscriber.getAuctions(), itemName).isPresent()) {
             return false;
         }
