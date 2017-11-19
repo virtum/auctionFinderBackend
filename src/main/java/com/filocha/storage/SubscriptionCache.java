@@ -5,6 +5,8 @@ import com.filocha.finder.RequestModel;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
+import rx.Observable;
+import rx.Observer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,7 +14,7 @@ import java.util.stream.Collectors;
 public class SubscriptionCache {
 
     // TODO replace void closable
-    public static void startCache(rx.Observable<Model> subscriptions, List<SubscriberModel> userAuctions, rx.Observer<RequestModel> requests, AuctionFinder auctionFinder) {
+    public static void startCache(Observable<Model> subscriptions, List<SubscriberModel> userAuctions, Observer<RequestModel> requests, AuctionFinder auctionFinder) {
         subscriptions
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
@@ -103,7 +105,7 @@ public class SubscriptionCache {
         return true;
     }
 
-    private static void onNextRequest(AuctionFinder auctionFinder, Model model, rx.Observer<RequestModel> requests) {
+    private static void onNextRequest(AuctionFinder auctionFinder, Model model, Observer<RequestModel> requests) {
         DoGetItemsListRequest request = auctionFinder.createRequest(model.getItem());
 
         RequestModel req = new RequestModel(request, model.getEmail(), model.getItem());
