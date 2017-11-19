@@ -5,7 +5,6 @@ import com.filocha.finder.RequestModel;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import rx.Observable;
 import rx.Observer;
@@ -19,14 +18,13 @@ public class SubscriptionCache {
     // TODO replace void closable
     public static void startCache(Observable<Model> subscriptions, List<SubscriberModel> userAuctions,
                                   Observer<RequestModel> requests, AuctionFinder auctionFinder, MongoTemplate mongoTemplate) {
-        PublishSubject<Model> repository = SubscriberRepository1.updateSubscriber(mongoTemplate);
+        PublishSubject<SubscriberModel> repository = SubscriberRepository1.updateSubscriber(mongoTemplate);
 
         subscriptions
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
-                        if (handleSubscription(it, userAuctions)) {
+                        if (handleSubscription(repository, it, userAuctions)) {
                             onNextRequest(auctionFinder, it, requests);
-                            repository.onNext(it);
                         }
                     } else {
                         updateUrls(it, userAuctions);
@@ -71,17 +69,17 @@ public class SubscriptionCache {
                 .findFirst();
     }
 
-    private static boolean handleSubscription(Model model, List<SubscriberModel> userAuctions) {
+    private static boolean handleSubscription(PublishSubject<SubscriberModel> repository, Model model, List<SubscriberModel> userAuctions) {
         Optional<SubscriberModel> subscriber = findSubscriberByEmail(model.getEmail(), userAuctions);
         if (!subscriber.isPresent()) {
-            addSubscription(model.getEmail(), model.getItem(), userAuctions);
+            addSubscription(repository, model.getEmail(), model.getItem(), userAuctions);
             return true;
         }
 
-        return updateUserSubscription(subscriber.get(), model.getItem(), userAuctions);
+        return updateUserSubscription(repository, subscriber.get(), model.getItem(), userAuctions);
     }
 
-    private static void addSubscription(String userEmail, String itemName, List<SubscriberModel> userAuctions) {
+    private static void addSubscription(PublishSubject<SubscriberModel> repository, String userEmail, String itemName, List<SubscriberModel> userAuctions) {
         AuctionModel auction = new AuctionModel();
         auction.setItemName(itemName);
         auction.setUrls(new HashSet<>());
@@ -91,13 +89,16 @@ public class SubscriptionCache {
         subscriber.setAuctions(new ArrayList<>(Collections.singletonList(auction)));
 
         userAuctions.add(subscriber);
+
+        repository.onNext(subscriber);
     }
 
-    private static boolean updateUserSubscription(SubscriberModel subscriber, String itemName, List<SubscriberModel> userAuctions) {
+    private static boolean updateUserSubscription(PublishSubject<SubscriberModel> repository, SubscriberModel subscriber, String itemName, List<SubscriberModel> userAuctions) {
         if (getAuction(subscriber.getAuctions(), itemName).isPresent()) {
             return false;
         }
 
+        // TODO replace this code with references
         SubscriberModel updatedSubscriber = new SubscriberModel();
         BeanUtils.copyProperties(subscriber, updatedSubscriber);
 
@@ -106,8 +107,9 @@ public class SubscriptionCache {
         newAuction.setUrls(new HashSet<>());
 
         updatedSubscriber.getAuctions().add(newAuction);
-
         userAuctions.set(userAuctions.indexOf(subscriber), updatedSubscriber);
+
+        repository.onNext(updatedSubscriber);
 
         return true;
     }
@@ -127,8 +129,6 @@ class Model {
     private String email;
     private String item;
     private List<String> urls;
-    
-    @Transient
     private boolean isNewSubscription;
 
     public static Model createNewSubscription(String email, String item) {
