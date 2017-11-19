@@ -57,4 +57,19 @@ public class RepositoryExtensionTest {
 
     }
 
+    @Test
+    public void shouldSaveUrlsForGivenItem() {
+
+    }
+
+    @Test
+    public void shouldUpdateUrlsForGivenItem() {
+
+    }
+
+    @Test
+    public void shouldNotSaveSameUrlsTwice() {
+
+    }
+
 }
