@@ -19,13 +19,13 @@ public class RepositoryExtension {
     }
 
     public static SubscriberModel findSubscriber(MongoTemplate mongoTemplate, String email) {
-        Query query = new Query(Criteria.where("email").is(email));
-        return mongoTemplate.findOne(query, SubscriberModel.class);
+        return mongoTemplate
+                .findOne(Query.query(Criteria.where("email").is(email)), SubscriberModel.class);
     }
 
     public static List<SubscriberModel> findAllUserSubscriptions(MongoTemplate mongoTemplate, String email) {
-        Query query = new Query(Criteria.where("email").is(email));
-        return mongoTemplate.find(query, SubscriberModel.class);
+        return mongoTemplate
+                .find(Query.query(Criteria.where("email").is(email)), SubscriberModel.class);
     }
 
 }
