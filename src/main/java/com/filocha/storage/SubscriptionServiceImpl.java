@@ -8,6 +8,7 @@ import com.filocha.throttle.ThrottleGuard;
 import https.webapi_allegro_pl.service.ItemsListType;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
@@ -24,6 +25,8 @@ import java.util.stream.Collectors;
 public class SubscriptionServiceImpl {
     @Autowired
     private AuctionFinder auctionFinder;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private PublishSubject<RequestModel> requests;
@@ -34,7 +37,7 @@ public class SubscriptionServiceImpl {
         requests = PublishSubject.create();
         subscriptions = PublishSubject.create();
 
-        // new SubscriptionCache(subscriptions, new ArrayList<>(), requests, auctionFinder);
+        SubscriptionCache.startCache(subscriptions, new ArrayList<>(), requests, auctionFinder, mongoTemplate);
         //Closable =  static
 
         handleResponses1();

@@ -5,6 +5,7 @@ import com.filocha.finder.RequestModel;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import rx.Observable;
 import rx.Observer;
@@ -22,11 +23,10 @@ public class SubscriptionCache {
 
         subscriptions
                 .subscribe(it -> {
-                    repository.onNext(it);
-
                     if (it.isNewSubscription()) {
                         if (handleSubscription(it, userAuctions)) {
                             onNextRequest(auctionFinder, it, requests);
+                            repository.onNext(it);
                         }
                     } else {
                         updateUrls(it, userAuctions);
@@ -127,6 +127,8 @@ class Model {
     private String email;
     private String item;
     private List<String> urls;
+    
+    @Transient
     private boolean isNewSubscription;
 
     public static Model createNewSubscription(String email, String item) {

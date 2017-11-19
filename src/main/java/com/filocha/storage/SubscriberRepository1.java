@@ -15,6 +15,6 @@ public class SubscriberRepository1 {
     }
 
     private static void update(MongoTemplate mongoTemplate, Model model) {
-        System.out.println();
+        mongoTemplate.save(model);
     }
 }
