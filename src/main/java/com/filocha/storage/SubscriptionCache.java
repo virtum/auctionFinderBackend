@@ -27,12 +27,12 @@ public class SubscriptionCache {
                             onNextRequest(auctionFinder, it, requests);
                         }
                     } else {
-                        updateUrls(it, userAuctions);
+                        updateUrls(repository, it, userAuctions);
                     }
                 });
     }
 
-    private static void updateUrls(Model model, List<SubscriberModel> userAuctions) {
+    private static void updateUrls(PublishSubject<SubscriberModel> repository, Model model, List<SubscriberModel> userAuctions) {
         SubscriberModel subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
                 .orElseThrow(() -> new NoSuchElementException("Email: " + model.getEmail() + " was not found"));
 
@@ -45,6 +45,9 @@ public class SubscriptionCache {
 
         // TODO should not be urlToSend instead?
         auctionToUpdate.getUrls().addAll(urlsToUpdate);
+
+        // TODO onNext and update only if urlsToSend are greater than 0
+        repository.onNext(subscriber);
     }
 
     //TODO change method to void, and send new url list if urls > 0 in email
