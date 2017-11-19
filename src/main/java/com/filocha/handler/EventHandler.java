@@ -5,7 +5,6 @@ import com.filocha.messaging.messages.finder.ItemFinderResponseMessage;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsRequestModel;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
 import com.filocha.messaging.server.ServerBusImpl;
-import com.filocha.storage.SubscriberModel;
 import com.filocha.storage.SubscriberRepository;
 import com.filocha.storage.SubscriptionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,7 @@ public class EventHandler {
         }, ItemFinderRequestMessage.class, ItemFinderResponseMessage.class);
 
         serverBus.addHandler(it -> {
-            List<SubscriberModel> subscriptions = repository.findAllUserSubscriptions(it.getEmail());
+            //List<SubscriberModel> subscriptions = repository.findAllUserSubscriptions(it.getEmail());
             List<String> auctions = new ArrayList<>();
 
             //FIXME change for due to new model

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class SubscriptionCache {
 
     // TODO replace void closable
-    public static void startCache(rx.Observable<Model> subscriptions, List<SubscriberModel1> userAuctions, rx.Observer<RequestModel> requests, AuctionFinder auctionFinder) {
+    public static void startCache(rx.Observable<Model> subscriptions, List<SubscriberModel> userAuctions, rx.Observer<RequestModel> requests, AuctionFinder auctionFinder) {
         subscriptions
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
@@ -25,8 +25,8 @@ public class SubscriptionCache {
                 });
     }
 
-    private static void updateUrls(Model model, List<SubscriberModel1> userAuctions) {
-        SubscriberModel1 subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
+    private static void updateUrls(Model model, List<SubscriberModel> userAuctions) {
+        SubscriberModel subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
                 .orElseThrow(() -> new NoSuchElementException("Email: " + model.getEmail() + " was not found"));
 
         List<String> urlsToUpdate = model.getUrls();
@@ -48,7 +48,7 @@ public class SubscriptionCache {
                 .collect(Collectors.toList());
     }
 
-    private static Optional<SubscriberModel1> findSubscriberByEmail(final String email, List<SubscriberModel1> userAuctions) {
+    private static Optional<SubscriberModel> findSubscriberByEmail(final String email, List<SubscriberModel> userAuctions) {
         return userAuctions
                 .stream()
                 .filter(sub -> sub.getEmail().equals(email))
@@ -62,8 +62,8 @@ public class SubscriptionCache {
                 .findFirst();
     }
 
-    private static boolean handleSubscription1(Model model, List<SubscriberModel1> userAuctions) {
-        Optional<SubscriberModel1> subscriber = findSubscriberByEmail(model.getEmail(), userAuctions);
+    private static boolean handleSubscription1(Model model, List<SubscriberModel> userAuctions) {
+        Optional<SubscriberModel> subscriber = findSubscriberByEmail(model.getEmail(), userAuctions);
         if (!subscriber.isPresent()) {
             addSubscription1(model.getEmail(), model.getItem(), userAuctions);
             return true;
@@ -72,24 +72,24 @@ public class SubscriptionCache {
         return updateUserSubscription1(subscriber.get(), model.getItem(), userAuctions);
     }
 
-    private static void addSubscription1(String userEmail, String itemName, List<SubscriberModel1> userAuctions) {
+    private static void addSubscription1(String userEmail, String itemName, List<SubscriberModel> userAuctions) {
         AuctionModel auction = new AuctionModel();
         auction.setItemName(itemName);
         auction.setUrls(new HashSet<>());
 
-        SubscriberModel1 subscriber = new SubscriberModel1();
+        SubscriberModel subscriber = new SubscriberModel();
         subscriber.setEmail(userEmail);
         subscriber.setAuctions(new ArrayList<>(Collections.singletonList(auction)));
 
         userAuctions.add(subscriber);
     }
 
-    private static boolean updateUserSubscription1(SubscriberModel1 subscriber, String itemName, List<SubscriberModel1> userAuctions) {
+    private static boolean updateUserSubscription1(SubscriberModel subscriber, String itemName, List<SubscriberModel> userAuctions) {
         if (getAuction(subscriber.getAuctions(), itemName).isPresent()) {
             return false;
         }
 
-        SubscriberModel1 updatedSubscriber = new SubscriberModel1();
+        SubscriberModel updatedSubscriber = new SubscriberModel();
         BeanUtils.copyProperties(subscriber, updatedSubscriber);
 
         AuctionModel newAuction = new AuctionModel();

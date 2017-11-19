@@ -18,7 +18,7 @@ public class SubscriptionCacheTest {
     @Test
     public void shouldAddTwoSubscriptionsForTheSameUser() {
         PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel1> userAuctions = new ArrayList<>();
+        List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
 
         //new SubscriptionCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
@@ -31,7 +31,7 @@ public class SubscriptionCacheTest {
 
         assertEquals(1, userAuctions.size());
 
-        SubscriberModel1 subscriber = userAuctions.get(0);
+        SubscriberModel subscriber = userAuctions.get(0);
         assertEquals(email, subscriber.getEmail());
         assertEquals(2, subscriber.getAuctions().size());
     }
@@ -39,7 +39,7 @@ public class SubscriptionCacheTest {
     @Test
     public void shouldUpdateUrls() {
         PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel1> userAuctions = new ArrayList<>();
+        List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
 
         //new SubscriptionCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
@@ -52,7 +52,7 @@ public class SubscriptionCacheTest {
 
         assertEquals(1, userAuctions.size());
 
-        SubscriberModel1 subscriber = userAuctions.get(0);
+        SubscriberModel subscriber = userAuctions.get(0);
         assertEquals(email, subscriber.getEmail());
 
         subscriptions.onNext(Model.createModelForUpdate(email, item, new ArrayList<>(Collections.singletonList("url1"))));
@@ -65,7 +65,7 @@ public class SubscriptionCacheTest {
     @Test
     public void shouldNotEmitRequestOnDuplicatedSubscription() {
         PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel1> userAuctions = new ArrayList<>();
+        List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
 
         //new SubscriptionCache(subscriptions, userAuctions, requests, new AuctionFinderImpl());
