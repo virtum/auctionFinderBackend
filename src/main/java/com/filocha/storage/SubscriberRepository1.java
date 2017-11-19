@@ -9,12 +9,9 @@ public class SubscriberRepository1 {
     public static PublishSubject<SubscriberModel> updateSubscriber(MongoTemplate mongoTemplate) {
         PublishSubject<SubscriberModel> subscriptions = PublishSubject.create();
         subscriptions
-                .subscribe(sub -> update(mongoTemplate, sub));
+                .subscribe(sub -> mongoTemplate.save(sub));
 
         return subscriptions;
     }
 
-    private static void update(MongoTemplate mongoTemplate, SubscriberModel model) {
-        mongoTemplate.save(model);
-    }
 }
