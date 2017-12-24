@@ -97,7 +97,22 @@ public class RepositoryExtensionTest {
 
     @Test
     public void shouldNotSaveSameSubscriptionForSameUser() {
+        PublishSubject<Model> subscriptions = PublishSubject.create();
+        List<SubscriberModel> userAuctions = new ArrayList<>();
+        PublishSubject<RequestModel> requests = PublishSubject.create();
 
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+
+        String email = UUID.randomUUID().toString();
+        String item = UUID.randomUUID().toString();
+        subscriptions.onNext(Model.createNewSubscription(email, item));
+        subscriptions.onNext(Model.createNewSubscription(email, item));
+
+        SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
+
+        assertEquals(email, subscriber.getEmail());
+        assertEquals(1, subscriber.getAuctions().size());
+        assertEquals(item, subscriber.getAuctions().get(0).getItemName());
     }
 
     @Test
