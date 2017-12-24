@@ -1,13 +1,14 @@
 package com.filocha.storage;
 
+import com.filocha.MongoTestConfig;
 import com.filocha.finder.AuctionFinderImpl;
 import com.filocha.finder.RequestModel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import rx.subjects.PublishSubject;
 
 import java.util.*;
@@ -16,14 +17,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
+@ContextConfiguration(classes = {MongoTestConfig.class})
+@RunWith(SpringRunner.class)
 public class RepositoryExtensionTest {
 
     @Autowired
     private MongoTemplate mongoTemplate;
-
-    // TODO change database for test
 
     @Test
     public void shouldSaveNewSubscription() {
