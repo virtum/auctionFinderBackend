@@ -12,6 +12,7 @@ import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,6 +24,8 @@ public class RepositoryExtensionTest {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    // TODO add afterMethod to remove test database
+
     @Test
     public void shouldSaveNewSubscription() {
         PublishSubject<Model> subscriptions = PublishSubject.create();
@@ -31,8 +34,8 @@ public class RepositoryExtensionTest {
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
 
-        String email = "user@email";
-        String item = "item";
+        String email = UUID.randomUUID().toString();
+        String item = UUID.randomUUID().toString();
         subscriptions.onNext(Model.createNewSubscription(email, item));
 
         SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
@@ -44,7 +47,24 @@ public class RepositoryExtensionTest {
 
     @Test
     public void shouldSaveTwoDifferentSubscriptionsForSameUser() {
+        PublishSubject<Model> subscriptions = PublishSubject.create();
+        List<SubscriberModel> userAuctions = new ArrayList<>();
+        PublishSubject<RequestModel> requests = PublishSubject.create();
 
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+
+        String email = UUID.randomUUID().toString();
+        String item1 = UUID.randomUUID().toString();
+        String item2 = UUID.randomUUID().toString();
+        subscriptions.onNext(Model.createNewSubscription(email, item1));
+        subscriptions.onNext(Model.createNewSubscription(email, item2));
+
+        SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
+
+        assertEquals(email, subscriber.getEmail());
+        assertEquals(2, subscriber.getAuctions().size());
+        assertEquals(item1, subscriber.getAuctions().get(0).getItemName());
+        assertEquals(item2, subscriber.getAuctions().get(1).getItemName());
     }
 
     @Test
