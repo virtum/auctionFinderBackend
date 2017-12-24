@@ -14,7 +14,7 @@ public class MongoTestConfig {
     private String mongoDbHost;
 
     @Bean
-    public MongoTemplate mongoTemplate() throws Exception {
+    public MongoTemplate mongoTemplate() {
         MongoTemplate template = new MongoTemplate(new MongoClient(mongoDbHost), "testDatabase");
         template.dropCollection(SubscriberModel.class);
 
