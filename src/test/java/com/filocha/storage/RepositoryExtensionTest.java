@@ -23,7 +23,7 @@ public class RepositoryExtensionTest {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    // TODO add afterMethod to remove test database
+    // TODO change database for test
 
     @Test
     public void shouldSaveNewSubscription() {
