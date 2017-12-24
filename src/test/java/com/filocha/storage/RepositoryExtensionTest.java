@@ -69,7 +69,30 @@ public class RepositoryExtensionTest {
 
     @Test
     public void shouldSaveNewSubscriptionForDifferentUsers() {
+        PublishSubject<Model> subscriptions = PublishSubject.create();
+        List<SubscriberModel> userAuctions = new ArrayList<>();
+        PublishSubject<RequestModel> requests = PublishSubject.create();
 
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+
+        String email1 = UUID.randomUUID().toString();
+        String item1 = UUID.randomUUID().toString();
+
+        String email2 = UUID.randomUUID().toString();
+        String item2 = UUID.randomUUID().toString();
+
+        subscriptions.onNext(Model.createNewSubscription(email1, item1));
+        subscriptions.onNext(Model.createNewSubscription(email2, item2));
+
+        SubscriberModel subscriber1 = RepositoryExtension.findSubscriber(mongoTemplate, email1);
+        assertEquals(email1, subscriber1.getEmail());
+        assertEquals(1, subscriber1.getAuctions().size());
+        assertEquals(item1, subscriber1.getAuctions().get(0).getItemName());
+
+        SubscriberModel subscriber2 = RepositoryExtension.findSubscriber(mongoTemplate, email2);
+        assertEquals(email2, subscriber2.getEmail());
+        assertEquals(1, subscriber2.getAuctions().size());
+        assertEquals(item2, subscriber2.getAuctions().get(0).getItemName());
     }
 
     @Test
