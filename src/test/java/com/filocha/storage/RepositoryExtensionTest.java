@@ -144,12 +144,62 @@ public class RepositoryExtensionTest {
 
     @Test
     public void shouldUpdateUrlsForGivenItem() {
+        PublishSubject<Model> subscriptions = PublishSubject.create();
+        List<SubscriberModel> userAuctions = new ArrayList<>();
+        PublishSubject<RequestModel> requests = PublishSubject.create();
 
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+
+        String email = UUID.randomUUID().toString();
+        String item = UUID.randomUUID().toString();
+        String url1 = UUID.randomUUID().toString();
+        String url2 = UUID.randomUUID().toString();
+        List<String> urls = new ArrayList<>(Arrays.asList(url1, url2));
+
+        subscriptions.onNext(Model.createNewSubscription(email, item));
+        subscriptions.onNext(Model.createModelForUpdate(email, item, urls));
+
+        String url3 = UUID.randomUUID().toString();
+        List<String> newUrls = new ArrayList<>(Arrays.asList(url3));
+
+        subscriptions.onNext(Model.createModelForUpdate(email, item, newUrls));
+
+        SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
+
+        Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
+        assertEquals(3, savedUrls.size());
+        assertTrue(savedUrls.contains(url1));
+        assertTrue(savedUrls.contains(url2));
+        assertTrue(savedUrls.contains(url3));
     }
 
     @Test
     public void shouldNotSaveSameUrlsTwice() {
+        PublishSubject<Model> subscriptions = PublishSubject.create();
+        List<SubscriberModel> userAuctions = new ArrayList<>();
+        PublishSubject<RequestModel> requests = PublishSubject.create();
 
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+
+        String email = UUID.randomUUID().toString();
+        String item = UUID.randomUUID().toString();
+        String url1 = UUID.randomUUID().toString();
+        String url2 = UUID.randomUUID().toString();
+        List<String> urls = new ArrayList<>(Arrays.asList(url1, url2));
+
+        subscriptions.onNext(Model.createNewSubscription(email, item));
+        subscriptions.onNext(Model.createModelForUpdate(email, item, urls));
+
+        List<String> newUrls = new ArrayList<>(Arrays.asList(url1));
+
+        subscriptions.onNext(Model.createModelForUpdate(email, item, newUrls));
+
+        SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
+
+        Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
+        assertEquals(2, savedUrls.size());
+        assertTrue(savedUrls.contains(url1));
+        assertTrue(savedUrls.contains(url2));
     }
 
 }
