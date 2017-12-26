@@ -29,8 +29,9 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
+        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
 
-        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository);
 
         String email = UUID.randomUUID().toString();
         String item = UUID.randomUUID().toString();
@@ -49,8 +50,9 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
+        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
 
-        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository);
 
         String email = UUID.randomUUID().toString();
         String item1 = UUID.randomUUID().toString();
@@ -72,8 +74,9 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
+        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
 
-        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository);
 
         String email1 = UUID.randomUUID().toString();
         String item1 = UUID.randomUUID().toString();
@@ -100,8 +103,9 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
+        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
 
-        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository);
 
         String email = UUID.randomUUID().toString();
         String item = UUID.randomUUID().toString();
@@ -121,8 +125,9 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
+        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
 
-        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository);
 
         String email = UUID.randomUUID().toString();
         String item = UUID.randomUUID().toString();
@@ -146,8 +151,9 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
+        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
 
-        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository);
 
         String email = UUID.randomUUID().toString();
         String item = UUID.randomUUID().toString();
@@ -177,8 +183,9 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
+        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
 
-        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), mongoTemplate);
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository);
 
         String email = UUID.randomUUID().toString();
         String item = UUID.randomUUID().toString();

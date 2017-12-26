@@ -31,13 +31,15 @@ public class SubscriptionServiceImpl {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private PublishSubject<RequestModel> requests;
     private PublishSubject<Model> subscriptions;
+    private PublishSubject<SubscriberModel> repository;
 
     @PostConstruct
     private void initialize() {
         requests = PublishSubject.create();
         subscriptions = PublishSubject.create();
+        repository = RepositoryExtension.updateSubscriber(mongoTemplate);
 
-        SubscriptionCache.startCache(subscriptions, new ArrayList<>(), requests, auctionFinder, mongoTemplate);
+        SubscriptionCache.startCache(subscriptions, new ArrayList<>(), requests, auctionFinder, repository);
         //Closable =  static
 
         handleResponses1();
