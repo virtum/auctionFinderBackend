@@ -3,7 +3,6 @@ package com.filocha.storage;
 import com.filocha.finder.AuctionFinder;
 import com.filocha.finder.RequestModel;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
-import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import rx.Observable;
 import rx.Observer;
@@ -16,7 +15,8 @@ public class SubscriptionCache {
 
     // TODO replace void closable
     public static void startCache(Observable<Model> subscriptions, List<SubscriberModel> userAuctions,
-                                  Observer<RequestModel> requests, AuctionFinder auctionFinder, PublishSubject<SubscriberModel> repository) {
+                                  Observer<RequestModel> requests, AuctionFinder auctionFinder,
+                                  PublishSubject<SubscriberModel> repository, PublishSubject<Model> emailSender) {
         subscriptions
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
@@ -24,12 +24,13 @@ public class SubscriptionCache {
                             onNextRequest(auctionFinder, it, requests);
                         }
                     } else {
-                        updateUrls(repository, it, userAuctions);
+                        updateUrls(repository, it, userAuctions, emailSender);
                     }
                 });
     }
 
-    private static void updateUrls(PublishSubject<SubscriberModel> repository, Model model, List<SubscriberModel> userAuctions) {
+    private static void updateUrls(PublishSubject<SubscriberModel> repository, Model model, List<SubscriberModel> userAuctions,
+                                   PublishSubject<Model> emailSender) {
         SubscriberModel subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
                 .orElseThrow(() -> new NoSuchElementException("Email: " + model.getEmail() + " was not found"));
 
@@ -40,7 +41,7 @@ public class SubscriptionCache {
         if (!newUrls.isEmpty()) {
             auctionToUpdate.getUrls().addAll(newUrls);
             repository.onNext(subscriber);
-            // onNext for email sender
+            emailSender.onNext(Model.createModelForUpdate(model.getEmail(), model.getItem(), newUrls));
         }
     }
 
@@ -117,34 +118,5 @@ public class SubscriptionCache {
         RequestModel req = new RequestModel(request, model.getEmail(), model.getItem());
 
         requests.onNext(req);
-    }
-}
-
-@Data
-class Model {
-
-    private String email;
-    private String item;
-    private List<String> urls;
-    private boolean isNewSubscription;
-
-    public static Model createNewSubscription(String email, String item) {
-        Model subscription = new Model();
-        subscription.setEmail(email);
-        subscription.setItem(item);
-        subscription.setUrls(new ArrayList<>());
-        subscription.setNewSubscription(true);
-
-        return subscription;
-    }
-
-    public static Model createModelForUpdate(String email, String item, List<String> urls) {
-        Model toUpdate = new Model();
-        toUpdate.setEmail(email);
-        toUpdate.setItem(item);
-        toUpdate.setUrls(urls);
-        toUpdate.setNewSubscription(false);
-
-        return toUpdate;
     }
 }

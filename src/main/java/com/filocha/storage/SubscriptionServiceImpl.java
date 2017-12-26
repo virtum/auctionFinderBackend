@@ -1,5 +1,6 @@
 package com.filocha.storage;
 
+import com.filocha.email.EmailSender;
 import com.filocha.finder.AuctionFinder;
 import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
@@ -27,19 +28,23 @@ public class SubscriptionServiceImpl {
     private AuctionFinder auctionFinder;
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private EmailSender sender;
 
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private PublishSubject<RequestModel> requests;
     private PublishSubject<Model> subscriptions;
     private PublishSubject<SubscriberModel> repository;
+    private PublishSubject<Model> emailSender;
 
     @PostConstruct
     private void initialize() {
         requests = PublishSubject.create();
         subscriptions = PublishSubject.create();
         repository = RepositoryExtension.updateSubscriber(mongoTemplate);
+        emailSender = sender.createEmailSender();
 
-        SubscriptionCache.startCache(subscriptions, new ArrayList<>(), requests, auctionFinder, repository);
+        SubscriptionCache.startCache(subscriptions, new ArrayList<>(), requests, auctionFinder, repository, emailSender);
         //Closable =  static
 
         handleResponses1();

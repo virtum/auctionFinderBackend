@@ -1,5 +1,6 @@
 package com.filocha.email;
 
+import com.filocha.storage.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -7,11 +8,10 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
+import rx.subjects.PublishSubject;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Component
 public class EmailSender {
@@ -25,15 +25,19 @@ public class EmailSender {
     @Autowired
     public JavaMailSender emailSender;
 
-    public void sendEmail(String userEmail, List<String> urls) {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(userEmail);
-            message.setSubject("test");
-            message.setText(prepareTestMessage(urls));
-            emailSender.send(message);
-        });
+    // TODO make this closable
+    public PublishSubject<Model> createEmailSender() {
+        PublishSubject<Model> subscriptions = PublishSubject.create();
+        subscriptions
+                .subscribe(sub -> {
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setTo(sub.getEmail());
+                    message.setSubject("test");
+                    message.setText(prepareTestMessage(sub.getUrls()));
+                    emailSender.send(message);
+                });
+
+        return subscriptions;
     }
 
     private String prepareTestMessage(List<String> urls) {

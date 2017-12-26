@@ -21,8 +21,9 @@ public class SubscriptionCacheTest {
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
         PublishSubject<SubscriberModel> repository = PublishSubject.create();
+        PublishSubject<Model> emailSender = PublishSubject.create();
 
-        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository);
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
         String email = "user@email";
 
@@ -42,8 +43,9 @@ public class SubscriptionCacheTest {
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
         PublishSubject<SubscriberModel> repository = PublishSubject.create();
+        PublishSubject<Model> emailSender = PublishSubject.create();
 
-        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository);
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
         String email = "user@email";
         String item = "item";
@@ -68,8 +70,9 @@ public class SubscriptionCacheTest {
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
         PublishSubject<SubscriberModel> repository = PublishSubject.create();
+        PublishSubject<Model> emailSender = PublishSubject.create();
 
-        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository);
+        SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
         String email = "user@email";
 
