@@ -33,18 +33,15 @@ public class SubscriptionCache {
         SubscriberModel subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
                 .orElseThrow(() -> new NoSuchElementException("Email: " + model.getEmail() + " was not found"));
 
-        List<String> urlsToUpdate = model.getUrls();
         AuctionModel auctionToUpdate = getAuction(subscriber.getAuctions(), model.getItem()).
                 orElseThrow(() -> new NoSuchElementException("Auctions for item:" + model.getItem() + " was not found"));
 
-        //TODO send email with urls
-        List<String> urlsToSend = prepareNewAuctionsUrl(auctionToUpdate.getUrls(), urlsToUpdate);
-
-        // TODO should not be urlToSend instead?
-        auctionToUpdate.getUrls().addAll(urlsToUpdate);
-
-        // TODO onNext and update only if urlsToSend are greater than 0
-        repository.onNext(subscriber);
+        List<String> newUrls = prepareNewAuctionsUrl(auctionToUpdate.getUrls(), model.getUrls());
+        if (!newUrls.isEmpty()) {
+            auctionToUpdate.getUrls().addAll(newUrls);
+            repository.onNext(subscriber);
+            // onNext for email sender
+        }
     }
 
     //TODO change method to void, and send new url list if urls > 0 in email
