@@ -36,9 +36,9 @@ public class SubscriptionCache {
         AuctionModel auctionToUpdate = getAuction(subscriber.getAuctions(), model.getItem()).
                 orElseThrow(() -> new NoSuchElementException("Auctions for item:" + model.getItem() + " was not found"));
 
-        List<String> newUrls = auctionToUpdate.getUrls()
+        List<String> newUrls = model.getUrls()
                 .stream()
-                .filter(i -> !model.getUrls().contains(i))
+                .filter(i -> !auctionToUpdate.getUrls().contains(i))
                 .collect(Collectors.toList());
 
         if (!newUrls.isEmpty()) {
