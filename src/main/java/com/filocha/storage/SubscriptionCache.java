@@ -3,7 +3,6 @@ package com.filocha.storage;
 import com.filocha.finder.AuctionFinder;
 import com.filocha.finder.RequestModel;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
-import org.springframework.beans.BeanUtils;
 import rx.Observable;
 import rx.Observer;
 import rx.subjects.PublishSubject;
@@ -37,20 +36,16 @@ public class SubscriptionCache {
         AuctionModel auctionToUpdate = getAuction(subscriber.getAuctions(), model.getItem()).
                 orElseThrow(() -> new NoSuchElementException("Auctions for item:" + model.getItem() + " was not found"));
 
-        List<String> newUrls = prepareNewAuctionsUrl(auctionToUpdate.getUrls(), model.getUrls());
+        List<String> newUrls = auctionToUpdate.getUrls()
+                .stream()
+                .filter(i -> !model.getUrls().contains(i))
+                .collect(Collectors.toList());
+
         if (!newUrls.isEmpty()) {
             auctionToUpdate.getUrls().addAll(newUrls);
             repository.onNext(subscriber);
             emailSender.onNext(Model.createModelForUpdate(model.getEmail(), model.getItem(), newUrls));
         }
-    }
-
-    //TODO change method to void, and send new url list if urls > 0 in email
-    private static List<String> prepareNewAuctionsUrl(Set<String> currentUrls, List<String> urlsToUpdate) {
-        return urlsToUpdate
-                .stream()
-                .filter(i -> !currentUrls.contains(i))
-                .collect(Collectors.toList());
     }
 
     private static Optional<SubscriberModel> findSubscriberByEmail(final String email, List<SubscriberModel> userAuctions) {
@@ -77,7 +72,8 @@ public class SubscriptionCache {
         return updateUserSubscription(repository, subscriber.get(), model.getItem(), userAuctions);
     }
 
-    private static void addSubscription(PublishSubject<SubscriberModel> repository, String userEmail, String itemName, List<SubscriberModel> userAuctions) {
+    private static void addSubscription(PublishSubject<SubscriberModel> repository, String userEmail, String itemName,
+                                        List<SubscriberModel> userAuctions) {
         AuctionModel auction = new AuctionModel();
         auction.setItemName(itemName);
         auction.setUrls(new HashSet<>());
@@ -91,23 +87,20 @@ public class SubscriptionCache {
         repository.onNext(subscriber);
     }
 
-    private static boolean updateUserSubscription(PublishSubject<SubscriberModel> repository, SubscriberModel subscriber, String itemName, List<SubscriberModel> userAuctions) {
+    private static boolean updateUserSubscription(PublishSubject<SubscriberModel> repository, SubscriberModel subscriber,
+                                                  String itemName, List<SubscriberModel> userAuctions) {
         if (getAuction(subscriber.getAuctions(), itemName).isPresent()) {
             return false;
         }
-
-        // TODO replace this code with references
-        SubscriberModel updatedSubscriber = new SubscriberModel();
-        BeanUtils.copyProperties(subscriber, updatedSubscriber);
 
         AuctionModel newAuction = new AuctionModel();
         newAuction.setItemName(itemName);
         newAuction.setUrls(new HashSet<>());
 
-        updatedSubscriber.getAuctions().add(newAuction);
-        userAuctions.set(userAuctions.indexOf(subscriber), updatedSubscriber);
+        subscriber.getAuctions().add(newAuction);
+        userAuctions.set(userAuctions.indexOf(subscriber), subscriber);
 
-        repository.onNext(updatedSubscriber);
+        repository.onNext(subscriber);
 
         return true;
     }
