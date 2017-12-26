@@ -19,8 +19,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.filocha.storage.CompletableFutureExtension.within;
 
 @Component
 public class SubscriptionServiceImpl {
@@ -31,7 +32,7 @@ public class SubscriptionServiceImpl {
     @Autowired
     private EmailSender sender;
 
-    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
     private PublishSubject<RequestModel> requests;
     private PublishSubject<Model> subscriptions;
     private PublishSubject<SubscriberModel> repository;
@@ -45,19 +46,18 @@ public class SubscriptionServiceImpl {
         emailSender = sender.createEmailSender();
 
         SubscriptionCache.startCache(subscriptions, new ArrayList<>(), requests, auctionFinder, repository, emailSender);
-        //Closable =  static
 
-        handleResponses1();
-        sendRequets1();
+        handleResponses();
+        sendRequests();
     }
 
-    public void pushSubscription(ItemFinderRequestMessage request) {
+    public void createNewSubscription(ItemFinderRequestMessage request) {
         subscriptions.onNext(Model.createNewSubscription(request.getEmail(), request.getItem()));
     }
 
     private PublishSubject<ResponseModel> responses = PublishSubject.create();
 
-    private void sendRequets1() {
+    private void sendRequests() {
         ThrottleGuard
                 .throttle(requests, 1000, 100)
                 .observeOn(Schedulers.io())
@@ -70,16 +70,14 @@ public class SubscriptionServiceImpl {
                 });
     }
 
-    private void handleResponses1() {
+    private void handleResponses() {
         responses
                 .observeOn(Schedulers.io())
                 .subscribe(response -> {
                     final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
                     responseFuture
                             .thenAccept(it -> {
-                                List<String> urls = prepareAuctionsIdList(response);
-
-                                subscriptions.onNext(Model.createModelForUpdate(response.getUserEmail(), response.getItem(), urls));
+                                subscriptions.onNext(Model.createModelForUpdate(response.getUserEmail(), response.getItem(), prepareAuctionsIdList(response)));
                                 requests.onNext(response.getRequest());
                             })
                             .exceptionally(throwable -> {
@@ -97,21 +95,6 @@ public class SubscriptionServiceImpl {
                 .map(ItemsListType::getItemId)
                 .map(url -> "http://allegro.pl/i" + url + ".html\n")
                 .collect(Collectors.toList());
-    }
-
-    // TODO http://www.nurkiewicz.com/2014/12/asynchronous-timeouts-with.html - add documentation based on url data
-    public static <T> CompletableFuture<T> within(CompletableFuture<T> future, Duration duration) {
-        final CompletableFuture<T> timeout = failAfter(duration);
-        return future.applyToEither(timeout, Function.identity());
-    }
-
-    private static <T> CompletableFuture<T> failAfter(Duration duration) {
-        final CompletableFuture<T> promise = new CompletableFuture<>();
-        scheduler.schedule(() -> {
-            final TimeoutException ex = new TimeoutException("Timeout after " + duration);
-            return promise.completeExceptionally(ex);
-        }, duration.toMillis(), TimeUnit.MILLISECONDS);
-        return promise;
     }
 }
 

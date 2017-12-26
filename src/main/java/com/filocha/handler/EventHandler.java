@@ -36,7 +36,7 @@ public class EventHandler {
             //subscriptionCache.addSubscription(message.getEmail(), message.getItem());
 //            SubscriptionCache.subscriptions
 //                    .onNext(message);
-            subscriptionService.pushSubscription(message);
+            subscriptionService.createNewSubscription(message);
 
             //subscriptionService.fillQueueWithRequest(it.getItem(), it.getEmail());
 
