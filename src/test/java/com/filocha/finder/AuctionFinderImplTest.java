@@ -28,24 +28,10 @@ public class AuctionFinderImplTest {
     @Test
     public void shouldFindAnyAuction() throws ExecutionException, InterruptedException {
         DoGetItemsListRequest request = auctionFinder.createRequest("nokia");
-        CompletableFuture<List<ItemsListType>> auctions = auctionFinder.findAuctions(request);
-        List<ItemsListType> result = auctions.get();
+
+        List<ItemsListType> result = auctionFinder.findAuctions(request).get();
 
         assertThat(result.size(), greaterThan(0));
-    }
-
-    @Ignore
-    @Test
-    public void shouldSendMultipleAsyncRequest() throws ExecutionException, InterruptedException {
-        List<Future<List<ItemsListType>>> futures = new ArrayList<>();
-
-        for (int i = 0; i < 150; i++) {
-            //futures.add(auctionFinder.findAuctions("nokia"));
-        }
-
-        for (Future<List<ItemsListType>> future : futures) {
-            System.out.println(future.get().get(0));
-        }
     }
 
 }

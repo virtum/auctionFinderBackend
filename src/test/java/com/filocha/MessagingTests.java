@@ -14,7 +14,6 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class MessagingTests {
 
-    @Ignore
     @Test
     public void shouldSendAndReceiveMessageViaActiveMQ() throws ExecutionException, InterruptedException {
         BasicConfigurator.configure();
