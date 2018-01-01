@@ -18,6 +18,10 @@ public class MessageHandler {
 
     @Value("${activeMqHost}")
     private String activeMqHost;
+    @Value("${requestQueue}")
+    private String requestQueue;
+    @Value("${responseQueue}")
+    private String responseQueue;
 
     @Autowired
     private SubscriptionHandler subscriptionHandler;
@@ -26,7 +30,7 @@ public class MessageHandler {
     public void createHandlers() {
         ServerBusImpl serverBus = new ServerBusImpl();
         // TODO replace queues name with system variables
-        serverBus.setConsumerAndProducer(activeMqHost, "REQUEST.QUEUE", "RESPONSE.QUEUE");
+        serverBus.setConsumerAndProducer(activeMqHost, requestQueue, responseQueue);
 
         serverBus.addHandler(message -> subscriptionHandler.handleSubscription(message),
                 ItemFinderRequestMessage.class,
