@@ -1,6 +1,7 @@
 package com.filocha.throttle;
 
 import com.filocha.finder.RequestModel;
+import lombok.Value;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -65,35 +66,25 @@ public class ThrottleGuard {
     }
 }
 
+@Value
 class RequestWithFlag {
     private RequestModel request;
     private boolean flag;
 
-    public RequestWithFlag(RequestModel value, boolean flag) {
+    RequestWithFlag(RequestModel value, boolean flag) {
         this.request = value;
         this.flag = flag;
     }
-
-    public RequestModel getRequest() {
-        return request;
-    }
-
-    public boolean isFlag() {
-        return flag;
-    }
 }
 
+@Value
 class RequestWithTimestamp {
     private RequestModel request;
     private Date creationDate;
 
-    public RequestWithTimestamp(RequestModel request, Date creationDate) {
+    RequestWithTimestamp(RequestModel request, Date creationDate) {
         this.request = request;
         this.creationDate = creationDate;
-    }
-
-    public Date getCreationDate() {
-        return creationDate;
     }
 }
 
