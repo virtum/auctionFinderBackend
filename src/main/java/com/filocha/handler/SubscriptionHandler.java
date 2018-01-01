@@ -15,9 +15,9 @@ class SubscriptionHandler {
     ItemFinderResponseMessage handleSubscription(ItemFinderRequestMessage requestMessage) {
         subscriptionService.createNewSubscription(requestMessage);
 
-        ItemFinderResponseMessage response = new ItemFinderResponseMessage();
-        response.setResponse("Subscribed!");
-
-        return response;
+        return ItemFinderResponseMessage
+                .builder()
+                .response("Subscribed!")
+                .build();
     }
 }

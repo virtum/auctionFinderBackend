@@ -41,10 +41,10 @@ public class MessageHandler {
 //                auctions.add(subscription.getItem());
 //            }
 
-            SubscriptionsResponseModel response = new SubscriptionsResponseModel();
-            response.setUserSubscriptions(auctions);
-
-            return response;
+            return SubscriptionsResponseModel
+                    .builder()
+                    .userSubscriptions(auctions)
+                    .build();
         }, SubscriptionsRequestModel.class, SubscriptionsResponseModel.class);
     }
 
