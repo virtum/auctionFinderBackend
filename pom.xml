@@ -229,8 +229,12 @@
 
     <repositories>
         <repository>
-            <id>myMavenRepo.read</id>
-            <url>https://mymavenrepo.com/repo/ba4QdVTKO2GwYT4Ge3fX/</url>
+            <id>test</id>
+            <url>https://rawgit.com/virtum/messaging/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
         </repository>
     </repositories>
 
