@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import rx.subjects.PublishSubject;
 
 import java.util.List;
+import java.util.Optional;
 
 public class RepositoryExtensions {
 
@@ -17,8 +18,8 @@ public class RepositoryExtensions {
         return subscriptions;
     }
 
-    public static SubscriberModel findSubscriber(MongoTemplate mongoTemplate, String email) {
-        return mongoTemplate.findOne(Query.query(Criteria.where("email").is(email)), SubscriberModel.class);
+    public static Optional<SubscriberModel> findSubscriber(MongoTemplate mongoTemplate, String email) {
+        return Optional.ofNullable(mongoTemplate.findOne(Query.query(Criteria.where("email").is(email)), SubscriberModel.class));
     }
 
     public static List<SubscriberModel> getAllSubscribers(MongoTemplate mongoTemplate) {

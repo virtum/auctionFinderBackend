@@ -2,14 +2,15 @@ package com.filocha.handler;
 
 import com.filocha.messaging.messages.subscriptions.SubscriptionsRequestModel;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
-import com.filocha.storage.AuctionModel;
 import com.filocha.storage.RepositoryExtensions;
+import com.filocha.storage.SubscriberModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Component
 public class ItemsListHandler {
@@ -18,17 +19,16 @@ public class ItemsListHandler {
     private MongoTemplate mongoTemplate;
 
     public SubscriptionsResponseModel handleMessage(SubscriptionsRequestModel message) {
-        // TODO check if empty then stream
-        List<String> auctions = RepositoryExtensions
-                .findSubscriber(mongoTemplate, message.getEmail())
+        Optional<SubscriberModel> subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, message.getEmail());
+
+        List<String> items = new ArrayList<>();
+        subscriber.ifPresent(sub -> sub
                 .getAuctions()
-                .stream()
-                .map(AuctionModel::getItemName)
-                .collect(Collectors.toList());
+                .forEach(item -> items.add(item.getItemName())));
 
         return SubscriptionsResponseModel
                 .builder()
-                .userSubscriptions(auctions)
+                .userSubscriptions(items)
                 .build();
     }
 
