@@ -12,7 +12,7 @@ class SubscriptionHandler {
     @Autowired
     private SubscriptionServiceImpl subscriptionService;
 
-    ItemFinderResponseMessage handleSubscription(ItemFinderRequestMessage requestMessage) {
+    ItemFinderResponseMessage handleMessage(ItemFinderRequestMessage requestMessage) {
         subscriptionService.createNewSubscription(requestMessage);
 
         return ItemFinderResponseMessage

@@ -1,6 +1,5 @@
-package com.filocha;
+package com.filocha.storage;
 
-import com.filocha.storage.SubscriberModel;
 import com.mongodb.MongoClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;

@@ -42,7 +42,7 @@ public class SubscriptionServiceImpl {
     private void initialize() {
         requests = PublishSubject.create();
         subscriptions = PublishSubject.create();
-        repository = RepositoryExtension.updateSubscriber(mongoTemplate);
+        repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         emailSender = sender.createEmailSender();
 
         SubscriptionCache.startCache(subscriptions, new ArrayList<>(), requests, auctionFinder, repository, emailSender);

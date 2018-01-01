@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class MessageHandler {
@@ -25,32 +23,21 @@ public class MessageHandler {
 
     @Autowired
     private SubscriptionHandler subscriptionHandler;
+    @Autowired
+    private ItemsListHandler itemsListHandler;
 
     @PostConstruct
     public void createHandlers() {
         ServerBusImpl serverBus = new ServerBusImpl();
-        // TODO replace queues name with system variables
         serverBus.setConsumerAndProducer(activeMqHost, requestQueue, responseQueue);
 
-        serverBus.addHandler(message -> subscriptionHandler.handleSubscription(message),
+        serverBus.addHandler(message -> subscriptionHandler.handleMessage(message),
                 ItemFinderRequestMessage.class,
                 ItemFinderResponseMessage.class);
 
-        serverBus.addHandler(it -> {
-            //List<SubscriberModel> subscriptions = repository.findAllUserSubscriptions(it.getEmail());
-            List<String> auctions = new ArrayList<>();
-
-            //FIXME change for due to new model
-//
-//            for (SubscriberModel subscription : subscriptions) {
-//                auctions.add(subscription.getItem());
-//            }
-
-            return SubscriptionsResponseModel
-                    .builder()
-                    .userSubscriptions(auctions)
-                    .build();
-        }, SubscriptionsRequestModel.class, SubscriptionsResponseModel.class);
+        serverBus.addHandler(message -> itemsListHandler.handleMessage(message),
+                SubscriptionsRequestModel.class,
+                SubscriptionsResponseModel.class);
     }
 
 }

@@ -1,6 +1,5 @@
 package com.filocha.storage;
 
-import com.filocha.MongoTestConfig;
 import com.filocha.finder.AuctionFinderImpl;
 import com.filocha.finder.RequestModel;
 import org.junit.Test;
@@ -19,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration(classes = {MongoTestConfig.class})
 @RunWith(SpringRunner.class)
-public class RepositoryExtensionTest {
+public class RepositoryExtensionsTest {
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -29,7 +28,7 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
+        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
@@ -39,7 +38,7 @@ public class RepositoryExtensionTest {
 
         subscriptions.onNext(Model.createNewSubscription(email, item));
 
-        SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
+        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email);
 
         assertEquals(email, subscriber.getEmail());
         assertEquals(1, subscriber.getAuctions().size());
@@ -51,7 +50,7 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
+        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
@@ -63,7 +62,7 @@ public class RepositoryExtensionTest {
         subscriptions.onNext(Model.createNewSubscription(email, item1));
         subscriptions.onNext(Model.createNewSubscription(email, item2));
 
-        SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
+        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email);
 
         assertEquals(email, subscriber.getEmail());
         assertEquals(2, subscriber.getAuctions().size());
@@ -76,7 +75,7 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
+        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
@@ -90,12 +89,12 @@ public class RepositoryExtensionTest {
         subscriptions.onNext(Model.createNewSubscription(email1, item1));
         subscriptions.onNext(Model.createNewSubscription(email2, item2));
 
-        SubscriberModel subscriber1 = RepositoryExtension.findSubscriber(mongoTemplate, email1);
+        SubscriberModel subscriber1 = RepositoryExtensions.findSubscriber(mongoTemplate, email1);
         assertEquals(email1, subscriber1.getEmail());
         assertEquals(1, subscriber1.getAuctions().size());
         assertEquals(item1, subscriber1.getAuctions().get(0).getItemName());
 
-        SubscriberModel subscriber2 = RepositoryExtension.findSubscriber(mongoTemplate, email2);
+        SubscriberModel subscriber2 = RepositoryExtensions.findSubscriber(mongoTemplate, email2);
         assertEquals(email2, subscriber2.getEmail());
         assertEquals(1, subscriber2.getAuctions().size());
         assertEquals(item2, subscriber2.getAuctions().get(0).getItemName());
@@ -106,7 +105,7 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
+        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
@@ -117,7 +116,7 @@ public class RepositoryExtensionTest {
         subscriptions.onNext(Model.createNewSubscription(email, item));
         subscriptions.onNext(Model.createNewSubscription(email, item));
 
-        SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
+        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email);
 
         assertEquals(email, subscriber.getEmail());
         assertEquals(1, subscriber.getAuctions().size());
@@ -129,7 +128,7 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
+        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
@@ -143,7 +142,7 @@ public class RepositoryExtensionTest {
         subscriptions.onNext(Model.createNewSubscription(email, item));
         subscriptions.onNext(Model.createModelForUpdate(email, item, urls));
 
-        SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
+        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email);
 
         Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
         assertEquals(2, savedUrls.size());
@@ -156,7 +155,7 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
+        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
@@ -175,7 +174,7 @@ public class RepositoryExtensionTest {
 
         subscriptions.onNext(Model.createModelForUpdate(email, item, newUrls));
 
-        SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
+        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email);
 
         Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
         assertEquals(3, savedUrls.size());
@@ -189,7 +188,7 @@ public class RepositoryExtensionTest {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         List<SubscriberModel> userAuctions = new ArrayList<>();
         PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtension.updateSubscriber(mongoTemplate);
+        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
@@ -207,7 +206,7 @@ public class RepositoryExtensionTest {
 
         subscriptions.onNext(Model.createModelForUpdate(email, item, newUrls));
 
-        SubscriberModel subscriber = RepositoryExtension.findSubscriber(mongoTemplate, email);
+        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email);
 
         Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
         assertEquals(2, savedUrls.size());
