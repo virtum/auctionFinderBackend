@@ -1,6 +1,5 @@
 package com.filocha.handler;
 
-import com.filocha.JmsTestConfig;
 import com.filocha.MongoTestConfig;
 import com.filocha.messaging.client.ClientBusImpl;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;

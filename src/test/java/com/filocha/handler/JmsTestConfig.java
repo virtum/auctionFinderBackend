@@ -1,6 +1,5 @@
-package com.filocha;
+package com.filocha.handler;
 
-import com.filocha.handler.MessageHandler;
 import com.filocha.messaging.client.ClientBus;
 import com.filocha.messaging.client.ClientBusImpl;
 import org.springframework.beans.factory.annotation.Autowired;
