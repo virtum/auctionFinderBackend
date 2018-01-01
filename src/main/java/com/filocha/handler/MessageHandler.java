@@ -25,7 +25,8 @@ public class MessageHandler {
     @PostConstruct
     public void createHandlers() {
         ServerBusImpl serverBus = new ServerBusImpl();
-        serverBus.setConsumerAndProducer(activeMqHost);
+        // TODO replace queues name with system variables
+        serverBus.setConsumerAndProducer(activeMqHost, "REQUEST.QUEUE", "RESPONSE.QUEUE");
 
         serverBus.addHandler(message -> subscriptionHandler.handleSubscription(message),
                 ItemFinderRequestMessage.class,
