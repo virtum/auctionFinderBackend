@@ -1,5 +1,6 @@
 package com.filocha.storage;
 
+import com.filocha.MongoTestConfig;
 import com.filocha.finder.AuctionFinderImpl;
 import com.filocha.finder.RequestModel;
 import org.junit.Test;
@@ -7,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import rx.subjects.PublishSubject;
 
@@ -18,6 +20,8 @@ import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration(classes = {MongoTestConfig.class})
 @RunWith(SpringRunner.class)
+@TestPropertySource(
+        locations = "classpath:applicationTest.properties")
 public class RepositoryExtensionsTest {
 
     @Autowired

@@ -1,5 +1,6 @@
-package com.filocha.storage;
+package com.filocha;
 
+import com.filocha.storage.SubscriberModel;
 import com.mongodb.MongoClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -11,10 +12,12 @@ public class MongoTestConfig {
 
     @Value("${mongoDbHost}")
     private String mongoDbHost;
+    @Value("${databaseName}")
+    private String databaseName;
 
     @Bean
     public MongoTemplate mongoTemplate() {
-        MongoTemplate template = new MongoTemplate(new MongoClient(mongoDbHost), "testDatabase");
+        MongoTemplate template = new MongoTemplate(new MongoClient(mongoDbHost), databaseName);
         template.dropCollection(SubscriberModel.class);
 
         return template;

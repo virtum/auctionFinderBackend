@@ -1,5 +1,7 @@
 package com.filocha.handler;
 
+import com.filocha.JmsTestConfig;
+import com.filocha.MongoTestConfig;
 import com.filocha.messaging.client.ClientBusImpl;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.messaging.messages.finder.ItemFinderResponseMessage;
@@ -11,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -20,8 +23,10 @@ import java.util.concurrent.CompletableFuture;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {JmsTestConfig.class})
+@ContextConfiguration(classes = {JmsTestConfig.class, MongoTestConfig.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(
+        locations = "classpath:applicationTest.properties")
 public class MessageHandlerTest {
 
     @Autowired
