@@ -18,6 +18,7 @@ public class ItemsListHandler {
     private MongoTemplate mongoTemplate;
 
     public SubscriptionsResponseModel handleMessage(SubscriptionsRequestModel message) {
+        // TODO check if empty then stream
         List<String> auctions = RepositoryExtensions
                 .findSubscriber(mongoTemplate, message.getEmail())
                 .getAuctions()
