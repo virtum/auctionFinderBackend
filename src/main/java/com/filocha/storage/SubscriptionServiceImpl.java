@@ -6,6 +6,7 @@ import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.throttle.ThrottleGuard;
+import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,8 @@ import rx.subjects.PublishSubject;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static com.filocha.storage.CompletableFutureExtension.within;
@@ -37,6 +37,7 @@ public class SubscriptionServiceImpl {
     private PublishSubject<Model> subscriptions;
     private PublishSubject<SubscriberModel> repository;
     private PublishSubject<Model> emailSender;
+    private PublishSubject<ResponseModel> responses = PublishSubject.create();
 
     @PostConstruct
     private void initialize() {
@@ -45,17 +46,29 @@ public class SubscriptionServiceImpl {
         repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         emailSender = sender.createEmailSender();
 
-        SubscriptionCache.startCache(subscriptions, new ArrayList<>(), requests, auctionFinder, repository, emailSender);
-
         handleResponses();
         sendRequests();
+        fillCacheWithDataFromDatabase();
     }
 
     public void createNewSubscription(ItemFinderRequestMessage request) {
         subscriptions.onNext(Model.createNewSubscription(request.getEmail(), request.getItem()));
     }
 
-    private PublishSubject<ResponseModel> responses = PublishSubject.create();
+    private void fillCacheWithDataFromDatabase() {
+        List<SubscriberModel> subscribers = RepositoryExtensions.getAllSubscribers(mongoTemplate);
+        SubscriptionCache.startCache(subscriptions, subscribers, requests, auctionFinder, repository, emailSender);
+
+        subscribers.forEach(subscriber -> subscriber
+                .getAuctions()
+                .forEach(auction -> {
+                    DoGetItemsListRequest request = auctionFinder.createRequest(auction.getItemName());
+
+                    RequestModel req = new RequestModel(request, subscriber.getEmail(), auction.getItemName());
+
+                    requests.onNext(req);
+                }));
+    }
 
     private void sendRequests() {
         ThrottleGuard
