@@ -67,9 +67,11 @@ public class SubscriptionCache {
                 .urls(new HashSet<>())
                 .build();
 
-        final SubscriberModel subscriber = new SubscriberModel();
-        subscriber.setEmail(userEmail);
-        subscriber.setAuctions(new ArrayList<>(Collections.singletonList(auction)));
+        final SubscriberModel subscriber = SubscriberModel
+                .builder()
+                .email(userEmail)
+                .auctions(new ArrayList<>(Collections.singleton(auction)))
+                .build();
 
         userAuctions.add(subscriber);
 
