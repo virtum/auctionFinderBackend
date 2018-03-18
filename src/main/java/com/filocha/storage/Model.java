@@ -1,11 +1,14 @@
 package com.filocha.storage;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.Value;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Value
+@Builder
 public class Model {
 
     private String email;
@@ -13,23 +16,23 @@ public class Model {
     private List<String> urls;
     private boolean isNewSubscription;
 
-    public static Model createNewSubscription(String email, String item) {
-        Model subscription = new Model();
-        subscription.setEmail(email);
-        subscription.setItem(item);
-        subscription.setUrls(new ArrayList<>());
-        subscription.setNewSubscription(true);
-
-        return subscription;
+    public static Model createNewSubscription(final String email, final String item) {
+        return Model
+                .builder()
+                .email(email)
+                .item(item)
+                .urls(new ArrayList<>())
+                .isNewSubscription(true)
+                .build();
     }
 
-    public static Model createModelForUpdate(String email, String item, List<String> urls) {
-        Model toUpdate = new Model();
-        toUpdate.setEmail(email);
-        toUpdate.setItem(item);
-        toUpdate.setUrls(urls);
-        toUpdate.setNewSubscription(false);
-
-        return toUpdate;
+    public static Model createModelForUpdate(final String email, final String item, final List<String> urls) {
+        return Model
+                .builder()
+                .email(email)
+                .item(item)
+                .urls(urls)
+                .isNewSubscription(false)
+                .build();
     }
 }
