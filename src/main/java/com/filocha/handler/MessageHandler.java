@@ -31,7 +31,7 @@ public class MessageHandler {
 
     @PostConstruct
     public void createHandlers() {
-        serverBus = new ();
+        serverBus = new ServerBusImpl();
         serverBus.setConsumerAndProducer(activeMqHost, requestQueue, responseQueue);
 
         serverBus.addHandler(message -> subscriptionHandler.handleMessage(message),
