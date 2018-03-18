@@ -18,11 +18,11 @@ script:
   - mvn verify
   # produces quality metrics for sonarqube.com
   #- mvn sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login="$SONAR_TOKEN" -Dsonar.projectKey=auctionfinderbackend
-  - "mvn sonar:sonar \
-    -Dsonar.organization=virtum-github \
-    -Dsonar.host.url=https://sonarcloud.io \
-    -Dsonar.login=\"$SONAR_TOKEN\" \
-    -Dsonar.exclusions=src/main/java/https.webapi_allegro_pl/*"
+  - mvn sonar:sonar
+    -Dsonar.organization=virtum-github
+    -Dsonar.host.url=https://sonarcloud.io
+    -Dsonar.login="$SONAR_TOKEN"
+    -Dsonar.exclusions=src/main/java/https.webapi_allegro_pl/*
 
 after_success:
   # push application image to docker registry
