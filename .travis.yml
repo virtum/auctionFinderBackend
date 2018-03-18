@@ -22,7 +22,6 @@ script:
     -Dsonar.organization=virtum-github
     -Dsonar.host.url=https://sonarcloud.io
     -Dsonar.login="$SONAR_TOKEN"
-    -Dsonar.projectKey=auctionfinderbackend
     -Dsonar.exclusions=src/main/java/https/webapi_allegro_pl/**/*
 
 after_success:
