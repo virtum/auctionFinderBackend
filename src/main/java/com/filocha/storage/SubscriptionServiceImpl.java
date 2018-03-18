@@ -32,7 +32,6 @@ public class SubscriptionServiceImpl {
     @Autowired
     private EmailSender sender;
 
-
     private PublishSubject<RequestModel> requests;
     private PublishSubject<Model> subscriptions;
     private PublishSubject<SubscriberModel> repository;
@@ -51,20 +50,20 @@ public class SubscriptionServiceImpl {
         fillCacheWithDataFromDatabase();
     }
 
-    public void createNewSubscription(ItemFinderRequestMessage request) {
+    public void createNewSubscription(final ItemFinderRequestMessage request) {
         subscriptions.onNext(Model.createNewSubscription(request.getEmail(), request.getItem()));
     }
 
     private void fillCacheWithDataFromDatabase() {
-        List<SubscriberModel> subscribers = RepositoryExtensions.getAllSubscribers(mongoTemplate);
+        final List<SubscriberModel> subscribers = RepositoryExtensions.getAllSubscribers(mongoTemplate);
         SubscriptionCache.startCache(subscriptions, subscribers, requests, auctionFinder, repository, emailSender);
 
         subscribers.forEach(subscriber -> subscriber
                 .getAuctions()
                 .forEach(auction -> {
-                    DoGetItemsListRequest request = auctionFinder.createRequest(auction.getItemName());
+                    final DoGetItemsListRequest request = auctionFinder.createRequest(auction.getItemName());
 
-                    RequestModel req = new RequestModel(request, subscriber.getEmail(), auction.getItemName());
+                    final RequestModel req = new RequestModel(request, subscriber.getEmail(), auction.getItemName());
 
                     requests.onNext(req);
                 }));
@@ -75,9 +74,9 @@ public class SubscriptionServiceImpl {
                 .throttle(requests, 1000, 100)
                 .observeOn(Schedulers.io())
                 .subscribe(request -> {
-                    CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
+                    final CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
 
-                    ResponseModel responseModel = new ResponseModel(response, request, request.getItem());
+                    final ResponseModel responseModel = new ResponseModel(response, request, request.getItem());
 
                     responses.onNext(responseModel);
                 });
@@ -101,7 +100,7 @@ public class SubscriptionServiceImpl {
     }
 
     @SneakyThrows
-    private static List<String> prepareAuctionsIdList(ResponseModel responseWithUrls) {
+    private static List<String> prepareAuctionsIdList(final ResponseModel responseWithUrls) {
         // get() method is allowed here because we already have completed completableFuture
         return responseWithUrls.getResponse().get()
                 .stream()

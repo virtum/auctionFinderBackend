@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 public class SubscriptionCache {
 
     // TODO replace void closable
-    public static void startCache(Observable<Model> subscriptions, List<SubscriberModel> userAuctions,
-                                  Observer<RequestModel> requests, AuctionFinder auctionFinder,
-                                  PublishSubject<SubscriberModel> repository, PublishSubject<Model> emailSender) {
+    public static void startCache(final Observable<Model> subscriptions, final List<SubscriberModel> userAuctions,
+                                  final Observer<RequestModel> requests, final AuctionFinder auctionFinder,
+                                  final PublishSubject<SubscriberModel> repository, final PublishSubject<Model> emailSender) {
         subscriptions
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
@@ -28,8 +28,9 @@ public class SubscriptionCache {
                 });
     }
 
-    private static boolean handleSubscription(PublishSubject<SubscriberModel> repository, Model model, List<SubscriberModel> userAuctions) {
-        Optional<SubscriberModel> subscriber = findSubscriberByEmail(model.getEmail(), userAuctions);
+    private static boolean handleSubscription(final PublishSubject<SubscriberModel> repository, final Model model,
+                                              final List<SubscriberModel> userAuctions) {
+        final Optional<SubscriberModel> subscriber = findSubscriberByEmail(model.getEmail(), userAuctions);
         if (!subscriber.isPresent()) {
             addNewSubscription(repository, model.getEmail(), model.getItem(), userAuctions);
             return true;
@@ -38,15 +39,15 @@ public class SubscriptionCache {
         return updateExistingSubscription(repository, subscriber.get(), model.getItem(), userAuctions);
     }
 
-    private static void updateUrls(PublishSubject<SubscriberModel> repository, Model model, List<SubscriberModel> userAuctions,
-                                   PublishSubject<Model> emailSender) {
-        SubscriberModel subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
+    private static void updateUrls(final PublishSubject<SubscriberModel> repository, final Model model,
+                                   final List<SubscriberModel> userAuctions, final PublishSubject<Model> emailSender) {
+        final SubscriberModel subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
                 .orElseThrow(() -> new NoSuchElementException("Email: " + model.getEmail() + " was not found"));
 
-        AuctionModel auctionToUpdate = getAuction(subscriber.getAuctions(), model.getItem()).
+        final AuctionModel auctionToUpdate = getAuction(subscriber.getAuctions(), model.getItem()).
                 orElseThrow(() -> new NoSuchElementException("Auctions for item:" + model.getItem() + " was not found"));
 
-        List<String> newUrls = model.getUrls()
+        final List<String> newUrls = model.getUrls()
                 .stream()
                 .filter(i -> !auctionToUpdate.getUrls().contains(i))
                 .collect(Collectors.toList());
@@ -58,15 +59,15 @@ public class SubscriptionCache {
         }
     }
 
-    private static void addNewSubscription(PublishSubject<SubscriberModel> repository, String userEmail, String itemName,
-                                           List<SubscriberModel> userAuctions) {
-        AuctionModel auction = AuctionModel
+    private static void addNewSubscription(final PublishSubject<SubscriberModel> repository, final String userEmail,
+                                           final String itemName, final List<SubscriberModel> userAuctions) {
+        final AuctionModel auction = AuctionModel
                 .builder()
                 .itemName(itemName)
                 .urls(new HashSet<>())
                 .build();
 
-        SubscriberModel subscriber = new SubscriberModel();
+        final SubscriberModel subscriber = new SubscriberModel();
         subscriber.setEmail(userEmail);
         subscriber.setAuctions(new ArrayList<>(Collections.singletonList(auction)));
 
@@ -75,13 +76,13 @@ public class SubscriptionCache {
         repository.onNext(subscriber);
     }
 
-    private static boolean updateExistingSubscription(PublishSubject<SubscriberModel> repository, SubscriberModel subscriber,
-                                                      String itemName, List<SubscriberModel> userAuctions) {
+    private static boolean updateExistingSubscription(final PublishSubject<SubscriberModel> repository, final SubscriberModel subscriber,
+                                                      final String itemName, final List<SubscriberModel> userAuctions) {
         if (getAuction(subscriber.getAuctions(), itemName).isPresent()) {
             return false;
         }
 
-        AuctionModel newAuction = AuctionModel
+        final AuctionModel newAuction = AuctionModel
                 .builder()
                 .itemName(itemName)
                 .urls(new HashSet<>())
@@ -95,24 +96,24 @@ public class SubscriptionCache {
         return true;
     }
 
-    private static Optional<SubscriberModel> findSubscriberByEmail(final String email, List<SubscriberModel> userAuctions) {
+    private static Optional<SubscriberModel> findSubscriberByEmail(final String email, final List<SubscriberModel> userAuctions) {
         return userAuctions
                 .stream()
                 .filter(sub -> sub.getEmail().equals(email))
                 .findFirst();
     }
 
-    private static Optional<AuctionModel> getAuction(final List<AuctionModel> auctions, String itemName) {
+    private static Optional<AuctionModel> getAuction(final List<AuctionModel> auctions, final String itemName) {
         return auctions
                 .stream()
                 .filter(auction -> auction.getItemName().equals(itemName))
                 .findFirst();
     }
 
-    private static void sendRequest(AuctionFinder auctionFinder, Model model, Observer<RequestModel> requests) {
-        DoGetItemsListRequest request = auctionFinder.createRequest(model.getItem());
+    private static void sendRequest(final AuctionFinder auctionFinder, final Model model, final Observer<RequestModel> requests) {
+        final DoGetItemsListRequest request = auctionFinder.createRequest(model.getItem());
 
-        RequestModel req = new RequestModel(request, model.getEmail(), model.getItem());
+        final RequestModel req = new RequestModel(request, model.getEmail(), model.getItem());
 
         requests.onNext(req);
     }
