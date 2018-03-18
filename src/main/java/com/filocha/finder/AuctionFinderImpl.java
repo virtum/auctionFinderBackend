@@ -9,9 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
 @Component
 public class AuctionFinderImpl implements AuctionFinder {
@@ -25,14 +23,10 @@ public class AuctionFinderImpl implements AuctionFinder {
     @Value("${webApiKey}")
     private String webApiKey;
 
-    ServiceService allegroWebApiService;
-    ServicePort allegro;
-
-    private CopyOnWriteArrayList<CompletableFuture<List<ItemsListType>>> responses = new CopyOnWriteArrayList<>();
+    private ServicePort allegro;
 
     public AuctionFinderImpl() {
-        allegroWebApiService = new ServiceService();
-        //allegroWebApiService.setExecutor(Executors.newFixedThreadPool(400));
+        final ServiceService allegroWebApiService = new ServiceService();
         allegro = allegroWebApiService.getServicePort();
     }
 
@@ -41,43 +35,38 @@ public class AuctionFinderImpl implements AuctionFinder {
     //@Scheduled(fixedRate = 60 * 60 * 1000)
     private void login() {
         doLogin(userLogin, userPassword, webApiKey);
-
     }
 
     @Override
-    public DoGetItemsListRequest createRequest(String keyword) {
-        DoGetItemsListRequest itemsreq = new DoGetItemsListRequest();
-        itemsreq.setCountryId(1);
-        itemsreq.setWebapiKey(webApiKey);
-        //itemsreq.setResultSize(10);
+    public DoGetItemsListRequest createRequest(final String keyword) {
+        final DoGetItemsListRequest itemsRequest = new DoGetItemsListRequest();
+        itemsRequest.setCountryId(1);
+        itemsRequest.setWebapiKey(webApiKey);
 
-
-        ArrayOfFilteroptionstype filter = new ArrayOfFilteroptionstype();
+        final ArrayOfFilteroptionstype filter = new ArrayOfFilteroptionstype();
         FilterOptionsType fotcat = new FilterOptionsType();
         fotcat.setFilterId("search");
 
-        ArrayOfString categories = new ArrayOfString();
+        final ArrayOfString categories = new ArrayOfString();
         categories.getItem().add(keyword);
 
         fotcat.setFilterValueId(categories);
         filter.getItem().add(fotcat);
 
-        itemsreq.setFilterOptions(filter);
+        itemsRequest.setFilterOptions(filter);
 
-        return itemsreq;
+        return itemsRequest;
     }
 
     @Override
-    public CompletableFuture<List<ItemsListType>> findAuctions(DoGetItemsListRequest request) {
-
-        CompletableFuture<List<ItemsListType>> result = new CompletableFuture<>();
+    public CompletableFuture<List<ItemsListType>> findAuctions(final DoGetItemsListRequest request) {
+        final CompletableFuture<List<ItemsListType>> result = new CompletableFuture<>();
 
         allegro.doGetItemsListAsync(request, args -> {
             try {
                 result.complete(args.get().getItemsList().getItem());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
+                // TODO add logger
                 e.printStackTrace();
             }
         });
@@ -85,23 +74,20 @@ public class AuctionFinderImpl implements AuctionFinder {
         return result;
     }
 
-    private long getLocalVersion(String webApiKey) {
-        int countryCode = 1;
+    private long getLocalVersion(final String webApiKey) {
+        final int countryCode = 1;
 
-        DoQueryAllSysStatusRequest params = new DoQueryAllSysStatusRequest();
+        final DoQueryAllSysStatusRequest params = new DoQueryAllSysStatusRequest();
         params.setCountryId(countryCode);
         params.setWebapiKey(webApiKey);
-        DoQueryAllSysStatusResponse response = allegro.doQueryAllSysStatus(params);
+
+        final DoQueryAllSysStatusResponse response = allegro.doQueryAllSysStatus(params);
 
         return response.getSysCountryStatus().getItem().get(0).getVerKey();
     }
 
-    private void doLogin(String userLogin, String userPassword, String webApiKey) {
-        ServiceService allegroWebApiService = new ServiceService();
-
-        ServicePort allegro = allegroWebApiService.getServicePort();
-
-        DoLoginRequest doLoginRequest = new DoLoginRequest();
+    private void doLogin(final String userLogin, final String userPassword, final String webApiKey) {
+        final DoLoginRequest doLoginRequest = new DoLoginRequest();
         doLoginRequest.setUserLogin(userLogin);
         doLoginRequest.setUserPassword(userPassword);
         doLoginRequest.setCountryCode(1);
@@ -110,6 +96,5 @@ public class AuctionFinderImpl implements AuctionFinder {
 
         allegro.doLogin(doLoginRequest);
     }
-
 
 }

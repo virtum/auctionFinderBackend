@@ -23,7 +23,7 @@ public class EmailSender {
     private String password;
 
     @Autowired
-    public JavaMailSender emailSender;
+    private JavaMailSender sender;
 
     // TODO make this closable
     public PublishSubject<Model> createEmailSender() {
@@ -34,18 +34,18 @@ public class EmailSender {
                     message.setTo(sub.getEmail());
                     message.setSubject("test");
                     message.setText(prepareTestMessage(sub.getUrls()));
-                    emailSender.send(message);
+                    sender.send(message);
                 });
 
         return subscriptions;
     }
 
-    private String prepareTestMessage(List<String> urls) {
-        String auctions = "";
-        for (String url : urls) {
-            auctions += url;
-        }
-        return auctions;
+    private String prepareTestMessage(final List<String> urls) {
+        final StringBuilder auctions = new StringBuilder("");
+
+        urls.forEach(auctions::append);
+
+        return auctions.toString();
     }
 
     @Bean
