@@ -11,18 +11,18 @@ import java.util.Optional;
 public class RepositoryExtensions {
 
     // TODO make this closable
-    public static PublishSubject<SubscriberModel> updateSubscriber(MongoTemplate mongoTemplate) {
-        PublishSubject<SubscriberModel> subscriptions = PublishSubject.create();
-        subscriptions.subscribe(mongoTemplate::save);
+    public static PublishSubject<SubscriberModel> updateSubscriber(final MongoTemplate mongoTemplate) {
+        final PublishSubject<SubscriberModel> subject = PublishSubject.create();
+        subject.subscribe(mongoTemplate::save);
 
-        return subscriptions;
+        return subject;
     }
 
-    public static Optional<SubscriberModel> findSubscriber(MongoTemplate mongoTemplate, String email) {
+    public static Optional<SubscriberModel> findSubscriber(final MongoTemplate mongoTemplate, final String email) {
         return Optional.ofNullable(mongoTemplate.findOne(Query.query(Criteria.where("email").is(email)), SubscriberModel.class));
     }
 
-    public static List<SubscriberModel> getAllSubscribers(MongoTemplate mongoTemplate) {
+    public static List<SubscriberModel> getAllSubscribers(final MongoTemplate mongoTemplate) {
         return mongoTemplate.findAll(SubscriberModel.class);
     }
 

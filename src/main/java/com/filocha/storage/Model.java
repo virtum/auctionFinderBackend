@@ -9,6 +9,7 @@ import java.util.List;
 
 @Value
 @Builder
+// TODO rename this model
 public class Model {
 
     private String email;

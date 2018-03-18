@@ -60,9 +60,11 @@ public class SubscriptionCache {
 
     private static void addNewSubscription(PublishSubject<SubscriberModel> repository, String userEmail, String itemName,
                                            List<SubscriberModel> userAuctions) {
-        AuctionModel auction = new AuctionModel();
-        auction.setItemName(itemName);
-        auction.setUrls(new HashSet<>());
+        AuctionModel auction = AuctionModel
+                .builder()
+                .itemName(itemName)
+                .urls(new HashSet<>())
+                .build();
 
         SubscriberModel subscriber = new SubscriberModel();
         subscriber.setEmail(userEmail);
@@ -79,9 +81,11 @@ public class SubscriptionCache {
             return false;
         }
 
-        AuctionModel newAuction = new AuctionModel();
-        newAuction.setItemName(itemName);
-        newAuction.setUrls(new HashSet<>());
+        AuctionModel newAuction = AuctionModel
+                .builder()
+                .itemName(itemName)
+                .urls(new HashSet<>())
+                .build();
 
         subscriber.getAuctions().add(newAuction);
         userAuctions.set(userAuctions.indexOf(subscriber), subscriber);

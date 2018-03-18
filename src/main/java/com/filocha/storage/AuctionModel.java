@@ -1,10 +1,12 @@
 package com.filocha.storage;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Value;
 
 import java.util.Set;
 
-@Data
+@Value
+@Builder
 public class AuctionModel {
 
     private String itemName;
