@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 @Component
 public class MessageHandler {
@@ -26,9 +27,11 @@ public class MessageHandler {
     @Autowired
     private ItemsListHandler itemsListHandler;
 
+    private ServerBusImpl serverBus;
+
     @PostConstruct
     public void createHandlers() {
-        ServerBusImpl serverBus = new ServerBusImpl();
+        serverBus = new ();
         serverBus.setConsumerAndProducer(activeMqHost, requestQueue, responseQueue);
 
         serverBus.addHandler(message -> subscriptionHandler.handleMessage(message),
@@ -38,6 +41,11 @@ public class MessageHandler {
         serverBus.addHandler(message -> itemsListHandler.handleMessage(message),
                 SubscriptionsRequestModel.class,
                 SubscriptionsResponseModel.class);
+    }
+
+    @PreDestroy
+    public void close() {
+        serverBus.close();
     }
 
 }
