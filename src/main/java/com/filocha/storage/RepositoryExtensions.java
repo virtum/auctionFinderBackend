@@ -13,6 +13,7 @@ public class RepositoryExtensions {
     // TODO make this closable
     public static PublishSubject<SubscriberModel> updateSubscriber(final MongoTemplate mongoTemplate) {
         final PublishSubject<SubscriberModel> subject = PublishSubject.create();
+        // TODO add observeOn
         subject.subscribe(mongoTemplate::save);
 
         return subject;

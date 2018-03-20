@@ -29,6 +29,7 @@ public class EmailSender {
     public PublishSubject<Model> createEmailSender() {
         PublishSubject<Model> subscriptions = PublishSubject.create();
         subscriptions
+                // TODO add observeOn
                 .subscribe(sub -> {
                     SimpleMailMessage message = new SimpleMailMessage();
                     message.setTo(sub.getEmail());

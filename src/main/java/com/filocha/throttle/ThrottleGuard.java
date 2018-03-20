@@ -19,6 +19,7 @@ public class ThrottleGuard {
         final List<RequestWithTimestamp> requests = new ArrayList<>();
         final PublishSubject<RequestModel> output = PublishSubject.create();
 
+        // TODO add observeOn
         mergedSubject.subscribe(item -> {
             if (item.isFlag()) {
                 if (requests.size() < maxOfItems) {

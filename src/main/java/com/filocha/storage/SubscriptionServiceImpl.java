@@ -8,6 +8,8 @@ import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.throttle.ThrottleGuard;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import lombok.SneakyThrows;
@@ -16,6 +18,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -32,6 +35,7 @@ public class SubscriptionServiceImpl {
     @Autowired
     private EmailSender sender;
 
+    private CompositeDisposable subscriptionsDisposer = new CompositeDisposable();
     private PublishSubject<RequestModel> requests;
     private PublishSubject<Model> subscriptions;
     private PublishSubject<SubscriberModel> repository;
@@ -56,7 +60,10 @@ public class SubscriptionServiceImpl {
 
     private void fillCacheWithDataFromDatabase() {
         final List<SubscriberModel> subscribers = RepositoryExtensions.getAllSubscribers(mongoTemplate);
-        SubscriptionCache.startCache(subscriptions, subscribers, requests, auctionFinder, repository, emailSender);
+
+        final Disposable subscription = SubscriptionCache
+                .startCache(subscriptions, subscribers, requests, auctionFinder, repository, emailSender);
+        subscriptionsDisposer.add(subscription);
 
         subscribers.forEach(subscriber -> subscriber
                 .getAuctions()
@@ -70,9 +77,9 @@ public class SubscriptionServiceImpl {
     }
 
     private void sendRequests() {
-        ThrottleGuard
+        final Disposable subscription = ThrottleGuard
                 .throttle(requests, 1000, 100)
-                .observeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .subscribe(request -> {
                     final CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
 
@@ -80,11 +87,13 @@ public class SubscriptionServiceImpl {
 
                     responses.onNext(responseModel);
                 });
+
+        subscriptionsDisposer.add(subscription);
     }
 
     private void handleResponses() {
-        responses
-                .observeOn(Schedulers.io())
+        final Disposable subscription = responses
+                .observeOn(Schedulers.computation())
                 .subscribe(response -> {
                     final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
                     responseFuture
@@ -97,6 +106,8 @@ public class SubscriptionServiceImpl {
                                 return null;
                             });
                 });
+
+        subscriptionsDisposer.add(subscription);
     }
 
     @SneakyThrows
@@ -107,6 +118,11 @@ public class SubscriptionServiceImpl {
                 .map(ItemsListType::getItemId)
                 .map(url -> "http://allegro.pl/i" + url + ".html\n")
                 .collect(Collectors.toList());
+    }
+
+    @PreDestroy
+    public void close() {
+        subscriptionsDisposer.dispose();
     }
 }
 

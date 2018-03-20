@@ -10,13 +10,14 @@ import io.reactivex.disposables.Disposable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SubscriptionCache {
+public final class SubscriptionCache {
 
 
-    public static Disposable startCache(Observable<Model> subscriptions, List<SubscriberModel> userAuctions,
-                                        Observer<RequestModel> requests, AuctionFinder auctionFinder,
-                                        Observer<SubscriberModel> repository, Observer<Model> emailSender) {
+    public static Disposable startCache(final Observable<Model> subscriptions, final List<SubscriberModel> userAuctions,
+                                        final Observer<RequestModel> requests, final AuctionFinder auctionFinder,
+                                        final Observer<SubscriberModel> repository, final Observer<Model> emailSender) {
         return subscriptions
+                // TODO add observeOn
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
                         if (handleSubscription(repository, it, userAuctions)) {
@@ -27,8 +28,6 @@ public class SubscriptionCache {
                     }
                 });
     }
-
-    //CompositeDisposable instanceDisposer = new CompositeDisposable();
 
     private static boolean handleSubscription(final Observer<SubscriberModel> repository, final Model model,
                                               final List<SubscriberModel> userAuctions) {
