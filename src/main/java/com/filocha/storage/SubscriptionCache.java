@@ -3,20 +3,20 @@ package com.filocha.storage;
 import com.filocha.finder.AuctionFinder;
 import com.filocha.finder.RequestModel;
 import https.webapi_allegro_pl.service.DoGetItemsListRequest;
-import rx.Observable;
-import rx.Observer;
-import rx.subjects.PublishSubject;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class SubscriptionCache {
 
-    // TODO replace void closable
-    public static void startCache(final Observable<Model> subscriptions, final List<SubscriberModel> userAuctions,
-                                  final Observer<RequestModel> requests, final AuctionFinder auctionFinder,
-                                  final PublishSubject<SubscriberModel> repository, final PublishSubject<Model> emailSender) {
-        subscriptions
+
+    public static Disposable startCache(Observable<Model> subscriptions, List<SubscriberModel> userAuctions,
+                                        Observer<RequestModel> requests, AuctionFinder auctionFinder,
+                                        Observer<SubscriberModel> repository, Observer<Model> emailSender) {
+        return subscriptions
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
                         if (handleSubscription(repository, it, userAuctions)) {
@@ -26,9 +26,29 @@ public class SubscriptionCache {
                         updateUrls(repository, it, userAuctions, emailSender);
                     }
                 });
+
+        //return Disposables.fromAction(s::dispose);
     }
 
-    private static boolean handleSubscription(final PublishSubject<SubscriberModel> repository, final Model model,
+    //CompositeDisposable instanceDisposer = new CompositeDisposable();
+
+    // TODO replace void closable
+//    public static void startCache(final Observable<Model> subscriptions, final List<SubscriberModel> userAuctions,
+//                                  final Observer<RequestModel> requests, final AuctionFinder auctionFinder,
+//                                  final PublishSubject<SubscriberModel> repository, final PublishSubject<Model> emailSender) {
+//        subscriptions
+//                .subscribe(it -> {
+//                    if (it.isNewSubscription()) {
+//                        if (handleSubscription(repository, it, userAuctions)) {
+//                            sendRequest(auctionFinder, it, requests);
+//                        }
+//                    } else {
+//                        updateUrls(repository, it, userAuctions, emailSender);
+//                    }
+//                });
+//    }
+
+    private static boolean handleSubscription(final Observer<SubscriberModel> repository, final Model model,
                                               final List<SubscriberModel> userAuctions) {
         final Optional<SubscriberModel> subscriber = findSubscriberByEmail(model.getEmail(), userAuctions);
         if (!subscriber.isPresent()) {
@@ -39,8 +59,8 @@ public class SubscriptionCache {
         return updateExistingSubscription(repository, subscriber.get(), model.getItem(), userAuctions);
     }
 
-    private static void updateUrls(final PublishSubject<SubscriberModel> repository, final Model model,
-                                   final List<SubscriberModel> userAuctions, final PublishSubject<Model> emailSender) {
+    private static void updateUrls(final Observer<SubscriberModel> repository, final Model model,
+                                   final List<SubscriberModel> userAuctions, final Observer<Model> emailSender) {
         final SubscriberModel subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
                 .orElseThrow(() -> new NoSuchElementException("Email: " + model.getEmail() + " was not found"));
 
@@ -59,7 +79,7 @@ public class SubscriptionCache {
         }
     }
 
-    private static void addNewSubscription(final PublishSubject<SubscriberModel> repository, final String userEmail,
+    private static void addNewSubscription(final Observer<SubscriberModel> repository, final String userEmail,
                                            final String itemName, final List<SubscriberModel> userAuctions) {
         final AuctionModel auction = AuctionModel
                 .builder()
@@ -78,7 +98,7 @@ public class SubscriptionCache {
         repository.onNext(subscriber);
     }
 
-    private static boolean updateExistingSubscription(final PublishSubject<SubscriberModel> repository, final SubscriberModel subscriber,
+    private static boolean updateExistingSubscription(final Observer<SubscriberModel> repository, final SubscriberModel subscriber,
                                                       final String itemName, final List<SubscriberModel> userAuctions) {
         if (getAuction(subscriber.getAuctions(), itemName).isPresent()) {
             return false;

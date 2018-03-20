@@ -2,10 +2,10 @@ package com.filocha.storage;
 
 import com.filocha.finder.AuctionFinderImpl;
 import com.filocha.finder.RequestModel;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.ReplaySubject;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import rx.subjects.PublishSubject;
-import rx.subjects.ReplaySubject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,9 +82,9 @@ public class SubscriptionCacheTest {
         subscriptions.onNext(Model.createNewSubscription(email, "item1"));
         subscriptions.onNext(Model.createNewSubscription(email, "item1"));
 
-        requests.onCompleted();
+        requests.onComplete();
 
-        Iterable items = emitted.toBlocking().toIterable();
+        Iterable items = emitted.blockingIterable();
         Assertions.assertThat(items).hasSize(1);
     }
 

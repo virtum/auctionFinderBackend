@@ -1,9 +1,9 @@
 package com.filocha.storage;
 
+import io.reactivex.subjects.PublishSubject;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import rx.subjects.PublishSubject;
 
 import java.util.List;
 import java.util.Optional;

@@ -3,6 +3,7 @@ package com.filocha.storage;
 import com.filocha.MongoTestConfig;
 import com.filocha.finder.AuctionFinderImpl;
 import com.filocha.finder.RequestModel;
+import io.reactivex.subjects.PublishSubject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import rx.subjects.PublishSubject;
 
 import java.util.*;
 
