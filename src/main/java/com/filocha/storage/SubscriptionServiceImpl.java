@@ -86,9 +86,12 @@ public class SubscriptionServiceImpl {
                 .subscribe(request -> {
                     final CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
 
-                    final ResponseModel responseModel = new ResponseModel(response, request, request.getItem());
-
-                    responses.onNext(responseModel);
+                    responses.onNext(ResponseModel
+                            .builder()
+                            .response(response)
+                            .request(request)
+                            .item(request.getItem())
+                            .build());
                 });
 
         subscriptionsDisposer.add(subscription);
