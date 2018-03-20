@@ -27,6 +27,7 @@ public class ThrottleGuard {
                     requests.add(request);
                     output.onNext(item.getRequest());
 
+                    // Optional.empty() is used only to emit some value, rx2 forbid emitting null values
                     tripod.onNext(Optional.empty());
                 } else {
                     final RequestWithFlag mock = new RequestWithFlag(item.getRequest(), false);
@@ -42,6 +43,7 @@ public class ThrottleGuard {
 
         zip.map(item -> new RequestWithFlag(item, true)).subscribe(mergedSubject);
 
+        // Optional.empty() is used only to emit some value, rx2 forbid emitting null values
         tripod.onNext(Optional.empty());
 
         return output;
