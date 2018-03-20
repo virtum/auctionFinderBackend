@@ -116,8 +116,11 @@ public final class SubscriptionCache {
     private static void sendRequest(final AuctionFinder auctionFinder, final Model model, final Observer<RequestModel> requests) {
         final DoGetItemsListRequest request = auctionFinder.createRequest(model.getItem());
 
-        final RequestModel req = new RequestModel(request, model.getEmail(), model.getItem());
-
-        requests.onNext(req);
+        requests.onNext(RequestModel
+                .builder()
+                .request(request)
+                .userEmail(model.getEmail())
+                .item(model.getItem())
+                .build());
     }
 }

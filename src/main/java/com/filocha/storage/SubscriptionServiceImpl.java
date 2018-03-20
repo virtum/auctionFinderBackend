@@ -70,9 +70,12 @@ public class SubscriptionServiceImpl {
                 .forEach(auction -> {
                     final DoGetItemsListRequest request = auctionFinder.createRequest(auction.getItemName());
 
-                    final RequestModel req = new RequestModel(request, subscriber.getEmail(), auction.getItemName());
-
-                    requests.onNext(req);
+                    requests.onNext(RequestModel
+                            .builder()
+                            .request(request)
+                            .userEmail(subscriber.getEmail())
+                            .item(auction.getItemName())
+                            .build());
                 }));
     }
 
