@@ -17,7 +17,7 @@ public class MongoTestConfig {
 
     @Bean
     public MongoTemplate mongoTemplate() {
-        MongoTemplate template = new MongoTemplate(new MongoClient(mongoDbHost), databaseName);
+        final MongoTemplate template = new MongoTemplate(new MongoClient(mongoDbHost), databaseName);
         template.dropCollection(SubscriberModel.class);
 
         return template;

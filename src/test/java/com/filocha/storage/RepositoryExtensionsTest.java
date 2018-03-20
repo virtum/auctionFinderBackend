@@ -29,20 +29,20 @@ public class RepositoryExtensionsTest {
 
     @Test
     public void shouldSaveNewSubscription() {
-        PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel> userAuctions = new ArrayList<>();
-        PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
-        PublishSubject<Model> emailSender = PublishSubject.create();
+        final PublishSubject<Model> subscriptions = PublishSubject.create();
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
+        final PublishSubject<RequestModel> requests = PublishSubject.create();
+        final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
+        final PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
-        String email = UUID.randomUUID().toString();
-        String item = UUID.randomUUID().toString();
+        final String email = UUID.randomUUID().toString();
+        final String item = UUID.randomUUID().toString();
 
         subscriptions.onNext(Model.createNewSubscription(email, item));
 
-        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
+        final SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
 
         assertEquals(email, subscriber.getEmail());
         assertEquals(1, subscriber.getAuctions().size());
@@ -51,22 +51,22 @@ public class RepositoryExtensionsTest {
 
     @Test
     public void shouldSaveTwoDifferentSubscriptionsForSameUser() {
-        PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel> userAuctions = new ArrayList<>();
-        PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
-        PublishSubject<Model> emailSender = PublishSubject.create();
+        final PublishSubject<Model> subscriptions = PublishSubject.create();
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
+        final PublishSubject<RequestModel> requests = PublishSubject.create();
+        final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
+        final PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
-        String email = UUID.randomUUID().toString();
-        String item1 = UUID.randomUUID().toString();
-        String item2 = UUID.randomUUID().toString();
+        final String email = UUID.randomUUID().toString();
+        final String item1 = UUID.randomUUID().toString();
+        final String item2 = UUID.randomUUID().toString();
 
         subscriptions.onNext(Model.createNewSubscription(email, item1));
         subscriptions.onNext(Model.createNewSubscription(email, item2));
 
-        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
+        final SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
 
         assertEquals(email, subscriber.getEmail());
         assertEquals(2, subscriber.getAuctions().size());
@@ -76,29 +76,29 @@ public class RepositoryExtensionsTest {
 
     @Test
     public void shouldSaveNewSubscriptionForDifferentUsers() {
-        PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel> userAuctions = new ArrayList<>();
-        PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
-        PublishSubject<Model> emailSender = PublishSubject.create();
+        final PublishSubject<Model> subscriptions = PublishSubject.create();
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
+        final PublishSubject<RequestModel> requests = PublishSubject.create();
+        final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
+        final PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
-        String email1 = UUID.randomUUID().toString();
-        String item1 = UUID.randomUUID().toString();
+        final String email1 = UUID.randomUUID().toString();
+        final String item1 = UUID.randomUUID().toString();
 
-        String email2 = UUID.randomUUID().toString();
-        String item2 = UUID.randomUUID().toString();
+        final String email2 = UUID.randomUUID().toString();
+        final String item2 = UUID.randomUUID().toString();
 
         subscriptions.onNext(Model.createNewSubscription(email1, item1));
         subscriptions.onNext(Model.createNewSubscription(email2, item2));
 
-        SubscriberModel subscriber1 = RepositoryExtensions.findSubscriber(mongoTemplate, email1).get();
+        final SubscriberModel subscriber1 = RepositoryExtensions.findSubscriber(mongoTemplate, email1).get();
         assertEquals(email1, subscriber1.getEmail());
         assertEquals(1, subscriber1.getAuctions().size());
         assertEquals(item1, subscriber1.getAuctions().get(0).getItemName());
 
-        SubscriberModel subscriber2 = RepositoryExtensions.findSubscriber(mongoTemplate, email2).get();
+        final SubscriberModel subscriber2 = RepositoryExtensions.findSubscriber(mongoTemplate, email2).get();
         assertEquals(email2, subscriber2.getEmail());
         assertEquals(1, subscriber2.getAuctions().size());
         assertEquals(item2, subscriber2.getAuctions().get(0).getItemName());
@@ -106,21 +106,21 @@ public class RepositoryExtensionsTest {
 
     @Test
     public void shouldNotSaveSameSubscriptionForSameUser() {
-        PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel> userAuctions = new ArrayList<>();
-        PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
-        PublishSubject<Model> emailSender = PublishSubject.create();
+        final PublishSubject<Model> subscriptions = PublishSubject.create();
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
+        final PublishSubject<RequestModel> requests = PublishSubject.create();
+        final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
+        final PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
-        String email = UUID.randomUUID().toString();
-        String item = UUID.randomUUID().toString();
+        final String email = UUID.randomUUID().toString();
+        final String item = UUID.randomUUID().toString();
 
         subscriptions.onNext(Model.createNewSubscription(email, item));
         subscriptions.onNext(Model.createNewSubscription(email, item));
 
-        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
+        final SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
 
         assertEquals(email, subscriber.getEmail());
         assertEquals(1, subscriber.getAuctions().size());
@@ -129,26 +129,26 @@ public class RepositoryExtensionsTest {
 
     @Test
     public void shouldSaveUrlsForGivenItem() {
-        PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel> userAuctions = new ArrayList<>();
-        PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
-        PublishSubject<Model> emailSender = PublishSubject.create();
+        final PublishSubject<Model> subscriptions = PublishSubject.create();
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
+        final PublishSubject<RequestModel> requests = PublishSubject.create();
+        final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
+        final PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
-        String email = UUID.randomUUID().toString();
-        String item = UUID.randomUUID().toString();
-        String url1 = UUID.randomUUID().toString();
-        String url2 = UUID.randomUUID().toString();
-        List<String> urls = new ArrayList<>(Arrays.asList(url1, url2));
+        final String email = UUID.randomUUID().toString();
+        final String item = UUID.randomUUID().toString();
+        final String url1 = UUID.randomUUID().toString();
+        final String url2 = UUID.randomUUID().toString();
+        final List<String> urls = new ArrayList<>(Arrays.asList(url1, url2));
 
         subscriptions.onNext(Model.createNewSubscription(email, item));
         subscriptions.onNext(Model.createModelForUpdate(email, item, urls));
 
-        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
+        final SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
 
-        Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
+        final Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
         assertEquals(2, savedUrls.size());
         assertTrue(savedUrls.contains(url1));
         assertTrue(savedUrls.contains(url2));
@@ -156,31 +156,31 @@ public class RepositoryExtensionsTest {
 
     @Test
     public void shouldUpdateUrlsForGivenItem() {
-        PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel> userAuctions = new ArrayList<>();
-        PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
-        PublishSubject<Model> emailSender = PublishSubject.create();
+        final PublishSubject<Model> subscriptions = PublishSubject.create();
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
+        final PublishSubject<RequestModel> requests = PublishSubject.create();
+        final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
+        final PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
-        String email = UUID.randomUUID().toString();
-        String item = UUID.randomUUID().toString();
-        String url1 = UUID.randomUUID().toString();
-        String url2 = UUID.randomUUID().toString();
-        List<String> urls = new ArrayList<>(Arrays.asList(url1, url2));
+        final String email = UUID.randomUUID().toString();
+        final String item = UUID.randomUUID().toString();
+        final String url1 = UUID.randomUUID().toString();
+        final String url2 = UUID.randomUUID().toString();
+        final List<String> urls = new ArrayList<>(Arrays.asList(url1, url2));
 
         subscriptions.onNext(Model.createNewSubscription(email, item));
         subscriptions.onNext(Model.createModelForUpdate(email, item, urls));
 
-        String url3 = UUID.randomUUID().toString();
-        List<String> newUrls = new ArrayList<>(Arrays.asList(url3));
+        final String url3 = UUID.randomUUID().toString();
+        final List<String> newUrls = new ArrayList<>(Arrays.asList(url3));
 
         subscriptions.onNext(Model.createModelForUpdate(email, item, newUrls));
 
-        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
+        final SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
 
-        Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
+        final Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
         assertEquals(3, savedUrls.size());
         assertTrue(savedUrls.contains(url1));
         assertTrue(savedUrls.contains(url2));
@@ -189,30 +189,30 @@ public class RepositoryExtensionsTest {
 
     @Test
     public void shouldNotSaveSameUrlsTwice() {
-        PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel> userAuctions = new ArrayList<>();
-        PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
-        PublishSubject<Model> emailSender = PublishSubject.create();
+        final PublishSubject<Model> subscriptions = PublishSubject.create();
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
+        final PublishSubject<RequestModel> requests = PublishSubject.create();
+        final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
+        final PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
-        String email = UUID.randomUUID().toString();
-        String item = UUID.randomUUID().toString();
-        String url1 = UUID.randomUUID().toString();
-        String url2 = UUID.randomUUID().toString();
-        List<String> urls = new ArrayList<>(Arrays.asList(url1, url2));
+        final String email = UUID.randomUUID().toString();
+        final String item = UUID.randomUUID().toString();
+        final String url1 = UUID.randomUUID().toString();
+        final String url2 = UUID.randomUUID().toString();
+        final List<String> urls = new ArrayList<>(Arrays.asList(url1, url2));
 
         subscriptions.onNext(Model.createNewSubscription(email, item));
         subscriptions.onNext(Model.createModelForUpdate(email, item, urls));
 
-        List<String> newUrls = new ArrayList<>(Arrays.asList(url1));
+        final List<String> newUrls = new ArrayList<>(Arrays.asList(url1));
 
         subscriptions.onNext(Model.createModelForUpdate(email, item, newUrls));
 
-        SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
+        final SubscriberModel subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, email).get();
 
-        Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
+        final Set<String> savedUrls = subscriber.getAuctions().get(0).getUrls();
         assertEquals(2, savedUrls.size());
         assertTrue(savedUrls.contains(url1));
         assertTrue(savedUrls.contains(url2));

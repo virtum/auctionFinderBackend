@@ -17,44 +17,44 @@ public class SubscriptionCacheTest {
 
     @Test
     public void shouldAddTwoSubscriptionsForTheSameUser() {
-        PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel> userAuctions = new ArrayList<>();
-        PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = PublishSubject.create();
-        PublishSubject<Model> emailSender = PublishSubject.create();
+        final PublishSubject<Model> subscriptions = PublishSubject.create();
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
+        final PublishSubject<RequestModel> requests = PublishSubject.create();
+        final PublishSubject<SubscriberModel> repository = PublishSubject.create();
+        final PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
-        String email = "user@email";
+        final String email = "user@email";
 
         subscriptions.onNext(Model.createNewSubscription(email, "item1"));
         subscriptions.onNext(Model.createNewSubscription(email, "item2"));
 
         assertEquals(1, userAuctions.size());
 
-        SubscriberModel subscriber = userAuctions.get(0);
+        final SubscriberModel subscriber = userAuctions.get(0);
         assertEquals(email, subscriber.getEmail());
         assertEquals(2, subscriber.getAuctions().size());
     }
 
     @Test
     public void shouldUpdateUrls() {
-        PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel> userAuctions = new ArrayList<>();
-        PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = PublishSubject.create();
-        PublishSubject<Model> emailSender = PublishSubject.create();
+        final PublishSubject<Model> subscriptions = PublishSubject.create();
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
+        final PublishSubject<RequestModel> requests = PublishSubject.create();
+        final PublishSubject<SubscriberModel> repository = PublishSubject.create();
+        final PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
-        String email = "user@email";
-        String item = "item";
+        final String email = "user@email";
+        final String item = "item";
 
         subscriptions.onNext(Model.createNewSubscription(email, item));
 
         assertEquals(1, userAuctions.size());
 
-        SubscriberModel subscriber = userAuctions.get(0);
+        final SubscriberModel subscriber = userAuctions.get(0);
         assertEquals(email, subscriber.getEmail());
 
         subscriptions.onNext(Model.createModelForUpdate(email, item, new ArrayList<>(Collections.singletonList("url1"))));
@@ -66,17 +66,17 @@ public class SubscriptionCacheTest {
 
     @Test
     public void shouldNotEmitRequestOnDuplicatedSubscription() {
-        PublishSubject<Model> subscriptions = PublishSubject.create();
-        List<SubscriberModel> userAuctions = new ArrayList<>();
-        PublishSubject<RequestModel> requests = PublishSubject.create();
-        PublishSubject<SubscriberModel> repository = PublishSubject.create();
-        PublishSubject<Model> emailSender = PublishSubject.create();
+        final PublishSubject<Model> subscriptions = PublishSubject.create();
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
+        final PublishSubject<RequestModel> requests = PublishSubject.create();
+        final PublishSubject<SubscriberModel> repository = PublishSubject.create();
+        final PublishSubject<Model> emailSender = PublishSubject.create();
 
         SubscriptionCache.startCache(subscriptions, userAuctions, requests, new AuctionFinderImpl(), repository, emailSender);
 
-        String email = "user@email";
+        final String email = "user@email";
 
-        ReplaySubject<RequestModel> emitted = ReplaySubject.create();
+        final ReplaySubject<RequestModel> emitted = ReplaySubject.create();
         requests.subscribe(emitted);
 
         subscriptions.onNext(Model.createNewSubscription(email, "item1"));
@@ -84,7 +84,7 @@ public class SubscriptionCacheTest {
 
         requests.onComplete();
 
-        Iterable items = emitted.blockingIterable();
+        final Iterable items = emitted.blockingIterable();
         Assertions.assertThat(items).hasSize(1);
     }
 

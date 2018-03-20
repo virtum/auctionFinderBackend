@@ -34,13 +34,13 @@ public class MessageHandlerTest {
     @SneakyThrows
     @Test
     public void shouldAddNewSubscription() {
-        ItemFinderRequestMessage requestMessage = ItemFinderRequestMessage
+        final ItemFinderRequestMessage requestMessage = ItemFinderRequestMessage
                 .builder()
                 .item(UUID.randomUUID().toString())
                 .email(UUID.randomUUID().toString())
                 .build();
 
-        CompletableFuture<ItemFinderResponseMessage> responseMessage = clientBus.sendRequest(requestMessage,
+        final CompletableFuture<ItemFinderResponseMessage> responseMessage = clientBus.sendRequest(requestMessage,
                 ItemFinderRequestMessage.class);
 
         assertEquals("Subscribed!", responseMessage.get().getResponse());
@@ -49,10 +49,10 @@ public class MessageHandlerTest {
     @SneakyThrows
     @Test
     public void shouldGetUserSubscriptions() {
-        String email = UUID.randomUUID().toString();
-        String item = UUID.randomUUID().toString();
+        final String email = UUID.randomUUID().toString();
+        final String item = UUID.randomUUID().toString();
 
-        ItemFinderRequestMessage newSubscriptionRequest = ItemFinderRequestMessage
+        final ItemFinderRequestMessage newSubscriptionRequest = ItemFinderRequestMessage
                 .builder()
                 .item(item)
                 .email(email)
@@ -60,14 +60,14 @@ public class MessageHandlerTest {
 
         clientBus.sendRequest(newSubscriptionRequest, ItemFinderRequestMessage.class).get();
 
-        SubscriptionsRequestModel userItemsRequest = SubscriptionsRequestModel
+        final SubscriptionsRequestModel userItemsRequest = SubscriptionsRequestModel
                 .builder()
                 .email(email)
                 .build();
 
-        CompletableFuture<SubscriptionsResponseModel> responseMessage = clientBus.sendRequest(userItemsRequest,
+        final CompletableFuture<SubscriptionsResponseModel> responseMessage = clientBus.sendRequest(userItemsRequest,
                 SubscriptionsRequestModel.class);
-        List<String> userSubscriptions = responseMessage.get().getUserSubscriptions();
+        final List<String> userSubscriptions = responseMessage.get().getUserSubscriptions();
 
         assertEquals(1, userSubscriptions.size());
         assertEquals(item, userSubscriptions.get(0));

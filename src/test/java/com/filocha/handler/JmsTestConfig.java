@@ -24,7 +24,7 @@ public class JmsTestConfig {
     public ClientBus clientBus() {
         messageHandler.createHandlers();
 
-        ClientBusImpl clientBus = new ClientBusImpl();
+        final ClientBusImpl clientBus = new ClientBusImpl();
         clientBus.setConsumerAndProducer(activeMqHost, responseQueue, requestQueue);
 
         return clientBus;

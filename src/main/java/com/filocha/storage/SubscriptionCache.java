@@ -26,27 +26,9 @@ public class SubscriptionCache {
                         updateUrls(repository, it, userAuctions, emailSender);
                     }
                 });
-
-        //return Disposables.fromAction(s::dispose);
     }
 
     //CompositeDisposable instanceDisposer = new CompositeDisposable();
-
-    // TODO replace void closable
-//    public static void startCache(final Observable<Model> subscriptions, final List<SubscriberModel> userAuctions,
-//                                  final Observer<RequestModel> requests, final AuctionFinder auctionFinder,
-//                                  final PublishSubject<SubscriberModel> repository, final PublishSubject<Model> emailSender) {
-//        subscriptions
-//                .subscribe(it -> {
-//                    if (it.isNewSubscription()) {
-//                        if (handleSubscription(repository, it, userAuctions)) {
-//                            sendRequest(auctionFinder, it, requests);
-//                        }
-//                    } else {
-//                        updateUrls(repository, it, userAuctions, emailSender);
-//                    }
-//                });
-//    }
 
     private static boolean handleSubscription(final Observer<SubscriberModel> repository, final Model model,
                                               final List<SubscriberModel> userAuctions) {

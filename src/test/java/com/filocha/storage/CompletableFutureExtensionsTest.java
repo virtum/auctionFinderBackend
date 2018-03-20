@@ -19,11 +19,11 @@ public class CompletableFutureExtensionsTest {
 
     @Test
     public void shouldConsumeCompletableFutureBeforeTimeout() throws ExecutionException, InterruptedException {
-        CompletableFuture<String> completableFuture = new CompletableFuture<>();
+        final CompletableFuture<String> completableFuture = new CompletableFuture<>();
 
-        CompletableFuture<String> futureWithTimeout = CompletableFutureExtension.within(completableFuture, Duration.ofSeconds(10));
+        final CompletableFuture<String> futureWithTimeout = CompletableFutureExtension.within(completableFuture, Duration.ofSeconds(10));
 
-        String result = "finished";
+        final String result = "finished";
         completableFuture.complete(result);
 
         assertEquals(result, futureWithTimeout.get());
