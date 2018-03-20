@@ -6,6 +6,7 @@ import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,7 +18,7 @@ public final class SubscriptionCache {
                                         final Observer<RequestModel> requests, final AuctionFinder auctionFinder,
                                         final Observer<SubscriberModel> repository, final Observer<Model> emailSender) {
         return subscriptions
-                // TODO add observeOn
+                //.observeOn(Schedulers.computation())
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
                         if (handleSubscription(repository, it, userAuctions)) {

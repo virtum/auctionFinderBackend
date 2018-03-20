@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RepositoryExtensions {
 
@@ -24,7 +25,7 @@ public class RepositoryExtensions {
     }
 
     public static List<SubscriberModel> getAllSubscribers(final MongoTemplate mongoTemplate) {
-        return mongoTemplate.findAll(SubscriberModel.class);
+        return new CopyOnWriteArrayList<>(mongoTemplate.findAll(SubscriberModel.class));
     }
 
 }
