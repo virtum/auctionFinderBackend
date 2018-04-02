@@ -1,5 +1,6 @@
 package com.filocha.storage;
 
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -11,11 +12,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RepositoryExtensions {
 
-    // TODO make this closable
     public static PublishSubject<SubscriberModel> updateSubscriber(final MongoTemplate mongoTemplate) {
-        final PublishSubject<SubscriberModel> subject = PublishSubject.create();
-        // TODO add observeOn
-        subject.subscribe(mongoTemplate::save);
+        final PublishSubject<SubscriberModel> subject = PublishSubject
+                .create();
+
+        subject
+                .observeOn(Schedulers.io())
+                .subscribe(mongoTemplate::save);
 
         return subject;
     }
