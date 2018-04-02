@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 
 public final class SubscriptionCache {
 
-    private static final List<SubscriberModel> userAuctions = new ArrayList<>();
+    private final List<SubscriberModel> userAuctions = new ArrayList<>();
 
-    public static Disposable startCache(final Observable<Model> subscriptions, final Observer<RequestModel> requests,
-                                        final AuctionFinder auctionFinder, final Observer<SubscriberModel> repository,
-                                        final Observer<Model> emailSender) {
+    public Disposable startCache(final Observable<Model> subscriptions, final Observer<RequestModel> requests,
+                                 final AuctionFinder auctionFinder, final Observer<SubscriberModel> repository,
+                                 final Observer<Model> emailSender) {
         return subscriptions
                 .observeOn(Schedulers.computation())
                 .subscribe(it -> {
@@ -31,7 +31,7 @@ public final class SubscriptionCache {
                 });
     }
 
-    private static boolean handleSubscription(final Observer<SubscriberModel> repository, final Model model) {
+    private boolean handleSubscription(final Observer<SubscriberModel> repository, final Model model) {
         final Optional<SubscriberModel> subscriber = findSubscriberByEmail(model.getEmail(), userAuctions);
         if (!subscriber.isPresent()) {
             addNewSubscription(repository, model.getEmail(), model.getItem(), userAuctions);
@@ -41,7 +41,7 @@ public final class SubscriptionCache {
         return updateExistingSubscription(repository, subscriber.get(), model.getItem(), userAuctions);
     }
 
-    private static void updateUrls(final Observer<SubscriberModel> repository, final Model model, final Observer<Model> emailSender) {
+    private void updateUrls(final Observer<SubscriberModel> repository, final Model model, final Observer<Model> emailSender) {
         final SubscriberModel subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
                 .orElseThrow(() -> new NoSuchElementException("Email: " + model.getEmail() + " was not found"));
 
@@ -60,8 +60,8 @@ public final class SubscriptionCache {
         }
     }
 
-    private static void addNewSubscription(final Observer<SubscriberModel> repository, final String userEmail,
-                                           final String itemName, final List<SubscriberModel> userAuctions) {
+    private void addNewSubscription(final Observer<SubscriberModel> repository, final String userEmail,
+                                    final String itemName, final List<SubscriberModel> userAuctions) {
         final AuctionModel auction = AuctionModel
                 .builder()
                 .itemName(itemName)
@@ -79,8 +79,8 @@ public final class SubscriptionCache {
         repository.onNext(subscriber);
     }
 
-    private static boolean updateExistingSubscription(final Observer<SubscriberModel> repository, final SubscriberModel subscriber,
-                                                      final String itemName, final List<SubscriberModel> userAuctions) {
+    private boolean updateExistingSubscription(final Observer<SubscriberModel> repository, final SubscriberModel subscriber,
+                                               final String itemName, final List<SubscriberModel> userAuctions) {
         if (getAuction(subscriber.getAuctions(), itemName).isPresent()) {
             return false;
         }
@@ -99,21 +99,21 @@ public final class SubscriptionCache {
         return true;
     }
 
-    private static Optional<SubscriberModel> findSubscriberByEmail(final String email, final List<SubscriberModel> userAuctions) {
+    private Optional<SubscriberModel> findSubscriberByEmail(final String email, final List<SubscriberModel> userAuctions) {
         return userAuctions
                 .stream()
                 .filter(sub -> sub.getEmail().equals(email))
                 .findFirst();
     }
 
-    private static Optional<AuctionModel> getAuction(final List<AuctionModel> auctions, final String itemName) {
+    private Optional<AuctionModel> getAuction(final List<AuctionModel> auctions, final String itemName) {
         return auctions
                 .stream()
                 .filter(auction -> auction.getItemName().equals(itemName))
                 .findFirst();
     }
 
-    private static void sendRequest(final AuctionFinder auctionFinder, final Model model, final Observer<RequestModel> requests) {
+    private void sendRequest(final AuctionFinder auctionFinder, final Model model, final Observer<RequestModel> requests) {
         final DoGetItemsListRequest request = auctionFinder.createRequest(model.getItem());
 
         requests.onNext(RequestModel
