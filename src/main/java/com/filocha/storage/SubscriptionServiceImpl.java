@@ -6,7 +6,6 @@ import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.throttle.ThrottleGuard;
-import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -59,24 +58,24 @@ public class SubscriptionServiceImpl {
     }
 
     private void fillCacheWithDataFromDatabase() {
-        final List<SubscriberModel> subscribers = RepositoryExtensions.getAllSubscribers(mongoTemplate);
+        //final List<SubscriberModel> subscribers = RepositoryExtensions.getAllSubscribers(mongoTemplate);
 
         final Disposable subscription = SubscriptionCache
-                .startCache(subscriptions, subscribers, requests, auctionFinder, repository, emailSender);
+                .startCache(subscriptions, requests, auctionFinder, repository, emailSender);
         subscriptionsDisposer.add(subscription);
 
-        subscribers.forEach(subscriber -> subscriber
-                .getAuctions()
-                .forEach(auction -> {
-                    final DoGetItemsListRequest request = auctionFinder.createRequest(auction.getItemName());
-
-                    requests.onNext(RequestModel
-                            .builder()
-                            .request(request)
-                            .userEmail(subscriber.getEmail())
-                            .item(auction.getItemName())
-                            .build());
-                }));
+//        subscribers.forEach(subscriber -> subscriber
+//                .getAuctions()
+//                .forEach(auction -> {
+//                    final DoGetItemsListRequest request = auctionFinder.createRequest(auction.getItemName());
+//
+//                    requests.onNext(RequestModel
+//                            .builder()
+//                            .request(request)
+//                            .userEmail(subscriber.getEmail())
+//                            .item(auction.getItemName())
+//                            .build());
+//                }));
     }
 
     private void sendRequests() {

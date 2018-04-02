@@ -13,25 +13,25 @@ import java.util.stream.Collectors;
 
 public final class SubscriptionCache {
 
+    private static final List<SubscriberModel> userAuctions = new ArrayList<>();
 
-    public static Disposable startCache(final Observable<Model> subscriptions, final List<SubscriberModel> userAuctions,
-                                        final Observer<RequestModel> requests, final AuctionFinder auctionFinder,
-                                        final Observer<SubscriberModel> repository, final Observer<Model> emailSender) {
+    public static Disposable startCache(final Observable<Model> subscriptions, final Observer<RequestModel> requests,
+                                        final AuctionFinder auctionFinder, final Observer<SubscriberModel> repository,
+                                        final Observer<Model> emailSender) {
         return subscriptions
-                //.observeOn(Schedulers.computation())
+                .observeOn(Schedulers.computation())
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
-                        if (handleSubscription(repository, it, userAuctions)) {
+                        if (handleSubscription(repository, it)) {
                             sendRequest(auctionFinder, it, requests);
                         }
                     } else {
-                        updateUrls(repository, it, userAuctions, emailSender);
+                        updateUrls(repository, it, emailSender);
                     }
                 });
     }
 
-    private static boolean handleSubscription(final Observer<SubscriberModel> repository, final Model model,
-                                              final List<SubscriberModel> userAuctions) {
+    private static boolean handleSubscription(final Observer<SubscriberModel> repository, final Model model) {
         final Optional<SubscriberModel> subscriber = findSubscriberByEmail(model.getEmail(), userAuctions);
         if (!subscriber.isPresent()) {
             addNewSubscription(repository, model.getEmail(), model.getItem(), userAuctions);
@@ -41,8 +41,7 @@ public final class SubscriptionCache {
         return updateExistingSubscription(repository, subscriber.get(), model.getItem(), userAuctions);
     }
 
-    private static void updateUrls(final Observer<SubscriberModel> repository, final Model model,
-                                   final List<SubscriberModel> userAuctions, final Observer<Model> emailSender) {
+    private static void updateUrls(final Observer<SubscriberModel> repository, final Model model, final Observer<Model> emailSender) {
         final SubscriberModel subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
                 .orElseThrow(() -> new NoSuchElementException("Email: " + model.getEmail() + " was not found"));
 
