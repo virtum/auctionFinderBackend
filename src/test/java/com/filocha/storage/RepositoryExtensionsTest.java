@@ -50,10 +50,10 @@ public class RepositoryExtensionsTest {
 
         // then: we have to wait for item to be stored in database
         final SubscriberModel subscriber = Observable
-                .interval(5, TimeUnit.SECONDS)
+                .interval(100, TimeUnit.MILLISECONDS)
                 .map(i -> RepositoryExtensions.findSubscriber(mongoTemplate, email))
                 .filter(Optional::isPresent)
-                .timeout(35, TimeUnit.SECONDS)
+                .timeout(10, TimeUnit.SECONDS)
                 .blockingFirst()
                 .get();
 
@@ -77,9 +77,9 @@ public class RepositoryExtensionsTest {
 
         // then: we have to wait for items to be stored in database
         Observable
-                .interval(5, TimeUnit.SECONDS)
+                .interval(100, TimeUnit.MILLISECONDS)
                 .map(i -> RepositoryExtensions.getAllSubscribers(mongoTemplate))
                 .filter(list -> list.size() == 2)
-                .timeout(35, TimeUnit.SECONDS);
+                .timeout(10, TimeUnit.SECONDS);
     }
 }
