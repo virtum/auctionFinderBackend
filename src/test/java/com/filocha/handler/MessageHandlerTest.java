@@ -6,18 +6,24 @@ import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.messaging.messages.finder.ItemFinderResponseMessage;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsRequestModel;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
+import com.filocha.storage.RepositoryExtensions;
+import io.reactivex.Observable;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -30,6 +36,8 @@ public class MessageHandlerTest {
 
     @Autowired
     private ClientBusImpl clientBus;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @SneakyThrows
     @Test
@@ -46,9 +54,8 @@ public class MessageHandlerTest {
         assertEquals("Subscribed!", responseMessage.get().getResponse());
     }
 
-    @SneakyThrows
     @Test
-    public void shouldGetUserSubscriptions() {
+    public void shouldGetUserSubscriptions() throws ExecutionException, InterruptedException {
         final String email = UUID.randomUUID().toString();
         final String item = UUID.randomUUID().toString();
 
@@ -58,7 +65,14 @@ public class MessageHandlerTest {
                 .email(email)
                 .build();
 
-        clientBus.sendRequest(newSubscriptionRequest, ItemFinderRequestMessage.class).get();
+        clientBus.sendRequest(newSubscriptionRequest, ItemFinderRequestMessage.class);
+
+        Observable
+                .interval(100, TimeUnit.MILLISECONDS)
+                .map(i -> RepositoryExtensions.findSubscriber(mongoTemplate, email))
+                .filter(Optional::isPresent)
+                .timeout(30, TimeUnit.SECONDS)
+                .blockingFirst();
 
         final SubscriptionsRequestModel userItemsRequest = SubscriptionsRequestModel
                 .builder()
@@ -67,6 +81,7 @@ public class MessageHandlerTest {
 
         final CompletableFuture<SubscriptionsResponseModel> responseMessage = clientBus.sendRequest(userItemsRequest,
                 SubscriptionsRequestModel.class);
+
         final List<String> userSubscriptions = responseMessage.get().getUserSubscriptions();
 
         assertEquals(1, userSubscriptions.size());
