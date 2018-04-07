@@ -4,6 +4,7 @@ import com.filocha.MongoTestConfig;
 import com.filocha.finder.AuctionFinderImpl;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,11 @@ public class RepositoryExtensionsTest {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Before
+    public void dropDb() {
+        mongoTemplate.getDb().dropDatabase();
+    }
 
     @Test
     public void shouldSaveNewSubscription() {
