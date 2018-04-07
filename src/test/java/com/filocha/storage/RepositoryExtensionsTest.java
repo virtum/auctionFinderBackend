@@ -4,7 +4,6 @@ import com.filocha.MongoTestConfig;
 import com.filocha.finder.AuctionFinderImpl;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,18 +27,13 @@ public class RepositoryExtensionsTest {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    @Before
-    public void dropDatabase() {
-        mongoTemplate.getDb().dropDatabase();
-    }
-
     @Test
     public void shouldSaveNewSubscription() {
         // given
         final PublishSubject<Model> subscriptions = PublishSubject.create();
         final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
 
-        new SubscriptionCache().startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(),
+        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(),
                 repository, PublishSubject.create());
 
         final String email = "email";
@@ -68,7 +62,7 @@ public class RepositoryExtensionsTest {
         final PublishSubject<Model> subscriptions = PublishSubject.create();
         final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
 
-        new SubscriptionCache().startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(),
+        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(),
                 repository, PublishSubject.create());
 
         // when

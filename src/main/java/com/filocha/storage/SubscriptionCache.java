@@ -13,25 +13,26 @@ import java.util.stream.Collectors;
 
 public final class SubscriptionCache {
 
-    private final List<SubscriberModel> userAuctions = new ArrayList<>();
+    public static Disposable startCache(final Observable<Model> subscriptions, final Observer<RequestModel> requests,
+                                        final AuctionFinder auctionFinder, final Observer<SubscriberModel> repository,
+                                        final Observer<Model> emailSender) {
+        final List<SubscriberModel> userAuctions = new ArrayList<>();
 
-    public Disposable startCache(final Observable<Model> subscriptions, final Observer<RequestModel> requests,
-                                 final AuctionFinder auctionFinder, final Observer<SubscriberModel> repository,
-                                 final Observer<Model> emailSender) {
         return subscriptions
                 .observeOn(Schedulers.computation())
                 .subscribe(it -> {
                     if (it.isNewSubscription()) {
-                        if (handleSubscription(repository, it)) {
+                        if (handleSubscription(it, userAuctions, repository)) {
                             sendRequest(auctionFinder, it, requests);
                         }
                     } else {
-                        updateUrls(repository, it, emailSender);
+                        updateUrls(it, userAuctions, repository, emailSender);
                     }
                 });
     }
 
-    private boolean handleSubscription(final Observer<SubscriberModel> repository, final Model model) {
+    private static boolean handleSubscription(final Model model, final List<SubscriberModel> userAuctions,
+                                              final Observer<SubscriberModel> repository) {
         final Optional<SubscriberModel> subscriber = findSubscriberByEmail(model.getEmail(), userAuctions);
         if (!subscriber.isPresent()) {
             addNewSubscription(repository, model.getEmail(), model.getItem(), userAuctions);
@@ -41,7 +42,8 @@ public final class SubscriptionCache {
         return updateExistingSubscription(repository, subscriber.get(), model.getItem(), userAuctions);
     }
 
-    private void updateUrls(final Observer<SubscriberModel> repository, final Model model, final Observer<Model> emailSender) {
+    private static void updateUrls(final Model model, final List<SubscriberModel> userAuctions,
+                                   final Observer<SubscriberModel> repository, final Observer<Model> emailSender) {
         final SubscriberModel subscriber = findSubscriberByEmail(model.getEmail(), userAuctions)
                 .orElseThrow(() -> new NoSuchElementException("Email: " + model.getEmail() + " was not found"));
 
@@ -60,8 +62,8 @@ public final class SubscriptionCache {
         }
     }
 
-    private void addNewSubscription(final Observer<SubscriberModel> repository, final String userEmail,
-                                    final String itemName, final List<SubscriberModel> userAuctions) {
+    private static void addNewSubscription(final Observer<SubscriberModel> repository, final String userEmail,
+                                           final String itemName, final List<SubscriberModel> userAuctions) {
         final AuctionModel auction = AuctionModel
                 .builder()
                 .itemName(itemName)
@@ -79,8 +81,8 @@ public final class SubscriptionCache {
         repository.onNext(subscriber);
     }
 
-    private boolean updateExistingSubscription(final Observer<SubscriberModel> repository, final SubscriberModel subscriber,
-                                               final String itemName, final List<SubscriberModel> userAuctions) {
+    private static boolean updateExistingSubscription(final Observer<SubscriberModel> repository, final SubscriberModel subscriber,
+                                                      final String itemName, final List<SubscriberModel> userAuctions) {
         if (getAuction(subscriber.getAuctions(), itemName).isPresent()) {
             return false;
         }
@@ -99,21 +101,21 @@ public final class SubscriptionCache {
         return true;
     }
 
-    private Optional<SubscriberModel> findSubscriberByEmail(final String email, final List<SubscriberModel> userAuctions) {
+    private static Optional<SubscriberModel> findSubscriberByEmail(final String email, final List<SubscriberModel> userAuctions) {
         return userAuctions
                 .stream()
                 .filter(sub -> sub.getEmail().equals(email))
                 .findFirst();
     }
 
-    private Optional<AuctionModel> getAuction(final List<AuctionModel> auctions, final String itemName) {
+    private static Optional<AuctionModel> getAuction(final List<AuctionModel> auctions, final String itemName) {
         return auctions
                 .stream()
                 .filter(auction -> auction.getItemName().equals(itemName))
                 .findFirst();
     }
 
-    private void sendRequest(final AuctionFinder auctionFinder, final Model model, final Observer<RequestModel> requests) {
+    private static void sendRequest(final AuctionFinder auctionFinder, final Model model, final Observer<RequestModel> requests) {
         final DoGetItemsListRequest request = auctionFinder.createRequest(model.getItem());
 
         requests.onNext(RequestModel

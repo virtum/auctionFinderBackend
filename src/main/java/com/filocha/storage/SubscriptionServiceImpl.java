@@ -60,7 +60,7 @@ public class SubscriptionServiceImpl {
     private void fillCacheWithDataFromDatabase() {
         //final List<SubscriberModel> subscribers = RepositoryExtensions.getAllSubscribers(mongoTemplate);
 
-        final Disposable subscription = new SubscriptionCache()
+        final Disposable subscription = SubscriptionCache
                 .startCache(subscriptions, requests, auctionFinder, repository, emailSender);
         subscriptionsDisposer.add(subscription);
 

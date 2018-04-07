@@ -19,7 +19,7 @@ public class SubscriptionCacheTest {
         final ReplaySubject<Model> subscriptions = ReplaySubject.create();
         final ReplaySubject<SubscriberModel> repository = ReplaySubject.create();
 
-        new SubscriptionCache().startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(), repository,
+        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(), repository,
                 PublishSubject.create());
 
         final String email = "user@email";
@@ -43,7 +43,7 @@ public class SubscriptionCacheTest {
         final ReplaySubject<Model> subscriptions = ReplaySubject.create();
         final ReplaySubject<SubscriberModel> repository = ReplaySubject.create();
 
-        new SubscriptionCache().startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(), repository,
+        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(), repository,
                 PublishSubject.create());
 
         final String email = "user@email";
@@ -71,7 +71,7 @@ public class SubscriptionCacheTest {
         final ReplaySubject<Model> subscriptions = ReplaySubject.create();
         final ReplaySubject<SubscriberModel> repository = ReplaySubject.create();
 
-        new SubscriptionCache().startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(), repository,
+        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(), repository,
                 PublishSubject.create());
 
         final String email = "user@email";
@@ -100,7 +100,7 @@ public class SubscriptionCacheTest {
         final ReplaySubject<Model> subscriptions = ReplaySubject.create();
         final ReplaySubject<RequestModel> requests = ReplaySubject.create();
 
-        new SubscriptionCache().startCache(subscriptions, requests, new AuctionFinderImpl(), PublishSubject.create(),
+        SubscriptionCache.startCache(subscriptions, requests, new AuctionFinderImpl(), PublishSubject.create(),
                 PublishSubject.create());
 
         final String email = "user@email";
