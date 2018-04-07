@@ -74,6 +74,7 @@ public class RepositoryExtensionsTest {
                 .interval(100, TimeUnit.MILLISECONDS)
                 .map(i -> RepositoryExtensions.getAllSubscribers(mongoTemplate))
                 .filter(list -> list.size() == 2)
-                .timeout(10, TimeUnit.SECONDS);
+                .timeout(10, TimeUnit.SECONDS)
+                .blockingFirst();
     }
 }
