@@ -8,6 +8,8 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,6 +69,9 @@ public final class SubscriptionCache {
         final AuctionModel auction = AuctionModel
                 .builder()
                 .itemName(itemName)
+                .creationDate(DateTimeFormatter
+                        .ofPattern("dd/MM/yyyy - HH:mm")
+                        .format(ZonedDateTime.now()))
                 .urls(new HashSet<>())
                 .build();
 

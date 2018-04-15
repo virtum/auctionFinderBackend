@@ -29,6 +29,7 @@ public class ItemsListHandler {
                         .builder()
                         .numberOfFoundItems(item.getUrls().size())
                         .itemName(item.getItemName())
+                        .creationDate(item.getCreationDate())
                         .build())));
 
         return SubscriptionsResponseModel
