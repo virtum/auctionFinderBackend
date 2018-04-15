@@ -23,6 +23,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -96,18 +98,26 @@ public class MessageHandlerTest {
         // given
         final String email = UUID.randomUUID().toString();
         final String itemName = UUID.randomUUID().toString();
+        final String dateOfFinding = DateTimeFormatter
+                .ofPattern("dd/MM/yyyy - HH:mm")
+                .format(ZonedDateTime.now());
         final String url = UUID.randomUUID().toString();
         final Set<String> urls = new HashSet<>(Collections.singletonList(url));
 
         mongoTemplate.save(SubscriberModel
                 .builder()
                 .email(email)
-                .auctions(Arrays.asList(AuctionModel
+                .auctions(Arrays.asList(
+                        AuctionModel
                                 .builder()
                                 .urls(urls)
                                 .itemName(itemName)
+                                .creationDate(dateOfFinding)
                                 .build(),
-                        AuctionModel.builder().itemName("xxx").build()))
+                        AuctionModel
+                                .builder()
+                                .itemName(UUID.randomUUID().toString())
+                                .build()))
                 .build());
 
         final SubscriptionDetailsRequestModel request = SubscriptionDetailsRequestModel
