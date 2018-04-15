@@ -4,6 +4,7 @@ import com.filocha.MongoTestConfig;
 import com.filocha.messaging.client.ClientBusImpl;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.messaging.messages.finder.ItemFinderResponseMessage;
+import com.filocha.messaging.messages.subscriptions.Subscription;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsRequestModel;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
 import com.filocha.storage.RepositoryExtensions;
@@ -82,9 +83,9 @@ public class MessageHandlerTest {
         final CompletableFuture<SubscriptionsResponseModel> responseMessage = clientBus.sendRequest(userItemsRequest,
                 SubscriptionsRequestModel.class);
 
-        final List<String> userSubscriptions = responseMessage.get().getUserSubscriptions();
+        final List<Subscription> userSubscriptions = responseMessage.get().getUserSubscriptions();
 
         assertEquals(1, userSubscriptions.size());
-        assertEquals(item, userSubscriptions.get(0));
+        assertEquals(item, userSubscriptions.get(0).getItemName());
     }
 }

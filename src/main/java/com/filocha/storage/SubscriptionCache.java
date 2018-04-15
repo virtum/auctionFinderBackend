@@ -58,7 +58,7 @@ public final class SubscriptionCache {
         if (!newUrls.isEmpty()) {
             auctionToUpdate.getUrls().addAll(newUrls);
             repository.onNext(subscriber);
-            emailSender.onNext(Model.createModelForUpdate(model.getEmail(), model.getItem(), newUrls));
+            //emailSender.onNext(Model.createModelForUpdate(model.getEmail(), model.getItem(), newUrls));
         }
     }
 

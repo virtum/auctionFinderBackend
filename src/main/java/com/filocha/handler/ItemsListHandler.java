@@ -1,5 +1,6 @@
 package com.filocha.handler;
 
+import com.filocha.messaging.messages.subscriptions.Subscription;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsRequestModel;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
 import com.filocha.storage.RepositoryExtensions;
@@ -19,12 +20,16 @@ public class ItemsListHandler {
     private MongoTemplate mongoTemplate;
 
     public SubscriptionsResponseModel handleMessage(SubscriptionsRequestModel message) {
-        Optional<SubscriberModel> subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, message.getEmail());
+        final Optional<SubscriberModel> subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, message.getEmail());
 
-        List<String> items = new ArrayList<>();
+        final List<Subscription> items = new ArrayList<>();
         subscriber.ifPresent(sub -> sub
                 .getAuctions()
-                .forEach(item -> items.add(item.getItemName())));
+                .forEach(item -> items.add(Subscription
+                        .builder()
+                        .numberOfFoundItems(item.getUrls().size())
+                        .itemName(item.getItemName())
+                        .build())));
 
         return SubscriptionsResponseModel
                 .builder()

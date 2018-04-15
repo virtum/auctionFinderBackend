@@ -48,9 +48,9 @@ public class SubscriptionServiceImpl {
         repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         emailSender = sender.createEmailSender();
 
+        fillCacheWithDataFromDatabase();
         handleResponses();
         sendRequests();
-        fillCacheWithDataFromDatabase();
     }
 
     public void createNewSubscription(final ItemFinderRequestMessage request) {
@@ -89,6 +89,7 @@ public class SubscriptionServiceImpl {
                             .builder()
                             .response(response)
                             .request(request)
+                            .userEmail(request.getUserEmail())
                             .item(request.getItem())
                             .build());
                 });

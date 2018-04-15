@@ -1,9 +1,9 @@
 package com.filocha.storage;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Value;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,12 +15,14 @@ public class Model {
     private String email;
     private String item;
     private List<String> urls;
+    private ZonedDateTime creationDate;
     private boolean isNewSubscription;
 
     public static Model createNewSubscription(final String email, final String item) {
         return Model
                 .builder()
                 .email(email)
+                .creationDate(ZonedDateTime.now())
                 .item(item)
                 .urls(new ArrayList<>())
                 .isNewSubscription(true)
