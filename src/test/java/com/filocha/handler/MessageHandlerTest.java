@@ -4,10 +4,14 @@ import com.filocha.MongoTestConfig;
 import com.filocha.messaging.client.ClientBusImpl;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.messaging.messages.finder.ItemFinderResponseMessage;
+import com.filocha.messaging.messages.subscriptionDetails.SubscriptionDetailsRequestModel;
+import com.filocha.messaging.messages.subscriptionDetails.SubscriptionDetailsResponseModel;
 import com.filocha.messaging.messages.subscriptions.Subscription;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsRequestModel;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
+import com.filocha.storage.AuctionModel;
 import com.filocha.storage.RepositoryExtensions;
+import com.filocha.storage.SubscriberModel;
 import io.reactivex.Observable;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -19,9 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -87,5 +89,42 @@ public class MessageHandlerTest {
 
         assertEquals(1, userSubscriptions.size());
         assertEquals(item, userSubscriptions.get(0).getItemName());
+    }
+
+    @Test
+    public void shouldGetSubscriptionDetails() throws ExecutionException, InterruptedException {
+        // given
+        final String email = UUID.randomUUID().toString();
+        final String itemName = UUID.randomUUID().toString();
+        final String url = UUID.randomUUID().toString();
+        final Set<String> urls = new HashSet<>(Collections.singletonList(url));
+
+        mongoTemplate.save(SubscriberModel
+                .builder()
+                .email(email)
+                .auctions(Arrays.asList(AuctionModel
+                                .builder()
+                                .urls(urls)
+                                .itemName(itemName)
+                                .build(),
+                        AuctionModel.builder().itemName("xxx").build()))
+                .build());
+
+        final SubscriptionDetailsRequestModel request = SubscriptionDetailsRequestModel
+                .builder()
+                .email(email)
+                .itemName(itemName)
+                .build();
+
+        // when
+        final CompletableFuture<SubscriptionDetailsResponseModel> responseMessage = clientBus.sendRequest(request,
+                SubscriptionDetailsRequestModel.class);
+
+        // then
+        final SubscriptionDetailsResponseModel result = responseMessage.get();
+
+        assertEquals(itemName, result.getItemName());
+        assertEquals(1, result.getUrls().size());
+        assertEquals(url, result.getUrls().get(0));
     }
 }

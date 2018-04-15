@@ -13,8 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class RepositoryExtensions {
 
     public static PublishSubject<SubscriberModel> updateSubscriber(final MongoTemplate mongoTemplate) {
-        final PublishSubject<SubscriberModel> subject = PublishSubject
-                .create();
+        final PublishSubject<SubscriberModel> subject = PublishSubject.create();
 
         subject
                 .observeOn(Schedulers.io())

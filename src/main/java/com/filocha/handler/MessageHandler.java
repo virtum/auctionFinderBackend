@@ -2,6 +2,8 @@ package com.filocha.handler;
 
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.messaging.messages.finder.ItemFinderResponseMessage;
+import com.filocha.messaging.messages.subscriptionDetails.SubscriptionDetailsRequestModel;
+import com.filocha.messaging.messages.subscriptionDetails.SubscriptionDetailsResponseModel;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsRequestModel;
 import com.filocha.messaging.messages.subscriptions.SubscriptionsResponseModel;
 import com.filocha.messaging.server.ServerBusImpl;
@@ -26,6 +28,8 @@ public class MessageHandler {
     private SubscriptionHandler subscriptionHandler;
     @Autowired
     private ItemsListHandler itemsListHandler;
+    @Autowired
+    private SubscriptionDetailsHandler subscriptionDetailsHandler;
 
     private ServerBusImpl serverBus;
 
@@ -41,6 +45,10 @@ public class MessageHandler {
         serverBus.addHandler(message -> itemsListHandler.handleMessage(message),
                 SubscriptionsRequestModel.class,
                 SubscriptionsResponseModel.class);
+
+        serverBus.addHandler(message -> subscriptionDetailsHandler.handleMessage(message),
+                SubscriptionDetailsRequestModel.class,
+                SubscriptionDetailsResponseModel.class);
     }
 
     @PreDestroy
