@@ -6,16 +6,21 @@ import com.filocha.storage.SubscriptionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.ZonedDateTime;
-
 @Component
 class SubscriptionHandler {
 
     @Autowired
     private SubscriptionServiceImpl subscriptionService;
 
-    ItemFinderResponseMessage handleMessage(ItemFinderRequestMessage requestMessage) {
-        subscriptionService.createNewSubscription(requestMessage);
+    /**
+     * Creates new subscription for specific user and item.
+     *
+     * @param request incoming request message
+     * @return information that new subscription was received
+     */
+    //TODO change method name
+    ItemFinderResponseMessage handleMessage(ItemFinderRequestMessage request) {
+        subscriptionService.createNewSubscription(request);
 
         return ItemFinderResponseMessage
                 .builder()

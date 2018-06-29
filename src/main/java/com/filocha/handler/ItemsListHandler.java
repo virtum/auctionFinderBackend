@@ -19,8 +19,15 @@ public class ItemsListHandler {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public SubscriptionsResponseModel handleMessage(SubscriptionsRequestModel message) {
-        final Optional<SubscriberModel> subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, message.getEmail());
+    /**
+     * Retrieves all user subscriptions with details.
+     *
+     * @param request incoming request message
+     * @return all user subscriptions with details
+     */
+    //TODO channge method name
+    public SubscriptionsResponseModel handleMessage(SubscriptionsRequestModel request) {
+        final Optional<SubscriberModel> subscriber = RepositoryExtensions.findSubscriber(mongoTemplate, request.getEmail());
 
         final List<Subscription> items = new ArrayList<>();
         subscriber.ifPresent(sub -> sub
