@@ -3,6 +3,7 @@ package com.filocha.throttle;
 import com.filocha.finder.RequestModel;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
+import lombok.Builder;
 import lombok.Value;
 
 import java.util.ArrayList;
@@ -26,20 +27,23 @@ public class ThrottleGuard {
                                                     final int maxOfMessages) {
         final PublishSubject<Optional> tripod = PublishSubject.create();
         final PublishSubject<RequestModel> mergedSubject = PublishSubject.create();
-        final List<RequestWithTimestamp> requests = new ArrayList<>();
+        final List<RequestWithTimestamp> messages = new ArrayList<>();
         final PublishSubject<RequestModel> output = PublishSubject.create();
 
-        mergedSubject.subscribe(item -> {
-            if (requests.size() < maxOfMessages) {
-                final RequestWithTimestamp request = new RequestWithTimestamp(item, new Date());
+        mergedSubject.subscribe(message -> {
+            if (messages.size() < maxOfMessages) {
+                messages.add(RequestWithTimestamp
+                        .builder()
+                        .message(message)
+                        .creationDate(new Date())
+                        .build());
 
-                requests.add(request);
-                output.onNext(item);
+                output.onNext(message);
 
-                // Optional.empty() is used only to emit some value, rx2 forbid emitting null values
+                // Tick, Optional.empty() is used only to emit some value, rx2 forbid emitting null values
                 tripod.onNext(Optional.empty());
             } else {
-                removeOldestItemFromList(item, delay, requests, mergedSubject);
+                removeOldestItemFromList(message, delay, messages, mergedSubject);
             }
         }, output::onError, output::onComplete);
 
@@ -47,35 +51,31 @@ public class ThrottleGuard {
                 .zip(incomingMessages, tripod, (sub1, sub2) -> sub1)
                 .subscribe(mergedSubject);
 
-        // Optional.empty() is used only to emit some value, rx2 forbid emitting null values
+        // Initial tick, Optional.empty() is used only to emit some value, rx2 forbid emitting null values
         tripod.onNext(Optional.empty());
 
         return output;
     }
 
-    private static void removeOldestItemFromList(final RequestModel mock, final long delay, final List<RequestWithTimestamp> requests,
+    private static void removeOldestItemFromList(final RequestModel newRequest, final long delay, final List<RequestWithTimestamp> messages,
                                                  final PublishSubject<RequestModel> mergedSubject) {
-        final RequestWithTimestamp temp = requests.get(0);
-        requests.remove(0);
+        final RequestWithTimestamp oldestRequest = messages.get(0);
+        messages.remove(0);
 
-        long delayTime = (temp.getCreationDate().getTime() + delay) - new Date().getTime();
+        long delayTime = (oldestRequest.getCreationDate().getTime() + delay) - new Date().getTime();
 
         delayTime = delayTime < 0 ? 0 : delayTime;
 
         Observable
                 .timer(delayTime, TimeUnit.MILLISECONDS)
-                .subscribe(it -> mergedSubject.onNext(mock));
+                .subscribe(it -> mergedSubject.onNext(newRequest));
     }
 }
 
 @Value
+@Builder
 class RequestWithTimestamp {
-    private RequestModel request;
+    private RequestModel message;
     private Date creationDate;
-
-    RequestWithTimestamp(RequestModel request, Date creationDate) {
-        this.request = request;
-        this.creationDate = creationDate;
-    }
 }
 
