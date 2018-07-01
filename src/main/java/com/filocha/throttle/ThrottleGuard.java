@@ -27,23 +27,14 @@ public class ThrottleGuard {
                                                     final int maxOfMessages) {
         final PublishSubject<Optional> tripod = PublishSubject.create();
         final PublishSubject<RequestModel> mergedSubject = PublishSubject.create();
-        final List<RequestWithTimestamp> messages = new ArrayList<>();
+        final List<MessageWithTimestamp> messages = new ArrayList<>();
         final PublishSubject<RequestModel> output = PublishSubject.create();
 
         mergedSubject.subscribe(message -> {
             if (messages.size() < maxOfMessages) {
-                messages.add(RequestWithTimestamp
-                        .builder()
-                        .message(message)
-                        .creationDate(new Date())
-                        .build());
-
-                output.onNext(message);
-
-                // Tick, Optional.empty() is used only to emit some value, rx2 forbid emitting null values
-                tripod.onNext(Optional.empty());
+                handleIncomingMessage(messages, message, output, tripod);
             } else {
-                removeOldestItemFromList(message, delay, messages, mergedSubject);
+                removeOldestItemFromList(messages, delay, mergedSubject, message);
             }
         }, output::onError, output::onComplete);
 
@@ -57,24 +48,38 @@ public class ThrottleGuard {
         return output;
     }
 
-    private static void removeOldestItemFromList(final RequestModel newRequest, final long delay, final List<RequestWithTimestamp> messages,
-                                                 final PublishSubject<RequestModel> mergedSubject) {
-        final RequestWithTimestamp oldestRequest = messages.get(0);
+    private static void handleIncomingMessage(final List<MessageWithTimestamp> messages, final RequestModel message,
+                                              final PublishSubject<RequestModel> output, final PublishSubject<Optional> tripod) {
+        messages.add(MessageWithTimestamp
+                .builder()
+                .message(message)
+                .creationDate(new Date())
+                .build());
+
+        output.onNext(message);
+
+        // Tick, Optional.empty() is used only to emit some value, rx2 forbid emitting null values
+        tripod.onNext(Optional.empty());
+    }
+
+    private static void removeOldestItemFromList(final List<MessageWithTimestamp> messages, final long delay,
+                                                 final PublishSubject<RequestModel> mergedSubject, final RequestModel message) {
+        final MessageWithTimestamp oldestMessage = messages.get(0);
         messages.remove(0);
 
-        long delayTime = (oldestRequest.getCreationDate().getTime() + delay) - new Date().getTime();
+        long delayTime = (oldestMessage.getCreationDate().getTime() + delay) - new Date().getTime();
 
         delayTime = delayTime < 0 ? 0 : delayTime;
 
         Observable
                 .timer(delayTime, TimeUnit.MILLISECONDS)
-                .subscribe(it -> mergedSubject.onNext(newRequest));
+                .subscribe(it -> mergedSubject.onNext(message));
     }
 }
 
 @Value
 @Builder
-class RequestWithTimestamp {
+class MessageWithTimestamp {
     private RequestModel message;
     private Date creationDate;
 }
