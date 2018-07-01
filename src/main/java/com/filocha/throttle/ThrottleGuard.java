@@ -30,6 +30,7 @@ public class ThrottleGuard {
         final List<MessageWithTimestamp> messages = new ArrayList<>();
         final PublishSubject<RequestModel> output = PublishSubject.create();
 
+        // TODO think about observeOn
         mergedSubject.subscribe(message -> {
             if (messages.size() < maxOfMessages) {
                 handleIncomingMessage(messages, message, output, tripod);
