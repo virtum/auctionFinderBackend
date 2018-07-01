@@ -48,6 +48,14 @@ public class ThrottleGuard {
         return output;
     }
 
+    /**
+     * Handles incoming message by adding it to list with date, then emits this message to the output and notify tripod
+     *
+     * @param messages list of all sent messages with date
+     * @param message  new message to send
+     * @param output   observable stream for sending new messages
+     * @param tripod   gate, waiting to be notified when new message was send
+     */
     private static void handleIncomingMessage(final List<MessageWithTimestamp> messages, final RequestModel message,
                                               final PublishSubject<RequestModel> output, final PublishSubject<Optional> tripod) {
         messages.add(MessageWithTimestamp
@@ -62,6 +70,15 @@ public class ThrottleGuard {
         tripod.onNext(Optional.empty());
     }
 
+    /**
+     * Removes oldest message from list of sent messages, then calculates delay and waits until emit new message to be
+     * send.
+     *
+     * @param messages      list of all sent messages with date
+     * @param delay         delay for new message after which it will be send
+     * @param mergedSubject observable stream gathering messages
+     * @param message       new message waiting to be send
+     */
     private static void removeOldestItemFromList(final List<MessageWithTimestamp> messages, final long delay,
                                                  final PublishSubject<RequestModel> mergedSubject, final RequestModel message) {
         final MessageWithTimestamp oldestMessage = messages.get(0);
