@@ -13,7 +13,17 @@ import java.util.concurrent.TimeUnit;
 
 public class ThrottleGuard {
 
-    public static Observable<RequestModel> throttle(final Observable<RequestModel> input, final long delay, final int maxOfItems) {
+    /**
+     * Limits specific number of incoming messages by given delay. After exceeding the limitation, messages are waiting
+     * to be published.
+     *
+     * @param incomingMessage incoming message
+     * @param delay           time added to the next message before sending
+     * @param maxOfMessages   maximum number of messages that can be handled without delay
+     * @return Observable stream of emitted requests
+     */
+    public static Observable<RequestModel> throttle(final Observable<RequestModel> incomingMessage, final long delay,
+                                                    final int maxOfMessages) {
         final PublishSubject<Optional> tripod = PublishSubject.create();
         final PublishSubject<RequestWithFlag> mergedSubject = PublishSubject.create();
         final List<RequestWithTimestamp> requests = new ArrayList<>();
@@ -22,7 +32,7 @@ public class ThrottleGuard {
         // TODO add observeOn
         mergedSubject.subscribe(item -> {
             if (item.isFlag()) {
-                if (requests.size() < maxOfItems) {
+                if (requests.size() < maxOfMessages) {
                     final RequestWithTimestamp request = new RequestWithTimestamp(item.getRequest(), new Date());
 
                     requests.add(request);
@@ -40,9 +50,10 @@ public class ThrottleGuard {
             }
         }, output::onError, output::onComplete);
 
-        final Observable<RequestModel> zip = Observable.zip(input, tripod, (sub1, sub2) -> sub1);
-
-        zip.map(item -> new RequestWithFlag(item, true)).subscribe(mergedSubject);
+        Observable
+                .zip(incomingMessage, tripod, (sub1, sub2) -> sub1)
+                .map(item -> new RequestWithFlag(item, true))
+                .subscribe(mergedSubject);
 
         // Optional.empty() is used only to emit some value, rx2 forbid emitting null values
         tripod.onNext(Optional.empty());
