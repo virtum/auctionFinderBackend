@@ -33,6 +33,9 @@ public class MessageHandler {
 
     private ServerBusImpl serverBus;
 
+    /**
+     * Creates handlers for each types of messages that are received from jms.
+     */
     @PostConstruct
     public void createHandlers() {
         serverBus = new ServerBusImpl();

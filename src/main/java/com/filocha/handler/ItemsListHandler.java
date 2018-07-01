@@ -18,9 +18,16 @@ public class ItemsListHandler {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public SubscriptionsResponseModel handleMessage(SubscriptionsRequestModel message) {
+    /**
+     * Retrieves all user subscriptions with details.
+     *
+     * @param request incoming request message
+     * @return all user subscriptions with details
+     */
+    //TODO channge method name
+    public SubscriptionsResponseModel handleMessage(SubscriptionsRequestModel request) {
         final List<Subscription> items = RepositoryExtensions
-                .findSubscriber(mongoTemplate, message.getEmail())
+                .findSubscriber(mongoTemplate, request.getEmail())
                 .map(sub -> sub
                         .getAuctions()
                         .stream()

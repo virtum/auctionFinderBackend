@@ -20,7 +20,15 @@ public class SubscriptionDetailsHandler {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    /**
+     * Retrieves details for specific item for specific user.
+     *
+     * @param request incoming request message
+     * @return details for given item
+     */
+    //TODO change method name
     public SubscriptionDetailsResponseModel handleMessage(final SubscriptionDetailsRequestModel request) {
+        //TODO remove this variable and move to variable below
         final SubscriberModel subscriber = RepositoryExtensions
                 .findSubscriber(mongoTemplate, request.getEmail())
                 .orElseThrow(NoSuchElementException::new);
