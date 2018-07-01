@@ -4,11 +4,12 @@ import com.filocha.finder.RequestModel;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ThrottleGuardTest {
 
@@ -37,7 +38,7 @@ public class ThrottleGuardTest {
 
         final List<RequestModel> results = listener.buffer(100, TimeUnit.MILLISECONDS).blockingFirst();
 
-        Assertions.assertThat(results).containsExactly(model1, model2);
+        assertThat(results).containsExactly(model1, model2);
     }
 
     @Test
@@ -77,6 +78,7 @@ public class ThrottleGuardTest {
 
         final List<RequestModel> results = listener.buffer(1100, TimeUnit.MILLISECONDS).blockingFirst();
 
-        Assertions.assertThat(results).containsExactly(model1, model2, model3, model4);
+        assertThat(results).containsExactly(model1, model2, model3, model4);
     }
+
 }

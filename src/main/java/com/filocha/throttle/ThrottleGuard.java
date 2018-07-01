@@ -17,42 +17,34 @@ public class ThrottleGuard {
      * Limits specific number of incoming messages by given delay. After exceeding the limitation, messages are waiting
      * to be published.
      *
-     * @param incomingMessage incoming message
-     * @param delay           time added to the next message before sending
-     * @param maxOfMessages   maximum number of messages that can be handled without delay
+     * @param incomingMessages incoming message
+     * @param delay            time added to the next message before sending
+     * @param maxOfMessages    maximum number of messages that can be handled without delay
      * @return Observable stream of emitted requests
      */
-    public static Observable<RequestModel> throttle(final Observable<RequestModel> incomingMessage, final long delay,
+    public static Observable<RequestModel> throttle(final Observable<RequestModel> incomingMessages, final long delay,
                                                     final int maxOfMessages) {
         final PublishSubject<Optional> tripod = PublishSubject.create();
-        final PublishSubject<RequestWithFlag> mergedSubject = PublishSubject.create();
+        final PublishSubject<RequestModel> mergedSubject = PublishSubject.create();
         final List<RequestWithTimestamp> requests = new ArrayList<>();
         final PublishSubject<RequestModel> output = PublishSubject.create();
 
-        // TODO add observeOn
         mergedSubject.subscribe(item -> {
-            if (item.isFlag()) {
-                if (requests.size() < maxOfMessages) {
-                    final RequestWithTimestamp request = new RequestWithTimestamp(item.getRequest(), new Date());
+            if (requests.size() < maxOfMessages) {
+                final RequestWithTimestamp request = new RequestWithTimestamp(item, new Date());
 
-                    requests.add(request);
-                    output.onNext(item.getRequest());
+                requests.add(request);
+                output.onNext(item);
 
-                    // Optional.empty() is used only to emit some value, rx2 forbid emitting null values
-                    tripod.onNext(Optional.empty());
-                } else {
-                    final RequestWithFlag mock = new RequestWithFlag(item.getRequest(), false);
-
-                    mergedSubject.onNext(mock);
-                }
+                // Optional.empty() is used only to emit some value, rx2 forbid emitting null values
+                tripod.onNext(Optional.empty());
             } else {
                 removeOldestItemFromList(item, delay, requests, mergedSubject);
             }
         }, output::onError, output::onComplete);
 
         Observable
-                .zip(incomingMessage, tripod, (sub1, sub2) -> sub1)
-                .map(item -> new RequestWithFlag(item, true))
+                .zip(incomingMessages, tripod, (sub1, sub2) -> sub1)
                 .subscribe(mergedSubject);
 
         // Optional.empty() is used only to emit some value, rx2 forbid emitting null values
@@ -61,35 +53,18 @@ public class ThrottleGuard {
         return output;
     }
 
-    private static void removeOldestItemFromList(final RequestWithFlag mock, final long delay, final List<RequestWithTimestamp> requests,
-                                                 final PublishSubject<RequestWithFlag> mergedSubject) {
+    private static void removeOldestItemFromList(final RequestModel mock, final long delay, final List<RequestWithTimestamp> requests,
+                                                 final PublishSubject<RequestModel> mergedSubject) {
         final RequestWithTimestamp temp = requests.get(0);
         requests.remove(0);
 
         long delayTime = (temp.getCreationDate().getTime() + delay) - new Date().getTime();
 
-        if (delayTime < 0) {
-            delayTime = 0;
-        }
+        delayTime = delayTime < 0 ? 0 : delayTime;
 
         Observable
                 .timer(delayTime, TimeUnit.MILLISECONDS)
-                .subscribe(it -> {
-                    final RequestWithFlag mock1 = new RequestWithFlag(mock.getRequest(), true);
-
-                    mergedSubject.onNext(mock1);
-                });
-    }
-}
-
-@Value
-class RequestWithFlag {
-    private RequestModel request;
-    private boolean flag;
-
-    RequestWithFlag(RequestModel value, boolean flag) {
-        this.request = value;
-        this.flag = flag;
+                .subscribe(it -> mergedSubject.onNext(mock));
     }
 }
 
