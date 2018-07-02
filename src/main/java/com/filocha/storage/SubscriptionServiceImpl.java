@@ -11,7 +11,6 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
@@ -104,8 +103,8 @@ public class SubscriptionServiceImpl {
                 .subscribe(response -> {
                     final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
                     responseFuture
-                            .thenAccept(it -> {
-                                subscriptions.onNext(Model.createModelForUpdate(response.getUserEmail(), response.getItem(), prepareAuctionsIdList(response)));
+                            .thenAccept(auctions -> {
+                                subscriptions.onNext(Model.createModelForUpdate(response.getUserEmail(), response.getItem(), prepareAuctionsUrls(auctions)));
                                 requests.onNext(response.getRequest());
                             })
                             .exceptionally(throwable -> {
@@ -117,11 +116,14 @@ public class SubscriptionServiceImpl {
         subscriptionsDisposer.add(subscription);
     }
 
-    // TODO handle interruptedException, add logger and get rid of sneakyThrows
-    @SneakyThrows
-    private static List<String> prepareAuctionsIdList(final ResponseModel responseWithUrls) {
-        // get() method is allowed here because we already have completed completableFuture
-        return responseWithUrls.getResponse().get()
+    /**
+     * Converts auctions id to proper urls.
+     *
+     * @param auctions list of found auctions
+     * @return list of auctions urls
+     */
+    private static List<String> prepareAuctionsUrls(final List<ItemsListType> auctions) {
+        return auctions
                 .stream()
                 .map(ItemsListType::getItemId)
                 .map(url -> "http://allegro.pl/i" + url + ".html\n")
