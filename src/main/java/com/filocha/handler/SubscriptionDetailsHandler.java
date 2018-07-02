@@ -4,7 +4,6 @@ import com.filocha.messaging.messages.subscriptionDetails.SubscriptionDetailsReq
 import com.filocha.messaging.messages.subscriptionDetails.SubscriptionDetailsResponseModel;
 import com.filocha.storage.AuctionModel;
 import com.filocha.storage.RepositoryExtensions;
-import com.filocha.storage.SubscriberModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
@@ -26,14 +25,10 @@ public class SubscriptionDetailsHandler {
      * @param request incoming request message
      * @return details for given item
      */
-    //TODO change method name
-    public SubscriptionDetailsResponseModel handleMessage(final SubscriptionDetailsRequestModel request) {
-        //TODO remove this variable and move to variable below
-        final SubscriberModel subscriber = RepositoryExtensions
+    public SubscriptionDetailsResponseModel getSubscriptionDetails(final SubscriptionDetailsRequestModel request) {
+        final List<String> urls = RepositoryExtensions
                 .findSubscriber(mongoTemplate, request.getEmail())
-                .orElseThrow(NoSuchElementException::new);
-
-        final List<String> urls = subscriber
+                .orElseThrow(NoSuchElementException::new)
                 .getAuctions()
                 .stream()
                 .filter(auction -> auction.getItemName().equals(request.getItemName()))

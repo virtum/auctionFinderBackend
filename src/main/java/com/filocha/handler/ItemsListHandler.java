@@ -24,8 +24,7 @@ public class ItemsListHandler {
      * @param request incoming request message
      * @return all user subscriptions with details
      */
-    //TODO channge method name
-    public SubscriptionsResponseModel handleMessage(SubscriptionsRequestModel request) {
+    public SubscriptionsResponseModel getAllUserSubscriptions(SubscriptionsRequestModel request) {
         final List<Subscription> items = RepositoryExtensions
                 .findSubscriber(mongoTemplate, request.getEmail())
                 .map(sub -> sub

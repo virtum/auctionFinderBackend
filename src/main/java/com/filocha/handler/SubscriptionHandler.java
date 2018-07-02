@@ -18,8 +18,7 @@ class SubscriptionHandler {
      * @param request incoming request message
      * @return information that new subscription was received
      */
-    //TODO change method name
-    ItemFinderResponseMessage handleMessage(ItemFinderRequestMessage request) {
+    ItemFinderResponseMessage createNewSubscription(ItemFinderRequestMessage request) {
         subscriptionService.createNewSubscription(request);
 
         return ItemFinderResponseMessage

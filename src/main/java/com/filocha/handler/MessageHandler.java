@@ -41,15 +41,15 @@ public class MessageHandler {
         serverBus = new ServerBusImpl();
         serverBus.setConsumerAndProducer(activeMqHost, requestQueue, responseQueue);
 
-        serverBus.addHandler(message -> subscriptionHandler.handleMessage(message),
+        serverBus.addHandler(message -> subscriptionHandler.createNewSubscription(message),
                 ItemFinderRequestMessage.class,
                 ItemFinderResponseMessage.class);
 
-        serverBus.addHandler(message -> itemsListHandler.handleMessage(message),
+        serverBus.addHandler(message -> itemsListHandler.getAllUserSubscriptions(message),
                 SubscriptionsRequestModel.class,
                 SubscriptionsResponseModel.class);
 
-        serverBus.addHandler(message -> subscriptionDetailsHandler.handleMessage(message),
+        serverBus.addHandler(message -> subscriptionDetailsHandler.getSubscriptionDetails(message),
                 SubscriptionDetailsRequestModel.class,
                 SubscriptionDetailsResponseModel.class);
     }
