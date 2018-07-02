@@ -38,7 +38,7 @@ public class AuctionFinderImpl implements AuctionFinder {
     }
 
     @Override
-    public DoGetItemsListRequest createRequest(final String keyword) {
+    public DoGetItemsListRequest createRequest(final String itemToFind) {
         final DoGetItemsListRequest itemsRequest = new DoGetItemsListRequest();
         itemsRequest.setCountryId(1);
         itemsRequest.setWebapiKey(webApiKey);
@@ -48,7 +48,7 @@ public class AuctionFinderImpl implements AuctionFinder {
         fotcat.setFilterId("search");
 
         final ArrayOfString categories = new ArrayOfString();
-        categories.getItem().add(keyword);
+        categories.getItem().add(itemToFind);
 
         fotcat.setFilterValueId(categories);
         filter.getItem().add(fotcat);

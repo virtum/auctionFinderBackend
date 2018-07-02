@@ -8,7 +8,19 @@ import java.util.concurrent.CompletableFuture;
 
 public interface AuctionFinder {
 
-    DoGetItemsListRequest createRequest(String keyword);
+    /**
+     * Creates request body by using Allegro API.
+     *
+     * @param itemToFind item to find in Allegro
+     * @return request body, which will be used to find auctions in Allegro
+     */
+    DoGetItemsListRequest createRequest(String itemToFind);
 
+    /**
+     * Sends request in order to find auction in Allegro.
+     *
+     * @param request consists of all necessary metadata which will be send to Allegro
+     * @return CompletableFuture of all auctions found in Allegro, for further processing in another thread
+     */
     CompletableFuture<List<ItemsListType>> findAuctions(DoGetItemsListRequest request);
 }
