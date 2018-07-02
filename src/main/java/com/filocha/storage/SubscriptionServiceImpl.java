@@ -81,6 +81,7 @@ public class SubscriptionServiceImpl {
     private void sendRequests() {
         final Disposable subscription = ThrottleGuard
                 .throttle(requests, 1000, 100)
+                // TODO replace observeOn with subscribeOn -> https://medium.com/upday-devs/rxjava-subscribeon-vs-observeon-9af518ded53a
                 .observeOn(Schedulers.computation())
                 .subscribe(request -> {
                     final CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
