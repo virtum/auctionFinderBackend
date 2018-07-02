@@ -30,10 +30,9 @@ public class ThrottleGuard {
         final List<MessageWithTimestamp> messages = new ArrayList<>();
         final PublishSubject<RequestModel> output = PublishSubject.create();
 
-        // TODO think about observeOn
         mergedSubject.subscribe(message -> {
             if (messages.size() < maxOfMessages) {
-                handleIncomingMessage(messages, message, output, tripod);
+                processMessage(messages, message, output, tripod);
             } else {
                 removeOldestItemFromList(messages, delay, mergedSubject, message);
             }
@@ -57,8 +56,8 @@ public class ThrottleGuard {
      * @param output   observable stream for sending new messages
      * @param tripod   gate, waiting to be notified when new message was send
      */
-    private static void handleIncomingMessage(final List<MessageWithTimestamp> messages, final RequestModel message,
-                                              final PublishSubject<RequestModel> output, final PublishSubject<Optional> tripod) {
+    private static void processMessage(final List<MessageWithTimestamp> messages, final RequestModel message,
+                                       final PublishSubject<RequestModel> output, final PublishSubject<Optional> tripod) {
         messages.add(MessageWithTimestamp
                 .builder()
                 .message(message)
