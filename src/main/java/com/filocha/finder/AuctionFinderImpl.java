@@ -14,12 +14,12 @@ import java.util.concurrent.ExecutionException;
 @Component
 public class AuctionFinderImpl implements AuctionFinder {
 
+    private static final int POLAND_COUNTRY_CODE = 1;
+
     @Value("${userLogin}")
     private String userLogin;
-
     @Value("${userPassword}")
     private String userPassword;
-
     @Value("${webApiKey}")
     private String webApiKey;
 
@@ -40,7 +40,7 @@ public class AuctionFinderImpl implements AuctionFinder {
     @Override
     public DoGetItemsListRequest createRequest(final String itemToFind) {
         final DoGetItemsListRequest itemsRequest = new DoGetItemsListRequest();
-        itemsRequest.setCountryId(1);
+        itemsRequest.setCountryId(POLAND_COUNTRY_CODE);
         itemsRequest.setWebapiKey(webApiKey);
 
         final ArrayOfFilteroptionstype filter = new ArrayOfFilteroptionstype();
@@ -74,23 +74,37 @@ public class AuctionFinderImpl implements AuctionFinder {
         return result;
     }
 
+    /**
+     * Gets localVersion for Poland.
+     *
+     * @param webApiKey unique user key
+     * @return localVersion for Poland
+     */
     private long getLocalVersion(final String webApiKey) {
-        final int countryCode = 1;
-
         final DoQueryAllSysStatusRequest params = new DoQueryAllSysStatusRequest();
-        params.setCountryId(countryCode);
+        params.setCountryId(POLAND_COUNTRY_CODE);
         params.setWebapiKey(webApiKey);
 
-        final DoQueryAllSysStatusResponse response = allegro.doQueryAllSysStatus(params);
-
-        return response.getSysCountryStatus().getItem().get(0).getVerKey();
+        return allegro
+                .doQueryAllSysStatus(params)
+                .getSysCountryStatus()
+                .getItem()
+                .get(0)
+                .getVerKey();
     }
 
+    /**
+     * Performs login operation to Allegro.
+     *
+     * @param userLogin    user login
+     * @param userPassword user password
+     * @param webApiKey    unique user key
+     */
     private void doLogin(final String userLogin, final String userPassword, final String webApiKey) {
         final DoLoginRequest doLoginRequest = new DoLoginRequest();
         doLoginRequest.setUserLogin(userLogin);
         doLoginRequest.setUserPassword(userPassword);
-        doLoginRequest.setCountryCode(1);
+        doLoginRequest.setCountryCode(POLAND_COUNTRY_CODE);
         doLoginRequest.setLocalVersion(getLocalVersion(webApiKey));
         doLoginRequest.setWebapiKey(webApiKey);
 
