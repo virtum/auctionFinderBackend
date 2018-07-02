@@ -117,6 +117,7 @@ public class SubscriptionServiceImpl {
         subscriptionsDisposer.add(subscription);
     }
 
+    // TODO handle interruptedException, add logger and get rid of sneakyThrows
     @SneakyThrows
     private static List<String> prepareAuctionsIdList(final ResponseModel responseWithUrls) {
         // get() method is allowed here because we already have completed completableFuture
