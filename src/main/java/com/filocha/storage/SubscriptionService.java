@@ -73,6 +73,11 @@ public class SubscriptionService {
         subscriptionsDisposer.add(subscription);
     }
 
+    /**
+     * Gets all already created subscriptions from database and emits each of them to another reactive stream.
+     * <p>
+     * It is guaranteed, that this method will be invoked only once by Spring during the initialization of application.
+     */
     private void fillCacheWithDataFromDatabase() {
         RepositoryExtensions
                 .getAllSubscribers(mongoTemplate)
