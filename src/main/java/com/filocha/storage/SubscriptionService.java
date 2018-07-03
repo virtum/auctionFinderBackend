@@ -6,6 +6,7 @@ import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.throttle.ThrottleGuard;
+import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -47,9 +48,10 @@ public class SubscriptionService {
         repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         emailSender = sender.createEmailSender();
 
-        fillCacheWithDataFromDatabase();
+        startCache();
         handleResponses();
         sendRequests();
+        fillCacheWithDataFromDatabase();
     }
 
     /**
@@ -61,25 +63,31 @@ public class SubscriptionService {
         subscriptions.onNext(Model.createNewSubscription(message.getEmail(), message.getItem()));
     }
 
-    private void fillCacheWithDataFromDatabase() {
-        //final List<SubscriberModel> subscribers = RepositoryExtensions.getAllSubscribers(mongoTemplate);
-
+    /**
+     * Starts cache. Cache is responsible for keeping all subscriptions in memory and updating every time, when receive
+     * response from Allegro.
+     */
+    private void startCache() {
         final Disposable subscription = SubscriptionCache
                 .startCache(subscriptions, requests, auctionFinder, repository, emailSender);
         subscriptionsDisposer.add(subscription);
+    }
 
-//        subscribers.forEach(subscriber -> subscriber
-//                .getAuctions()
-//                .forEach(auction -> {
-//                    final DoGetItemsListRequest request = auctionFinder.createRequest(auction.getItemName());
-//
-//                    requests.onNext(RequestModel
-//                            .builder()
-//                            .request(request)
-//                            .userEmail(subscriber.getEmail())
-//                            .item(auction.getItemName())
-//                            .build());
-//                }));
+    private void fillCacheWithDataFromDatabase() {
+        RepositoryExtensions
+                .getAllSubscribers(mongoTemplate)
+                .forEach(subscriber -> subscriber
+                        .getAuctions()
+                        .forEach(auction -> {
+                            final DoGetItemsListRequest request = auctionFinder.createRequest(auction.getItemName());
+
+                            requests.onNext(RequestModel
+                                    .builder()
+                                    .request(request)
+                                    .userEmail(subscriber.getEmail())
+                                    .item(auction.getItemName())
+                                    .build());
+                        }));
     }
 
     /**
