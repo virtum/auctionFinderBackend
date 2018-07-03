@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import static com.filocha.storage.CompletableFutureExtension.within;
 
 @Component
-public class SubscriptionServiceImpl {
+public class SubscriptionService {
     @Autowired
     private AuctionFinder auctionFinder;
     @Autowired
@@ -52,8 +52,13 @@ public class SubscriptionServiceImpl {
         sendRequests();
     }
 
-    public void createNewSubscription(final ItemFinderRequestMessage request) {
-        subscriptions.onNext(Model.createNewSubscription(request.getEmail(), request.getItem()));
+    /**
+     * Emits new subscription which will be created and saved in database in another reactive stream.
+     *
+     * @param message contains metadata necessary to create new subscription
+     */
+    public void createNewSubscription(final ItemFinderRequestMessage message) {
+        subscriptions.onNext(Model.createNewSubscription(message.getEmail(), message.getItem()));
     }
 
     private void fillCacheWithDataFromDatabase() {
@@ -77,10 +82,16 @@ public class SubscriptionServiceImpl {
 //                }));
     }
 
+    /**
+     * Sends request to Allegro using throttling to prevent exceeding Allegro's requests limit. After sending the
+     * request, new CompletableFuture is emitted to another reactive stream, when will be handled after receiving
+     * response from Allegro.
+     * <p>
+     * It is guaranteed, that this method will be invoked only once by Spring during the initialization of application.
+     */
     private void sendRequests() {
         final Disposable subscription = ThrottleGuard
                 .throttle(requests, 1000, 100)
-                // TODO replace observeOn with subscribeOn -> https://medium.com/upday-devs/rxjava-subscribeon-vs-observeon-9af518ded53a
                 .observeOn(Schedulers.computation())
                 .subscribe(request -> {
                     final CompletableFuture<List<ItemsListType>> response = auctionFinder.findAuctions(request.getRequest());
@@ -97,6 +108,12 @@ public class SubscriptionServiceImpl {
         subscriptionsDisposer.add(subscription);
     }
 
+    /**
+     * Gets incoming response from Allegro and emits it to another reactive stream to handle update, then takes request
+     * and emits it to another reactive stream to send to Allegro.
+     * <p>
+     * It is guaranteed, that this method will be invoked only once by Spring during the initialization of application.
+     */
     private void handleResponses() {
         final Disposable subscription = responses
                 .observeOn(Schedulers.computation())
@@ -130,8 +147,11 @@ public class SubscriptionServiceImpl {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Closes all subscriptions.
+     */
     @PreDestroy
-    public void close() {
+    public void disposeSubscriptions() {
         subscriptionsDisposer.dispose();
     }
 }

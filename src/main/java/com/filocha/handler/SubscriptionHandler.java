@@ -2,7 +2,7 @@ package com.filocha.handler;
 
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.messaging.messages.finder.ItemFinderResponseMessage;
-import com.filocha.storage.SubscriptionServiceImpl;
+import com.filocha.storage.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 class SubscriptionHandler {
 
     @Autowired
-    private SubscriptionServiceImpl subscriptionService;
+    private SubscriptionService subscriptionService;
 
     /**
      * Creates new subscription for specific user and item.
