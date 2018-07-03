@@ -9,7 +9,6 @@ import lombok.Value;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class ThrottleGuard {
@@ -25,7 +24,7 @@ public class ThrottleGuard {
      */
     public static Observable<RequestModel> throttle(final Observable<RequestModel> incomingMessages, final long delay,
                                                     final int maxOfMessages) {
-        final PublishSubject<Optional> tripod = PublishSubject.create();
+        final PublishSubject<Tick> tripod = PublishSubject.create();
         final PublishSubject<RequestModel> mergedSubject = PublishSubject.create();
         final List<MessageWithTimestamp> messages = new ArrayList<>();
         final PublishSubject<RequestModel> output = PublishSubject.create();
@@ -42,8 +41,8 @@ public class ThrottleGuard {
                 .zip(incomingMessages, tripod, (sub1, sub2) -> sub1)
                 .subscribe(mergedSubject);
 
-        // Initial tick, Optional.empty() is used only to emit some value, rx2 forbid emitting null values
-        tripod.onNext(Optional.empty());
+        // Initial tick
+        tripod.onNext(Tick.builder().build());
 
         return output;
     }
@@ -57,7 +56,7 @@ public class ThrottleGuard {
      * @param tripod   gate, waiting to be notified when new message was send
      */
     private static void processMessage(final List<MessageWithTimestamp> messages, final RequestModel message,
-                                       final PublishSubject<RequestModel> output, final PublishSubject<Optional> tripod) {
+                                       final PublishSubject<RequestModel> output, final PublishSubject<Tick> tripod) {
         messages.add(MessageWithTimestamp
                 .builder()
                 .message(message)
@@ -66,8 +65,7 @@ public class ThrottleGuard {
 
         output.onNext(message);
 
-        // Tick, Optional.empty() is used only to emit some value, rx2 forbid emitting null values
-        tripod.onNext(Optional.empty());
+        tripod.onNext(Tick.builder().build());
     }
 
     /**
@@ -99,5 +97,10 @@ public class ThrottleGuard {
 class MessageWithTimestamp {
     private RequestModel message;
     private Date creationDate;
+}
+
+@Value
+@Builder
+class Tick {
 }
 
