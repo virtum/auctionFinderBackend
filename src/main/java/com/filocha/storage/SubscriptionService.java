@@ -6,6 +6,7 @@ import com.filocha.finder.RequestModel;
 import com.filocha.finder.ResponseModel;
 import com.filocha.messaging.messages.finder.ItemFinderRequestMessage;
 import com.filocha.throttle.ThrottleGuard;
+import https.webapi_allegro_pl.service.DoGetItemsListRequest;
 import https.webapi_allegro_pl.service.ItemsListType;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -47,9 +48,10 @@ public class SubscriptionService {
         repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
         emailSender = sender.createEmailSender();
 
+        startCache();
+        startResponseHandler();
+        startRequestHandler();
         fillCacheWithDataFromDatabase();
-        handleResponses();
-        sendRequests();
     }
 
     /**
@@ -61,25 +63,33 @@ public class SubscriptionService {
         subscriptions.onNext(Model.createNewSubscription(message.getEmail(), message.getItem()));
     }
 
-    private void fillCacheWithDataFromDatabase() {
-        //final List<SubscriberModel> subscribers = RepositoryExtensions.getAllSubscribers(mongoTemplate);
-
+    /**
+     * Starts subscription cache.
+     */
+    private void startCache() {
         final Disposable subscription = SubscriptionCache
                 .startCache(subscriptions, requests, auctionFinder, repository, emailSender);
         subscriptionsDisposer.add(subscription);
+    }
 
-//        subscribers.forEach(subscriber -> subscriber
-//                .getAuctions()
-//                .forEach(auction -> {
-//                    final DoGetItemsListRequest request = auctionFinder.createRequest(auction.getItemName());
-//
-//                    requests.onNext(RequestModel
-//                            .builder()
-//                            .request(request)
-//                            .userEmail(subscriber.getEmail())
-//                            .item(auction.getItemName())
-//                            .build());
-//                }));
+    /**
+     * Gets all subscriptions from database end emit each of them to another reactive stream.
+     */
+    private void fillCacheWithDataFromDatabase() {
+        RepositoryExtensions
+                .getAllSubscribers(mongoTemplate)
+                .forEach(subscriber -> subscriber
+                        .getAuctions()
+                        .forEach(auction -> {
+                            final DoGetItemsListRequest request = auctionFinder.createRequest(auction.getItemName());
+
+                            requests.onNext(RequestModel
+                                    .builder()
+                                    .request(request)
+                                    .userEmail(subscriber.getEmail())
+                                    .item(auction.getItemName())
+                                    .build());
+                        }));
     }
 
     /**
@@ -89,7 +99,7 @@ public class SubscriptionService {
      * <p>
      * It is guaranteed, that this method will be invoked only once by Spring during the initialization of application.
      */
-    private void sendRequests() {
+    private void startRequestHandler() {
         final Disposable subscription = ThrottleGuard
                 .throttle(requests, 1000, 100)
                 .observeOn(Schedulers.computation())
@@ -114,7 +124,7 @@ public class SubscriptionService {
      * <p>
      * It is guaranteed, that this method will be invoked only once by Spring during the initialization of application.
      */
-    private void handleResponses() {
+    private void startResponseHandler () {
         final Disposable subscription = responses
                 .observeOn(Schedulers.computation())
                 .subscribe(response -> {
