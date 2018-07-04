@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.greaterThan;
 public class AuctionFinderImplTest {
 
     @Autowired
-    private AuctionFinderImpl auctionFinder;
+    private AuctionFinder auctionFinder;
 
     @Test
     public void shouldFindAnyAuction() throws ExecutionException, InterruptedException {

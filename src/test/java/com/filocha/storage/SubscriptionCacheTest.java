@@ -1,6 +1,6 @@
 package com.filocha.storage;
 
-import com.filocha.finder.AuctionFinderImpl;
+import com.filocha.finder.AuctionFinder;
 import com.filocha.finder.RequestModel;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.ReplaySubject;
@@ -19,7 +19,7 @@ public class SubscriptionCacheTest {
         final ReplaySubject<Model> subscriptions = ReplaySubject.create();
         final ReplaySubject<SubscriberModel> repository = ReplaySubject.create();
 
-        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(), repository,
+        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinder(), repository,
                 PublishSubject.create());
 
         final String email = "user@email";
@@ -43,7 +43,7 @@ public class SubscriptionCacheTest {
         final ReplaySubject<Model> subscriptions = ReplaySubject.create();
         final ReplaySubject<SubscriberModel> repository = ReplaySubject.create();
 
-        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(), repository,
+        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinder(), repository,
                 PublishSubject.create());
 
         final String email = "user@email";
@@ -71,7 +71,7 @@ public class SubscriptionCacheTest {
         final ReplaySubject<Model> subscriptions = ReplaySubject.create();
         final ReplaySubject<SubscriberModel> repository = ReplaySubject.create();
 
-        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(), repository,
+        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinder(), repository,
                 PublishSubject.create());
 
         final String email = "user@email";
@@ -100,7 +100,7 @@ public class SubscriptionCacheTest {
         final ReplaySubject<Model> subscriptions = ReplaySubject.create();
         final ReplaySubject<RequestModel> requests = ReplaySubject.create();
 
-        SubscriptionCache.startCache(subscriptions, requests, new AuctionFinderImpl(), PublishSubject.create(),
+        SubscriptionCache.startCache(subscriptions, requests, new AuctionFinder(), PublishSubject.create(),
                 PublishSubject.create());
 
         final String email = "user@email";
