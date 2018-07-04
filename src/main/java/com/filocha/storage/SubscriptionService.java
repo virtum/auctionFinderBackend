@@ -124,21 +124,18 @@ public class SubscriptionService {
      * <p>
      * It is guaranteed, that this method will be invoked only once by Spring during the initialization of application.
      */
-    private void startResponseHandler () {
+    private void startResponseHandler() {
         final Disposable subscription = responses
                 .observeOn(Schedulers.computation())
-                .subscribe(response -> {
-                    final CompletableFuture<List<ItemsListType>> responseFuture = within(response.getResponse(), Duration.ofSeconds(10));
-                    responseFuture
-                            .thenAccept(auctions -> {
-                                subscriptions.onNext(Model.createModelForUpdate(response.getUserEmail(), response.getItem(), prepareAuctionsUrls(auctions)));
-                                requests.onNext(response.getRequest());
-                            })
-                            .exceptionally(throwable -> {
-                                requests.onNext(response.getRequest());
-                                return null;
-                            });
-                });
+                .subscribe(response -> within(response.getResponse(), Duration.ofSeconds(10))
+                        .thenAccept(auctions -> {
+                            subscriptions.onNext(Model.createModelForUpdate(response.getUserEmail(), response.getItem(), prepareAuctionsUrls(auctions)));
+                            requests.onNext(response.getRequest());
+                        })
+                        .exceptionally(throwable -> {
+                            requests.onNext(response.getRequest());
+                            return null;
+                        }));
 
         subscriptionsDisposer.add(subscription);
     }

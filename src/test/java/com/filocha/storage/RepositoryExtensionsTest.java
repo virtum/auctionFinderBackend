@@ -21,8 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration(classes = {MongoTestConfig.class})
 @RunWith(SpringRunner.class)
-@TestPropertySource(
-        locations = "classpath:applicationTest.properties")
+@TestPropertySource(locations = "classpath:applicationTest.properties")
 public class RepositoryExtensionsTest {
 
     @Autowired
