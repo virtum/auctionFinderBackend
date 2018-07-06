@@ -99,6 +99,5 @@ class MessageWithTimestamp {
     private Date creationDate;
 }
 
-
 enum Tick {TICK}
 
