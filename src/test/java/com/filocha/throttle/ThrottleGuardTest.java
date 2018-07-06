@@ -15,69 +15,75 @@ public class ThrottleGuardTest {
 
     @Test
     public void shouldNotAddNewItemAboveLimit() {
-        final PublishSubject<RequestModel> input = PublishSubject.create();
-        final Observable<RequestModel> output = ThrottleGuard.throttle(input, 1000, 2);
+        // given
+        final PublishSubject<RequestModel> inputRequests = PublishSubject.create();
         final ReplaySubject<RequestModel> listener = ReplaySubject.create();
+
+        final Observable<RequestModel> output = ThrottleGuard.throttle(inputRequests, 1000, 2);
         output.subscribe(listener);
 
-        final RequestModel model1 = RequestModel
+        final RequestModel request1 = RequestModel
                 .builder()
                 .build();
 
-        final RequestModel model2 = RequestModel
+        final RequestModel request2 = RequestModel
                 .builder()
                 .build();
 
-        final RequestModel model3 = RequestModel
+        final RequestModel request3 = RequestModel
                 .builder()
                 .build();
 
-        input.onNext(model1);
-        input.onNext(model2);
-        input.onNext(model3);
+        // when
+        inputRequests.onNext(request1);
+        inputRequests.onNext(request2);
+        inputRequests.onNext(request3);
 
+        // then
         final List<RequestModel> results = listener.buffer(100, TimeUnit.MILLISECONDS).blockingFirst();
 
-        assertThat(results).containsExactly(model1, model2);
+        assertThat(results).containsExactly(request1, request2);
     }
 
     @Test
     public void shouldDelayNextElementsIfLimitIsExceeded() {
-        final PublishSubject<RequestModel> input = PublishSubject.create();
-
-        final Observable<RequestModel> output = ThrottleGuard.throttle(input, 1000, 2);
-
+        // given
+        final PublishSubject<RequestModel> inputRequests = PublishSubject.create();
         final ReplaySubject<RequestModel> listener = ReplaySubject.create();
+
+        final Observable<RequestModel> output = ThrottleGuard.throttle(inputRequests, 1000, 2);
         output.subscribe(listener);
 
-        final RequestModel model1 = RequestModel
+        final RequestModel request1 = RequestModel
                 .builder()
                 .build();
 
-        final RequestModel model2 = RequestModel
+        final RequestModel request2 = RequestModel
                 .builder()
                 .build();
 
-        final RequestModel model3 = RequestModel
+        final RequestModel request3 = RequestModel
                 .builder()
                 .build();
 
-        final RequestModel model4 = RequestModel
+        final RequestModel request4 = RequestModel
                 .builder()
                 .build();
 
-        final RequestModel model5 = RequestModel
+        final RequestModel request5 = RequestModel
                 .builder()
                 .build();
 
-        input.onNext(model1);
-        input.onNext(model2);
-        input.onNext(model3);
-        input.onNext(model4);
-        input.onNext(model5);
+        // when
+        inputRequests.onNext(request1);
+        inputRequests.onNext(request2);
+        inputRequests.onNext(request3);
+        inputRequests.onNext(request4);
+        inputRequests.onNext(request5);
 
+        // then
         final List<RequestModel> results = listener.buffer(1100, TimeUnit.MILLISECONDS).blockingFirst();
 
-        assertThat(results).containsExactly(model1, model2, model3, model4);
+        assertThat(results).containsExactly(request1, request2, request3, request4);
     }
 }
