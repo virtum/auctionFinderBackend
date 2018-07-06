@@ -42,7 +42,7 @@ public class ThrottleGuard {
                 .subscribe(mergedSubject);
 
         // Initial tick
-        tripod.onNext(Tick.builder().build());
+        tripod.onNext(Tick.TICK);
 
         return output;
     }
@@ -65,7 +65,7 @@ public class ThrottleGuard {
 
         output.onNext(message);
 
-        tripod.onNext(Tick.builder().build());
+        tripod.onNext(Tick.TICK);
     }
 
     /**
@@ -99,8 +99,6 @@ class MessageWithTimestamp {
     private Date creationDate;
 }
 
-@Value
-@Builder
-class Tick {
-}
+
+enum Tick {TICK}
 
