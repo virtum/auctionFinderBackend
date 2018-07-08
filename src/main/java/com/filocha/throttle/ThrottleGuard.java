@@ -24,7 +24,7 @@ public class ThrottleGuard {
      */
     public static Observable<RequestModel> throttle(final Observable<RequestModel> incomingMessages, final long delay,
                                                     final int maxOfMessages) {
-        final PublishSubject<Tick> tripod = PublishSubject.create();
+        final PublishSubject<Tripod> tripod = PublishSubject.create();
         final PublishSubject<RequestModel> mergedSubject = PublishSubject.create();
         final List<MessageWithTimestamp> messages = new ArrayList<>();
         final PublishSubject<RequestModel> output = PublishSubject.create();
@@ -42,7 +42,7 @@ public class ThrottleGuard {
                 .subscribe(mergedSubject);
 
         // Initial tick
-        tripod.onNext(Tick.TICK);
+        tripod.onNext(Tripod.TICK);
 
         return output;
     }
@@ -56,7 +56,7 @@ public class ThrottleGuard {
      * @param tripod   gate, waiting to be notified when new message was send
      */
     private static void processMessage(final List<MessageWithTimestamp> messages, final RequestModel message,
-                                       final PublishSubject<RequestModel> output, final PublishSubject<Tick> tripod) {
+                                       final PublishSubject<RequestModel> output, final PublishSubject<Tripod> tripod) {
         messages.add(MessageWithTimestamp
                 .builder()
                 .message(message)
@@ -65,7 +65,7 @@ public class ThrottleGuard {
 
         output.onNext(message);
 
-        tripod.onNext(Tick.TICK);
+        tripod.onNext(Tripod.TICK);
     }
 
     /**
@@ -99,5 +99,5 @@ class MessageWithTimestamp {
     private Date creationDate;
 }
 
-enum Tick {TICK}
+enum Tripod {TICK}
 
