@@ -1,7 +1,7 @@
 package com.filocha.storage;
 
 import com.filocha.MongoTestConfig;
-import com.filocha.finder.AuctionFinderImpl;
+import com.filocha.finder.AuctionFinder;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import org.junit.Before;
@@ -21,8 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration(classes = {MongoTestConfig.class})
 @RunWith(SpringRunner.class)
-@TestPropertySource(
-        locations = "classpath:applicationTest.properties")
+@TestPropertySource(locations = "classpath:applicationTest.properties")
 public class RepositoryExtensionsTest {
 
     @Autowired
@@ -39,7 +38,7 @@ public class RepositoryExtensionsTest {
         final PublishSubject<Model> subscriptions = PublishSubject.create();
         final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
 
-        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(),
+        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinder(),
                 repository, PublishSubject.create());
 
         final String email = "email";
@@ -68,7 +67,7 @@ public class RepositoryExtensionsTest {
         final PublishSubject<Model> subscriptions = PublishSubject.create();
         final PublishSubject<SubscriberModel> repository = RepositoryExtensions.updateSubscriber(mongoTemplate);
 
-        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinderImpl(),
+        SubscriptionCache.startCache(subscriptions, PublishSubject.create(), new AuctionFinder(),
                 repository, PublishSubject.create());
 
         // when

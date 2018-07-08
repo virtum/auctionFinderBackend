@@ -35,8 +35,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {JmsTestConfig.class, MongoTestConfig.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(
-        locations = "classpath:applicationTest.properties")
+@TestPropertySource(locations = "classpath:applicationTest.properties")
 public class MessageHandlerTest {
 
     @Autowired
